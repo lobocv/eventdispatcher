@@ -7,7 +7,7 @@ class BaseProperty(object):
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
-        self.value = None
+        self.default_value = None
         self.prev_value = None
         if doc is None and fget is not None:
             doc = fget.__doc__
@@ -46,21 +46,16 @@ class BaseProperty(object):
 
 class Property(BaseProperty):
 
-    def __init__(self, value):
+    def __init__(self, default_value):
         super(Property, self).__init__(self.fget, self.fset, None, doc=None)
-        self.value = value
+        self.default_value = default_value
 
     def fget(self, obj):
-        try:
-            return obj.properties[self.name]
-        except (KeyError, AttributeError):
-            for key, value in obj.__class__.__dict__.iteritems():
-                if value is self:
-                    break
-            self.name = key
-            obj.properties[key] = self.value
-            return self.value
+        return obj.property_values[self.name]
 
     def fset(self, obj, value):
-        obj.properties[self.name] = value
+        obj.property_values[self.name] = value
 
+if __name__ == '__main__':
+    p = Property(5)
+    g = p.getter()
