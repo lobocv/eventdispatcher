@@ -1,6 +1,6 @@
 __author__ = 'calvin'
 
-from PygameWidgets.core.eventdispatcher.properties import Property
+from properties import Property
 
 class BindException(Exception):
     pass
@@ -16,7 +16,6 @@ class EventDispatcher(object):
         # 'on_<prop_name>' if it exists.
         for cls in self.__class__.__mro__:
             for prop_name, prop in cls.__dict__.iteritems():
-                # prop = getattr(self, prop_name)
                 if isinstance(prop, Property):
                     prop.name = prop_name
                     if hasattr(self, 'on_{}'.format(prop_name)):
