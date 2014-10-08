@@ -51,10 +51,10 @@ class Property(BaseProperty):
         self.default_value = default_value
 
     def fget(self, obj):
-        return obj.property_values[self.name]
+        return obj.eventdispatcher_property_values[self.name]
 
     def fset(self, obj, value):
-        obj.property_values[self.name] = value
+        obj.eventdispatcher_property_values[self.name] = value
 
 if __name__ == '__main__':
     p = Property(5)

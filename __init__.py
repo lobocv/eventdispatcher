@@ -7,10 +7,10 @@ class BindException(Exception):
 
 class EventDispatcher(object):
 
-    def __init__(self):
-        self.properties = {}
-        self.property_values = {}
-        self.callbacks = {}
+    def __init__(self, **kwargs):
+        self.eventdispatcher_properties = {}
+        self.eventdispatcher_property_values = {}
+        self.eventdispatcher_callbacks = {}
         bindings = {}
         # Walk through the MRO looking for Property attributes in the classes. Then register and bind them to
         # 'on_<prop_name>' if it exists.
@@ -29,21 +29,21 @@ class EventDispatcher(object):
         self.bind(**bindings)
 
     def dispatch(self, key, *args):
-        for callback in self.callbacks[key]:
+        for callback in self.eventdispatcher_callbacks[key]:
             if callback(*args):
                 break
 
     def register_event(self, name, property, default_value):
-        self.properties[name] = property
-        self.property_values[name] = default_value
-        self.callbacks[name] = []
+        self.eventdispatcher_properties[name] = property
+        self.eventdispatcher_property_values[name] = default_value
+        self.eventdispatcher_callbacks[name] = []
 
     def bind(self, **kwargs):
         for prop, func in kwargs.iteritems():
-            if prop not in self.properties:
-                raise BindException("'{}' is not a registered property.")
-            self.callbacks[prop].append(func)
+            if prop not in self.eventdispatcher_properties:
+                raise BindException("'{}' is not a registered property.".format(prop))
+            self.eventdispatcher_callbacks[prop].append(func)
 
     def setter(self, prop_name):
-        p = self.properties[prop_name]
+        p = self.eventdispatcher_properties[prop_name]
         return p.fset
