@@ -1,5 +1,5 @@
 __author__ = 'calvin'
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 
 from properties import BaseProperty, DictProperty, ObservableDict
 
@@ -9,9 +9,7 @@ class BindException(Exception):
 class EventDispatcher(object):
 
     def __init__(self, **kwargs):
-        self.eventdispatcher_properties = {}
-        self.eventdispatcher_property_values = {}
-        self.eventdispatcher_callbacks = {}
+        self._events = {}
         bindings = {}
         # Walk through the MRO looking for Property attributes in the classes. Then register and bind them to
         # 'on_<prop_name>' if it exists.
@@ -19,7 +17,8 @@ class EventDispatcher(object):
             for prop_name, prop in cls.__dict__.iteritems():
                 if isinstance(prop, BaseProperty):
                     prop.name = prop_name
-                    self.register_property(prop_name, prop, prop.default_value)
+                    prop.register(self, prop_name, prop.default_value)
+
                     if hasattr(self, 'on_{}'.format(prop_name)):
                         func = getattr(self, 'on_{}'.format(prop_name))
                         bindings.update({prop_name: func})
@@ -27,28 +26,25 @@ class EventDispatcher(object):
         self.bind(**bindings)
 
     def dispatch(self, key, *args):
-        for callback in self.eventdispatcher_callbacks[key]:
+        prop = BaseProperty.get_property(self, key)
+        for callback in prop.instances[self]['callbacks']:
             if callback(*args):
                 break
 
-    def register_property(self, name, property, default_value):
-        if isinstance(property, DictProperty):
-            default_value = ObservableDict(default_value.dictionary, property)
-            default_value.eventdispatcher = self
-
-        self.eventdispatcher_properties[name] = property
-        self.eventdispatcher_property_values[name] = default_value
-        self.eventdispatcher_callbacks[name] = []
+    def dispatch_event(self, event, *args):
+        for callback in self._events[event]:
+            if callback(*args):
+                break
 
     def register_event(self, name):
-        self.eventdispatcher_callbacks[name] = [getattr(self, 'on_{}'.format(name))] if\
-                                                hasattr(self, 'on_{}'.format(name)) else []
+        self._events[name] = [getattr(self, 'on_{}'.format(name))] if hasattr(self, 'on_{}'.format(name)) else []
 
     def bind(self, **kwargs):
-        for prop, func in kwargs.iteritems():
-            if prop not in self.eventdispatcher_callbacks:
-                raise BindException("'{}' is not a registered property.".format(prop))
-            self.eventdispatcher_callbacks[prop].append(func)
+        for prop_name, callback in kwargs.iteritems():
+            if prop_name == 'on_press':
+                continue
+            prop = BaseProperty.get_property(self, prop_name)
+            prop.instances[self]['callbacks'].append(callback)
 
     def setter(self, prop_name):
         p = self.eventdispatcher_properties[prop_name]

@@ -3,16 +3,21 @@ from functools import partial
 
 class BaseProperty(object):
     "Emulate PyProperty_Type() in Objects/descrobject.c"
-
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
-        self.fget = fget
-        self.fset = fset
+    all_properties = {}
+    def __init__(self, default_value, fdel=None, doc=None):
         self.fdel = fdel
-        self.default_value = None
+        self.default_value = default_value
         self.prev_value = None
-        if doc is None and fget is not None:
-            doc = fget.__doc__
+        if doc is None:
+            doc = self.fget.__doc__
         self.__doc__ = doc
+
+
+    def fget(self, obj):
+        return self.instances[obj]['value']
+
+    def fset(self, obj, value):
+        self.instances[obj]['value'] = value
 
     def __get__(self, obj, objtype=None):
         if obj is None:
@@ -43,20 +48,33 @@ class BaseProperty(object):
     def deleter(self, fdel):
         return type(self)(self.fget, self.fset, fdel, self.__doc__)
 
+    def register(self, instance, property_name, default_value, **kwargs):
+        # Keep a reference to the property as a class attribute so that we can get the property by calling
+        # BaseProperty.get_property(instance, name)
+        # all_properties keeps track of the properties of an EventDispatcher by it's property names.
+        if instance in self.all_properties:
+            self.all_properties[instance].update({property_name: self})
+        else:
+            self.all_properties[instance] = {property_name: self}
 
+        info = {'value': default_value, 'name': property_name, 'callbacks': []}
+        info.update(kwargs)
+        try:
+            self.instances[instance] = info
+        except AttributeError:
+            self.instances = {}
+            self.instances[instance] = info
+        sdf=43
+    @staticmethod
+    def get_property(instance, property_name):
+        prop = BaseProperty.all_properties[instance][property_name]
+        return prop
 
 class Property(BaseProperty):
 
     def __init__(self, default_value):
-        super(Property, self).__init__(self.fget, self.fset, None, doc=None)
+        super(Property, self).__init__(default_value, None, doc=None)
         self.default_value = default_value
-
-    def fget(self, obj):
-        return obj.eventdispatcher_property_values[self.name]
-
-    def fset(self, obj, value):
-        obj.eventdispatcher_property_values[self.name] = value
-
 
 
 
@@ -101,21 +119,24 @@ class ObservableDict(object):
 
 class DictProperty(BaseProperty):
 
+
     def __init__(self, default_value, **kwargs):
-        super(DictProperty, self).__init__(fget=self.fget, fset=self.fset, **kwargs)
+        super(DictProperty, self).__init__(default_value, **kwargs)
 
         if isinstance(default_value, dict):
             self.default_value = ObservableDict(default_value, self)
         else:
             raise ValueError('DictProperty takes dict only.')
 
-    def fget(self, obj):
-        return obj.eventdispatcher_property_values[self.name]
+    def register(self, instance, property_name, default_value, **kwargs):
+        super(DictProperty, self).register(instance, property_name, default_value, **kwargs)
+        self.default_value.eventdispatcher = instance
 
     def fset(self, obj, value):
-        self.__init__(value)
-        self.default_value.eventdispatcher = obj
-        obj.eventdispatcher_property_values[self.name] = self.default_value
+        self.default_value = ObservableDict(value, self)
+        cb = self.instances[obj]['callbacks'][:]
+        self.register(obj, self.name, value)
+        self.instances[obj]['callbacks'] = cb
 
 
 
