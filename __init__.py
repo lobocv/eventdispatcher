@@ -1,4 +1,5 @@
 __author__ = 'calvin'
+__version__ = '1.0.1'
 
 from properties import BaseProperty, DictProperty, ObservableDict
 
