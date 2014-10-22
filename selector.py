@@ -9,11 +9,16 @@ class Selector(EventDispatcher):
     value = Property(None)
     key = Property(None)
 
-    def __init__(self, options, keys, **kwargs):
+    def __init__(self, options=[], keys=[], wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
+        self.wrap = wrap
         self.options = options
-        self.keys = keys
-        self.index = 0
+        if keys:
+            self.keys = keys
+        else:
+            self.keys = [str(opt) for opt in options]
+        if options:
+            self.index = 0
 
     def on_index(self, inst, index):
         self.key = self.keys[index]
@@ -26,13 +31,17 @@ class Selector(EventDispatcher):
     def on_value(self, inst, value):
         self.index = self.options.index(value)
 
-    def next(self):
+    def next(self, *args):
         index = self.index + 1
         if index < len(self.options):
             self.index = index
+        elif self.wrap:
+            self.index = 0
 
-    def prev(self):
+    def prev(self, *args):
         index = self.index - 1
         if index > 0:
             self.index = index
+        elif self.wrap:
+            self.index = len(self.options) - 1
 

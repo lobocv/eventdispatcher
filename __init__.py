@@ -1,6 +1,6 @@
 __author__ = 'calvin'
 
-from properties import Property
+from properties import BaseProperty, DictProperty, ObservableDict
 
 class BindException(Exception):
     pass
@@ -16,14 +16,12 @@ class EventDispatcher(object):
         # 'on_<prop_name>' if it exists.
         for cls in self.__class__.__mro__:
             for prop_name, prop in cls.__dict__.iteritems():
-                if isinstance(prop, Property):
+                if isinstance(prop, BaseProperty):
                     prop.name = prop_name
+                    self.register_property(prop_name, prop, prop.default_value)
                     if hasattr(self, 'on_{}'.format(prop_name)):
                         func = getattr(self, 'on_{}'.format(prop_name))
-                    else:
-                        func = lambda *args: False
-                    self.register_event(prop_name, prop, prop.default_value)
-                    bindings.update({prop_name: func})
+                        bindings.update({prop_name: func})
 
         self.bind(**bindings)
 
@@ -32,14 +30,22 @@ class EventDispatcher(object):
             if callback(*args):
                 break
 
-    def register_event(self, name, property, default_value):
+    def register_property(self, name, property, default_value):
+        if isinstance(property, DictProperty):
+            default_value = ObservableDict(default_value.dictionary, property)
+            default_value.eventdispatcher = self
+
         self.eventdispatcher_properties[name] = property
         self.eventdispatcher_property_values[name] = default_value
         self.eventdispatcher_callbacks[name] = []
 
+    def register_event(self, name):
+        self.eventdispatcher_callbacks[name] = [getattr(self, 'on_{}'.format(name))] if\
+                                                hasattr(self, 'on_{}'.format(name)) else []
+
     def bind(self, **kwargs):
         for prop, func in kwargs.iteritems():
-            if prop not in self.eventdispatcher_properties:
+            if prop not in self.eventdispatcher_callbacks:
                 raise BindException("'{}' is not a registered property.".format(prop))
             self.eventdispatcher_callbacks[prop].append(func)
 

@@ -1,4 +1,5 @@
 __author__ = 'calvin'
+from functools import partial
 
 class BaseProperty(object):
     "Emulate PyProperty_Type() in Objects/descrobject.c"
@@ -56,6 +57,66 @@ class Property(BaseProperty):
     def fset(self, obj, value):
         obj.eventdispatcher_property_values[self.name] = value
 
-if __name__ == '__main__':
-    p = Property(5)
-    g = p.getter()
+
+
+
+class ObservableDict(object):
+
+    def __init__(self, iterable, property, **kwargs):
+        self.dictionary = iterable.copy()
+        self._property = property
+
+    def __get__(self, instance, owner):
+        return self.dictionary
+
+    def __getitem__(self, item):
+        return self.dictionary[item]
+
+    def __setitem__(self, key, value):
+        try:
+            prev = self.dictionary[key]
+            check = prev != value
+        except KeyError:
+            check = True
+        self.dictionary[key] = value
+        if check:
+            self.eventdispatcher.dispatch(self._property.name, self.eventdispatcher,  self.dictionary)
+
+    def update(self, E=None, **F):
+        self.dictionary.update(E, **F)
+        self.eventdispatcher.dispatch(self._property.name, self.eventdispatcher, self.dictionary)
+
+    def keys(self):
+        return self.dictionary.keys()
+
+    def values(self):
+        return self.dictionary.values()
+
+    def items(self):
+        return self.dictionary.items()
+
+    def iteritems(self):
+        return self.dictionary.iteritems()
+
+
+class DictProperty(BaseProperty):
+
+    def __init__(self, default_value, **kwargs):
+        super(DictProperty, self).__init__(fget=self.fget, fset=self.fset, **kwargs)
+
+        if isinstance(default_value, dict):
+            self.default_value = ObservableDict(default_value, self)
+        else:
+            raise ValueError('DictProperty takes dict only.')
+
+    def fget(self, obj):
+        return obj.eventdispatcher_property_values[self.name]
+
+    def fset(self, obj, value):
+        self.__init__(value)
+        self.default_value.eventdispatcher = obj
+        obj.eventdispatcher_property_values[self.name] = self.default_value
+
+
+
+
