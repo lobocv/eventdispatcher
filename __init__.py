@@ -1,8 +1,7 @@
 __author__ = 'calvin'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 
 from properties import BaseProperty, DictProperty, ObservableDict
-import copy
 
 class BindException(Exception):
     pass
