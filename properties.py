@@ -3,8 +3,40 @@ from functools import partial
 import weakref
 import copy
 
-def finalized(*args):
-    print 'object {} finalized'.format(args)
+
+units = {'m': {'km': 1 / 1000., 'cm': 100., 'mm': 1000., 'ft': 3.28084, 'm': 1.},
+         'ft': {'inch': 12., 'yard': 3., 'mile': 5280., 'ft': 1.}}
+ConversionFactors = {}
+
+u = 'm'
+ConversionFactors["{}_to_{}".format(u, u)] = 1.
+meters_to_feet = 3.28084
+
+for v, v_to_meters in units[u].iteritems():
+    # Add conversions from metric units into meters and vice-versa
+    fmt = "{}_to_{}".format(u, v)
+    inv = "{}_to_{}".format(v, u)
+    # print "{}={} \n {}={}".format(fmt, v_to_meters, inv, 1. / v_to_meters)
+    ConversionFactors[fmt] = v_to_meters
+    ConversionFactors[inv] = 1. / v_to_meters
+
+    for q, convm in units['m'].items():
+        v_to_q = v_to_meters / convm
+        fmt = "{}_to_{}".format(q, v)
+        inv = "{}_to_{}".format(v, q)
+        ConversionFactors[fmt] = v_to_q
+        ConversionFactors[inv] = 1. / v_to_q
+
+    # For each metric unit, convert it into all types of US Standard units and vice-versa
+    for w, w_to_ft in units['ft'].iteritems():
+        fmt = "{}_to_{}".format(w, v)
+        inv = "{}_to_{}".format(v, w)
+        w_to_v = v_to_meters / meters_to_feet / w_to_ft
+        ConversionFactors[fmt] = w_to_v
+        ConversionFactors[inv] = 1. / w_to_v
+        # print "{}={} \n {}={}".format(fmt, w_to_v, inv, 1. / w_to_v)
+
+
 
 class BaseProperty(object):
     "Emulate PyProperty_Type() in Objects/descrobject.c"
@@ -151,15 +183,6 @@ class DictProperty(BaseProperty):
         cb = self.instances[instance]['callbacks'][:]
         self.register(instance, self.name, value)
         self.instances[instance]['callbacks'] = cb
-
-
-
-ConversionFactors = dict(km_to_mi=0.621371,
-                         m_to_ft=3.28084, m_to_inches=39.3701, m_to_mm=1000., m_to_cm=100.,
-                         mm_to_ft=0.00328084, mm_to_inches=0.0393701, mm_to_m=0.001,
-                         mi_to_km=1.60934,
-                         ft_to_mm=304.8, ft_to_m=0.3048, ft_to_inches=12.,
-                         inches_to_ft=1/12., inches_to_mm=25.4, inches_to_m=0.0254, )
 
 
 class UnitProperty(BaseProperty):
