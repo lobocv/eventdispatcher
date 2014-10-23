@@ -2,6 +2,7 @@ __author__ = 'calvin'
 __version__ = '1.1.0'
 
 from properties import BaseProperty, DictProperty, ObservableDict
+import copy
 
 class BindException(Exception):
     pass
@@ -18,7 +19,6 @@ class EventDispatcher(object):
                 if isinstance(prop, BaseProperty):
                     prop.name = prop_name
                     prop.register(self, prop_name, prop.default_value)
-
                     if hasattr(self, 'on_{}'.format(prop_name)):
                         func = getattr(self, 'on_{}'.format(prop_name))
                         bindings.update({prop_name: func})
@@ -41,10 +41,14 @@ class EventDispatcher(object):
 
     def bind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
-            if prop_name == 'on_press':
-                continue
-            prop = BaseProperty.get_property(self, prop_name)
-            prop.instances[self]['callbacks'].append(callback)
+            try:
+                # Queue the callback into the property
+                prop = BaseProperty.get_property(self, prop_name)
+                prop.instances[self]['callbacks'].append(callback)
+            except KeyError:
+                # If a property was not found, search in events
+                self._events[prop_name].append(callback)
+
 
     def setter(self, prop_name):
         p = self.eventdispatcher_properties[prop_name]

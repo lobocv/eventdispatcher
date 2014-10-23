@@ -23,12 +23,17 @@ class Dispatcher(EventDispatcher):
 
 class PropertyTest(unittest.TestCase):
 
-
-    def setUp(self):
+    def __init__(self, *args):
+        super(PropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
         self.dispatcher.bind(p=self.assert_callback,
                              d=self.assert_callback,
                              d2=self.assert_callback)
+    def setUp(self):
+        # self.dispatcher = Dispatcher()
+        # self.dispatcher.bind(p=self.assert_callback,
+        #                      d=self.assert_callback,
+        #                      d2=self.assert_callback)
         self.dispatch_count = 0
 
     def tearDown(self):
@@ -48,7 +53,9 @@ class PropertyTest(unittest.TestCase):
         dispatcher.d = test_dict
         d = Property.get_property(self.dispatcher, 'd')
         for key in test_dict.keys():
-            self.assertEqual(test_dict[key], dispatcher.d[key])
+            test_against = test_dict[key]
+            obs_dict_value = dispatcher.d[key]
+            self.assertEqual(test_against, obs_dict_value)
 
         self.assertTrue(type(d) == DictProperty)
 
@@ -69,7 +76,7 @@ class PropertyTest(unittest.TestCase):
         Tests that the callback is called ONLY when the value changes.
         """
         expected_dispatches = 8
-
+        d = self.dispatcher.d
         self.dispatcher.d[1] = 1
         self.dispatcher.d.update({1: 1, 2: 2})
         self.dispatcher.d[3] = 3

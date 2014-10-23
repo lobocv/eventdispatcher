@@ -1,17 +1,23 @@
 __author__ = 'calvin'
 from functools import partial
+import weakref
+import copy
+
+def finalized(*args):
+    print 'object {} finalized'.format(args)
 
 class BaseProperty(object):
     "Emulate PyProperty_Type() in Objects/descrobject.c"
-    all_properties = {}
+    all_properties = weakref.WeakKeyDictionary()
+
     def __init__(self, default_value, fdel=None, doc=None):
         self.fdel = fdel
         self.default_value = default_value
+        self.value = copy.deepcopy(default_value)
         self.prev_value = None
         if doc is None:
             doc = self.fget.__doc__
         self.__doc__ = doc
-
 
     def fget(self, obj):
         return self.instances[obj]['value']
@@ -57,14 +63,15 @@ class BaseProperty(object):
         else:
             self.all_properties[instance] = {property_name: self}
 
-        info = {'value': default_value, 'name': property_name, 'callbacks': []}
+        info = {'value': self.value, 'name': property_name, 'callbacks': []}
         info.update(kwargs)
         try:
             self.instances[instance] = info
         except AttributeError:
-            self.instances = {}
+            # Create the instances dictionary at registration so that each class has it's own instance of it.
+            self.instances = weakref.WeakKeyDictionary()
             self.instances[instance] = info
-        sdf=43
+
     @staticmethod
     def get_property(instance, property_name):
         prop = BaseProperty.all_properties[instance][property_name]
@@ -77,11 +84,11 @@ class Property(BaseProperty):
         self.default_value = default_value
 
 
-
 class ObservableDict(object):
 
-    def __init__(self, iterable, property, **kwargs):
-        self.dictionary = iterable.copy()
+    def __init__(self, dictionary, dispatch_method, **kwargs):
+        self.dictionary = dictionary.copy()
+        self.dispatch = dispatch_method
         self._property = property
 
     def __get__(self, instance, owner):
@@ -98,11 +105,11 @@ class ObservableDict(object):
             check = True
         self.dictionary[key] = value
         if check:
-            self.eventdispatcher.dispatch(self._property.name, self.eventdispatcher,  self.dictionary)
+            self.dispatch(self.dictionary)
 
     def update(self, E=None, **F):
         self.dictionary.update(E, **F)
-        self.eventdispatcher.dispatch(self._property.name, self.eventdispatcher, self.dictionary)
+        self.dispatch(self.dictionary)
 
     def keys(self):
         return self.dictionary.keys()
@@ -124,19 +131,26 @@ class DictProperty(BaseProperty):
         super(DictProperty, self).__init__(default_value, **kwargs)
 
         if isinstance(default_value, dict):
-            self.default_value = ObservableDict(default_value, self)
+            pass
+            # self.default_value = ObservableDict(default_value, self)
         else:
             raise ValueError('DictProperty takes dict only.')
 
-    def register(self, instance, property_name, default_value, **kwargs):
-        super(DictProperty, self).register(instance, property_name, default_value, **kwargs)
-        self.default_value.eventdispatcher = instance
+    def register(self, instance, property_name, value, **kwargs):
+        self.value = ObservableDict(value,
+                                    dispatch_method=partial(instance.dispatch, property_name, instance))
+        super(DictProperty, self).register(instance, property_name, weakref.ref(self.value), **kwargs)
 
-    def fset(self, obj, value):
-        self.default_value = ObservableDict(value, self)
-        cb = self.instances[obj]['callbacks'][:]
-        self.register(obj, self.name, value)
-        self.instances[obj]['callbacks'] = cb
+
+    def fset(self, instance, value):
+        """
+        Due to dictionaries being mutable objects, re-register the value
+        :param instance: object the property belongs to
+        :param value: value of the property
+        """
+        cb = self.instances[instance]['callbacks'][:]
+        self.register(instance, self.name, value)
+        self.instances[instance]['callbacks'] = cb
 
 
 
