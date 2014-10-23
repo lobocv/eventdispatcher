@@ -154,4 +154,47 @@ class DictProperty(BaseProperty):
 
 
 
+ConversionFactors = dict(km_to_mi=0.621371,
+                         m_to_ft=3.28084, m_to_inches=39.3701, m_to_mm=1000., m_to_cm=100.,
+                         mm_to_ft=0.00328084, mm_to_inches=0.0393701, mm_to_m=0.001,
+                         mi_to_km=1.60934,
+                         ft_to_mm=304.8, ft_to_m=0.3048, ft_to_inches=12.,
+                         inches_to_ft=1/12., inches_to_mm=25.4, inches_to_m=0.0254, )
+
+
+class UnitProperty(BaseProperty):
+    unit_properties = weakref.WeakKeyDictionary()
+
+    def __init__(self, default_value, units, fdel=None, doc=None):
+        self.units = units
+        super(UnitProperty, self).__init__(default_value)
+
+    @staticmethod
+    def convert_all(units):
+        """
+        Iterate through all instances of UnitProperty, performing conversions
+        :param units:
+        """
+        for unitproperty, instance in UnitProperty.unit_properties.iteritems():
+            if unitproperty.units == units:
+                continue
+            c = ConversionFactors["{}_to_{}".format(unitproperty.units, units)]
+            setattr(instance, unitproperty.name, c * unitproperty.instances[instance]['value'])
+            unitproperty.units = units
+
+    def convert_to(self, units):
+        if self.units == units:
+            return
+        c = ConversionFactors["{}_to_{}".format(self.units, units)]
+        for instance in self.instances:
+            setattr(instance, self.name, c * self.instances[instance]['value'])
+            self.units = units
+
+    def register(self, instance, property_name, default_value, **kwargs):
+        kwargs['units'] = self.units
+        super(UnitProperty, self).register(instance, property_name, default_value, **kwargs)
+        # Keep track of all the UnitProperties so that we can change them all when the unit system changes
+        self.unit_properties[self] = instance
+
+
 

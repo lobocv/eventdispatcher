@@ -30,10 +30,6 @@ class PropertyTest(unittest.TestCase):
                              d=self.assert_callback,
                              d2=self.assert_callback)
     def setUp(self):
-        # self.dispatcher = Dispatcher()
-        # self.dispatcher.bind(p=self.assert_callback,
-        #                      d=self.assert_callback,
-        #                      d2=self.assert_callback)
         self.dispatch_count = 0
 
     def tearDown(self):
@@ -94,6 +90,7 @@ class PropertyTest(unittest.TestCase):
         self.dispatcher.d2 = {4: 'Test'}
 
         self.assertEqual(self.dispatch_count, expected_dispatches)
+
 
 
 
