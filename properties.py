@@ -19,8 +19,8 @@ for v, v_per_meter in from_meter_conversions.iteritems():
         v_per_q = v_per_meter / q_per_meter
         fmt2 = "{}_to_{}".format(q, v)
         inv2 = "{}_to_{}".format(v, q)
-        ConversionFactors[fmt2] = 1. / v_per_q
-        ConversionFactors[inv2] = v_per_q
+        ConversionFactors[fmt2] = v_per_q
+        ConversionFactors[inv2] = 1. / v_per_q
 
 
 class BaseProperty(object):
