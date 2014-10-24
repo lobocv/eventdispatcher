@@ -3,33 +3,31 @@ __author__ = 'calvin'
 from . import EventDispatcher
 from properties import Property
 
-class Selector(EventDispatcher):
 
-    index = Property(None)
+class Selector(EventDispatcher):
+    index = Property(0)
     value = Property(None)
     key = Property(None)
 
     def __init__(self, options=[], keys=[], wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
-        self.register_event('on_current')
         self.wrap = wrap
+        self.keys = []
+        self.options = []
+        self.set_options(options, keys)
+
+    def set_options(self, options, keys=[]):
         self.options = options
         if keys:
             self.keys = keys
         else:
             self.keys = [str(opt) for opt in options]
         if options:
-            self.index = 0
-
-    def on_current(self, inst, current):
-        self.dispatch('index', self, current['index'])
-        self.dispatch('value', self, current['value'])
-        self.dispatch('key', self, current['key'])
+            self.dispatch('index', self, self.index)
 
     def on_index(self, inst, index):
         self.key = self.keys[index]
         self.value = self.options[index]
-        self.current = self.value
 
     def on_key(self, inst, key):
         self.index = self.keys.index(key)
