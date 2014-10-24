@@ -11,6 +11,7 @@ class Selector(EventDispatcher):
 
     def __init__(self, options=[], keys=[], wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
+        self.register_event('on_current')
         self.wrap = wrap
         self.options = options
         if keys:
@@ -19,6 +20,11 @@ class Selector(EventDispatcher):
             self.keys = [str(opt) for opt in options]
         if options:
             self.index = 0
+
+    def on_current(self, inst, current):
+        self.dispatch('index', self, current['index'])
+        self.dispatch('value', self, current['value'])
+        self.dispatch('key', self, current['key'])
 
     def on_index(self, inst, index):
         self.key = self.keys[index]

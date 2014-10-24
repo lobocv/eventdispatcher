@@ -67,6 +67,7 @@ class PropertyTest(unittest.TestCase):
         self._check_conversion('inch')
         self._check_conversion('mm')
         self._check_conversion('inch')
+        self._check_conversion('yard')
         self._check_conversion('km')
         self._check_conversion('cm')
         self._check_conversion('m')

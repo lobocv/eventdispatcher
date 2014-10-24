@@ -4,38 +4,23 @@ import weakref
 import copy
 
 
-units = {'m': {'km': 1 / 1000., 'cm': 100., 'mm': 1000., 'ft': 3.28084, 'm': 1.},
-         'ft': {'inch': 12., 'yard': 3., 'mile': 5280., 'ft': 1.}}
+from_meter_conversions = {'km': 1 / 1000., 'm': 1, 'cm': 100., 'mm': 1000., 'ft': 3.28084, 'yard': 1.09361, 'mile': 0.000621371, 'inch': 39.3701}
 ConversionFactors = {}
 
-u = 'm'
-ConversionFactors["{}_to_{}".format(u, u)] = 1.
-meters_to_feet = 3.28084
+for v, v_per_meter in from_meter_conversions.iteritems():
+    # For each entry, add the conversion to and from meters
+    fmt1 = "m_to_{}".format(v)
+    inv1 = "{}_to_m".format(v)
+    ConversionFactors[fmt1] = v_per_meter
+    ConversionFactors[inv1] = 1. / v_per_meter
 
-for v, v_to_meters in units[u].iteritems():
-    # Add conversions from metric units into meters and vice-versa
-    fmt = "{}_to_{}".format(u, v)
-    inv = "{}_to_{}".format(v, u)
-    # print "{}={} \n {}={}".format(fmt, v_to_meters, inv, 1. / v_to_meters)
-    ConversionFactors[fmt] = v_to_meters
-    ConversionFactors[inv] = 1. / v_to_meters
-
-    for q, convm in units['m'].items():
-        v_to_q = v_to_meters / convm
-        fmt = "{}_to_{}".format(q, v)
-        inv = "{}_to_{}".format(v, q)
-        ConversionFactors[fmt] = v_to_q
-        ConversionFactors[inv] = 1. / v_to_q
-
-    # For each metric unit, convert it into all types of US Standard units and vice-versa
-    for w, w_to_ft in units['ft'].iteritems():
-        fmt = "{}_to_{}".format(w, v)
-        inv = "{}_to_{}".format(v, w)
-        w_to_v = v_to_meters / meters_to_feet / w_to_ft
-        ConversionFactors[fmt] = w_to_v
-        ConversionFactors[inv] = 1. / w_to_v
-        # print "{}={} \n {}={}".format(fmt, w_to_v, inv, 1. / w_to_v)
-
+    for q, q_per_meter in from_meter_conversions.items():
+        # for each entry, add the conversion to and from other entries
+        v_per_q = v_per_meter / q_per_meter
+        fmt2 = "{}_to_{}".format(q, v)
+        inv2 = "{}_to_{}".format(v, q)
+        ConversionFactors[fmt2] = 1. / v_per_q
+        ConversionFactors[inv2] = v_per_q
 
 
 class BaseProperty(object):
