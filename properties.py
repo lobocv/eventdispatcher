@@ -31,7 +31,6 @@ class BaseProperty(object):
         self.fdel = fdel
         self.default_value = default_value
         self.value = copy.deepcopy(default_value)
-        self.prev_value = None
         if doc is None:
             doc = self.fget.__doc__
         self.__doc__ = doc
@@ -43,18 +42,12 @@ class BaseProperty(object):
         self.instances[obj]['value'] = value
 
     def __get__(self, obj, objtype=None):
-        if obj is None:
-            return self
-        if self.fget is None:
-            raise AttributeError("unreadable attribute")
-        return self.fget(obj)
+        return self.instances[obj]['value']
 
     def __set__(self, obj, value):
-        if self.fset is None:
-            raise AttributeError("can't set attribute")
-        self.prev_value = self.fget(obj)
-        if value != self.prev_value:
-            self.fset(obj, value)
+        prev_value = self.instances[obj]['value']
+        if value != prev_value:
+            self.instances[obj]['value'] = value
             obj.dispatch(self.name, obj, value)
 
     def __delete__(self, obj):
@@ -159,15 +152,11 @@ class DictProperty(BaseProperty):
         super(DictProperty, self).register(instance, property_name, weakref.ref(self.value), **kwargs)
 
 
-    def fset(self, instance, value):
-        """
-        Due to dictionaries being mutable objects, re-register the value
-        :param instance: object the property belongs to
-        :param value: value of the property
-        """
-        cb = self.instances[instance]['callbacks'][:]
-        self.register(instance, self.name, value)
-        self.instances[instance]['callbacks'] = cb
+    def __set__(self, obj, value):
+        cb = self.instances[obj]['callbacks'][:]
+        self.register(obj, self.name, value)
+        self.instances[obj]['callbacks'] = cb
+        obj.dispatch(self.name, obj, value)
 
 
 class UnitProperty(BaseProperty):
