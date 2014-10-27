@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
 import unittest
 from eventdispatcher import EventDispatcher
-from eventdispatcher.properties import Property, DictProperty
+from eventdispatcher.properties import Property, DictProperty, ListProperty
 import random
 
 class Dispatcher(EventDispatcher):
@@ -20,6 +20,8 @@ class Dispatcher(EventDispatcher):
     p2 = Property(20)
     d = DictProperty({1: 'one', 2: 'two'})
     d2 = DictProperty({'one': 1, 'two': 2})
+    l = ListProperty([])
+
 
 class PropertyTest(unittest.TestCase):
 
@@ -90,8 +92,6 @@ class PropertyTest(unittest.TestCase):
         self.dispatcher.d2 = {4: 'Test'}
 
         self.assertEqual(self.dispatch_count, expected_dispatches)
-
-
 
 
 unittest.main()

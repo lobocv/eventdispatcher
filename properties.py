@@ -193,5 +193,64 @@ class UnitProperty(BaseProperty):
         # Keep track of all the UnitProperties so that we can change them all when the unit system changes
         self.unit_properties[self] = instance
 
+import collections
+class ObservableList(collections.MutableSequence):
 
+    def __init__(self, l, dispatch_method):
+        if not type(l) == list:
+            raise ValueError('Observable list must only be initialized with lists as arguments')
+        self._list = l[:]
+        self.dispatch = dispatch_method
 
+    def __get__(self, instance, owner):
+        return self._list
+
+    def __getitem__(self, item):
+        return self._list[item]
+
+    def __setitem__(self, key, value):
+        if self._list[key] != value:
+            self._list[key] = value
+            self.dispatch(self._list)
+
+    def __delitem__(self, key):
+        del self._list[key]
+        self.dispatch(self._list)
+
+    def __len__(self):
+        return len(self._list)
+
+    def insert(self, index, value):
+        self._list.insert(index, value)
+        self.dispatch(self._list)
+
+    def append(self, value):
+        self._list.append(value)
+        self.dispatch(self._list)
+
+    def extend(self, values):
+        self._list.extend(values)
+        self.dispatch(self._list)
+
+    def pop(self, index=-1):
+        value = self._list.pop(index)
+        self.dispatch(self._list)
+        return value
+
+    def __eq__(self, other):
+        return self._list == other
+
+    def __ne__(self, other):
+        return self._list != other
+
+class ListProperty(BaseProperty):
+
+    def register(self, instance, property_name, value, **kwargs):
+        self.value = ObservableList(value, dispatch_method=partial(instance.dispatch, property_name, instance))
+        super(ListProperty, self).register(instance, property_name, self.value, **kwargs)
+
+    def __set__(self, obj, value):
+        cb = self.instances[obj]['callbacks'][:]
+        self.register(obj, self.name, value)
+        self.instances[obj]['callbacks'] = cb
+        obj.dispatch(self.name, obj, value)
