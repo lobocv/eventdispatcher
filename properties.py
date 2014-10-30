@@ -197,7 +197,7 @@ import collections
 class ObservableList(collections.MutableSequence):
 
     def __init__(self, l, dispatch_method):
-        if not type(l) == list:
+        if not type(l) == list and not type(l) == tuple:
             raise ValueError('Observable list must only be initialized with lists as arguments')
         self._list = l[:]
         self.dispatch = dispatch_method
