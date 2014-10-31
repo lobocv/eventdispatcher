@@ -4,7 +4,8 @@ import weakref
 import copy
 
 
-from_meter_conversions = {'km': 1 / 1000., 'm': 1, 'cm': 100., 'mm': 1000., 'ft': 3.28084, 'yard': 1.09361, 'mile': 0.000621371, 'inch': 39.3701}
+from_meter_conversions = {'km': 1 / 1000., 'm': 1, 'cm': 100., 'mm': 1000.,
+                          'ft': 3.28084, 'yards': 1.09361, 'miles': 0.000621371, 'inches': 39.3701}
 ConversionFactors = {}
 
 for v, v_per_meter in from_meter_conversions.iteritems():
