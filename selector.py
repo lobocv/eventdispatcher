@@ -67,7 +67,7 @@ class Selector(EventDispatcher):
 
     def prev(self, *args):
         index = self.index - 1
-        if index > 0:
+        if index >= 0:
             self.index = index
         elif self.wrap:
             self.index = len(self.options) - 1
