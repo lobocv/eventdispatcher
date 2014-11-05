@@ -200,7 +200,7 @@ class ObservableList(collections.MutableSequence):
     def __init__(self, l, dispatch_method):
         if not type(l) == list and not type(l) == tuple:
             raise ValueError('Observable list must only be initialized with lists as arguments')
-        self._list = l[:]
+        self._list = list(l)
         self.dispatch = dispatch_method
 
     def __get__(self, instance, owner):
@@ -254,4 +254,4 @@ class ListProperty(BaseProperty):
         cb = self.instances[obj]['callbacks'][:]
         self.register(obj, self.name, value)
         self.instances[obj]['callbacks'] = cb
-        obj.dispatch(self.name, obj, value)
+        obj.dispatch(self.name, obj, self.value._list)
