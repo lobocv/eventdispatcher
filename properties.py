@@ -2,6 +2,7 @@ __author__ = 'calvin'
 from functools import partial
 import weakref
 import copy
+import collections
 
 
 from_meter_conversions = {'km': 1 / 1000., 'm': 1, 'cm': 100., 'mm': 1000.,
@@ -194,7 +195,6 @@ class UnitProperty(BaseProperty):
         # Keep track of all the UnitProperties so that we can change them all when the unit system changes
         self.unit_properties[self] = instance
 
-import collections
 class ObservableList(collections.MutableSequence):
 
     def __init__(self, l, dispatch_method):
@@ -220,6 +220,9 @@ class ObservableList(collections.MutableSequence):
 
     def __len__(self):
         return len(self._list)
+
+    def __iter__(self):
+        return iter(self._list)
 
     def insert(self, index, value):
         self._list.insert(index, value)
