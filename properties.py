@@ -214,6 +214,9 @@ class ObservableList(collections.MutableSequence):
             self._list[key] = value
             self.dispatch(self._list)
 
+    def __reversed__(self):
+        return reversed(self._list)
+
     def __delitem__(self, key):
         del self._list[key]
         self.dispatch(self._list)
