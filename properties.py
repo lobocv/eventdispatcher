@@ -119,6 +119,9 @@ class ObservableDict(object):
         if check:
             self.dispatch(self.dictionary)
 
+    def copy(self):
+        return self.__class__(self.dictionary, self.dispatch)
+
     def update(self, E=None, **F):
         self.dictionary.update(E, **F)
         self.dispatch(self.dictionary)
