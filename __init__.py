@@ -38,6 +38,11 @@ class EventDispatcher(object):
     def register_event(self, name):
         self._events[name] = [getattr(self, 'on_{}'.format(name))] if hasattr(self, 'on_{}'.format(name)) else []
 
+    def unbind(self, **kwargs):
+        for prop_name, callback in kwargs.iteritems():
+            prop = BaseProperty.get_property(self, prop_name)
+            prop.instances[self]['callbacks'].remove(callback)
+
     def bind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
             try:
