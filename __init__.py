@@ -40,8 +40,28 @@ class EventDispatcher(object):
 
     def unbind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
-            prop = BaseProperty.get_property(self, prop_name)
-            prop.instances[self]['callbacks'].remove(callback)
+            try:
+                prop = BaseProperty.get_property(self, prop_name)
+            except KeyError:
+                if callback in self._events:
+                    self._events.remove(callback)
+                else:
+                    raise ValueError('No such bindings for event %s' % prop_name)
+            else:
+                prop.instances[self]['callbacks'].remove(callback)
+
+    def unbind_all(self, *args):
+        for prop_name in args:
+            try:
+                prop = BaseProperty.get_property(self, prop_name)
+            except KeyError:
+                if prop_name in self._events:
+                    self._events[prop_name] = []
+                else:
+                    raise ValueError('No such bindings for event %s' % prop_name)
+            else:
+                prop.instances[self]['callbacks'] = []
+
 
     def bind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
