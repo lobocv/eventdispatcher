@@ -72,3 +72,7 @@ class Selector(EventDispatcher):
         elif self.wrap:
             self.index = len(self.options) - 1
 
+    @property
+    def json_repr(self):
+        options = [obj.json_repr if hasattr(obj, 'json_repr') else obj for obj in self.options]
+        return {'options': options, 'keys': self.keys, 'index': self.index}
