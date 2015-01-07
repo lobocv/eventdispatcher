@@ -98,13 +98,15 @@ class Property(BaseProperty):
 
 class ObservableDict(object):
 
-    def __init__(self, dictionary, dispatch_method, **kwargs):
+    def __init__(self, dictionary, dispatch_method):
         self.dictionary = dictionary.copy()
         self.dispatch = dispatch_method
-        self._property = property
 
     def __get__(self, instance, owner):
         return self.dictionary
+
+    def __contains__(self, item):
+        return item in self.dictionary
 
     def __getitem__(self, item):
         return self.dictionary[item]
@@ -137,6 +139,11 @@ class ObservableDict(object):
 
     def iteritems(self):
         return self.dictionary.iteritems()
+
+    def pop(self, key):
+        item = self.dictionary.pop(key)
+        self.dispatch(self.dictionary)
+        return item
 
 
 class DictProperty(BaseProperty):
