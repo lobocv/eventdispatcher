@@ -1,5 +1,5 @@
 __author__ = 'calvin'
-__version__ = '1.3.0'
+__version__ = '1.4'
 
 from .property import Property
 from .dictproperty import DictProperty
