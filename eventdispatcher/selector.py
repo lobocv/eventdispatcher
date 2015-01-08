@@ -1,7 +1,7 @@
 __author__ = 'calvin'
 
 from . import EventDispatcher
-from properties import Property, DictProperty
+from .dictproperty import DictProperty
 
 
 class Selector(EventDispatcher):

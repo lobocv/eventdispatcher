@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
 import unittest
 from eventdispatcher import EventDispatcher
-from eventdispatcher.properties import Property, DictProperty, ListProperty
+from eventdispatcher import Property, DictProperty, ListProperty
 
 
 import unittest

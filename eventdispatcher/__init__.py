@@ -1,7 +1,10 @@
 __author__ = 'calvin'
 __version__ = '1.3.0'
 
-from properties import BaseProperty, DictProperty, ObservableDict
+from .property import Property
+from .dictproperty import DictProperty
+from .listproperty import ListProperty
+from .unitproperty import UnitProperty
 
 class BindException(Exception):
     pass
@@ -15,7 +18,7 @@ class EventDispatcher(object):
         # 'on_<prop_name>' if it exists.
         for cls in self.__class__.__mro__:
             for prop_name, prop in cls.__dict__.iteritems():
-                if isinstance(prop, BaseProperty):
+                if isinstance(prop, Property):
                     prop.name = prop_name
                     prop.register(self, prop_name, prop.default_value)
                     if hasattr(self, 'on_{}'.format(prop_name)):
@@ -25,7 +28,7 @@ class EventDispatcher(object):
         self.bind(**bindings)
 
     def dispatch(self, key, *args):
-        prop = BaseProperty.get_property(self, key)
+        prop = Property.get_property(self, key)
         for callback in prop.instances[self]['callbacks']:
             if callback(*args):
                 break
@@ -41,7 +44,7 @@ class EventDispatcher(object):
     def unbind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
             try:
-                prop = BaseProperty.get_property(self, prop_name)
+                prop = Property.get_property(self, prop_name)
             except KeyError:
                 if callback in self._events:
                     self._events.remove(callback)
@@ -53,7 +56,7 @@ class EventDispatcher(object):
     def unbind_all(self, *args):
         for prop_name in args:
             try:
-                prop = BaseProperty.get_property(self, prop_name)
+                prop = Property.get_property(self, prop_name)
             except KeyError:
                 if prop_name in self._events:
                     self._events[prop_name] = []
@@ -67,7 +70,7 @@ class EventDispatcher(object):
         for prop_name, callback in kwargs.iteritems():
             try:
                 # Queue the callback into the property
-                prop = BaseProperty.get_property(self, prop_name)
+                prop = Property.get_property(self, prop_name)
                 prop.instances[self]['callbacks'].append(callback)
             except KeyError:
                 # If a property was not found, search in events

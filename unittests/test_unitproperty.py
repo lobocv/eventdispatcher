@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
 import unittest
 from eventdispatcher import EventDispatcher
-from eventdispatcher.properties import UnitProperty, ConversionFactors
+from eventdispatcher import UnitProperty, ConversionFactors
 import random
 
 
