@@ -1,45 +1,23 @@
 __author__ = 'calvin'
-''' Work-around to allow imports of a high level package.'''
-import sys
-import os
-cwd = os.path.dirname(os.path.realpath(__file__))
-module_path = os.path.split(cwd)[0]
-module_parent_dir = os.path.split(module_path)[0]
-if __name__ == '__main__':
-
-    sys.path.append(module_parent_dir)
-
 
 import unittest
+
+from . import EventDispatcherTest
 from eventdispatcher import EventDispatcher
-from eventdispatcher import Property, DictProperty, ListProperty
-
-
-import unittest
+from eventdispatcher import ListProperty
 
 
 class Dispatcher(EventDispatcher):
     l = ListProperty([])
 
-class TestListProperty(unittest.TestCase):
 
+class ListPropertyTest(EventDispatcherTest):
     def __init__(self, *args):
-        super(TestListProperty, self).__init__(*args)
+        super(ListPropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
         self.dispatcher2 = Dispatcher()
         self.dispatcher.bind(l=self.assert_callback)
         self.dispatcher2.bind(l=self.assert_callback)
-
-    def assert_callback(self, inst, value):
-        self.dispatch_count += 1
-        print 'TestListProperty: Dispatching value {}'.format(value)
-
-
-    def setUp(self):
-        self.dispatch_count = 0
-
-    def tearDown(self):
-        self.dispatch_count = 0
 
     def test_mutability(self):
         d, d2 = self.dispatcher, self.dispatcher2
@@ -86,6 +64,6 @@ class TestListProperty(unittest.TestCase):
         self.assertEqual(d.l, [1, 2, 3] * 2)
         self.assertEqual(self.dispatch_count, 2)
 
+if __name__ == '__main__':
+    unittest.main(module=__file__)
 
-
-unittest.main()

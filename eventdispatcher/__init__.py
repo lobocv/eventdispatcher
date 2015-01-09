@@ -6,8 +6,12 @@ from .dictproperty import DictProperty
 from .listproperty import ListProperty
 from .unitproperty import UnitProperty
 
+from functools import partial
+
+
 class BindException(Exception):
     pass
+
 
 class EventDispatcher(object):
 
@@ -78,5 +82,7 @@ class EventDispatcher(object):
 
 
     def setter(self, prop_name):
-        p = self.eventdispatcher_properties[prop_name]
-        return p.fset
+        # prop = Property.get_property(self, prop_name)
+        # p = prop.eventdispatcher_properties[prop_name]
+        # return p.fset
+        return lambda inst, value: setattr(self, prop_name, value)

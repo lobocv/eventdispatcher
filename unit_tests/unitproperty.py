@@ -1,19 +1,10 @@
 __author__ = 'calvin'
-''' Work-around to allow imports of a high level package.'''
-import sys
-import os
-cwd = os.path.dirname(os.path.realpath(__file__))
-module_path = os.path.split(cwd)[0]
-module_parent_dir = os.path.split(module_path)[0]
-if __name__ == '__main__':
-
-    sys.path.append(module_parent_dir)
-
 
 import unittest
+
+from . import EventDispatcherTest
 from eventdispatcher import EventDispatcher
-from eventdispatcher import UnitProperty, ConversionFactors
-import random
+from eventdispatcher.unitproperty import UnitProperty, ConversionFactors
 
 
 class Dispatcher(EventDispatcher):
@@ -21,23 +12,16 @@ class Dispatcher(EventDispatcher):
     p2 = UnitProperty(10, 'm')
     p3 = UnitProperty(100, 'm')
 
-class PropertyTest(unittest.TestCase):
+
+class UnitPropertyTest(EventDispatcherTest):
     property_names = {'p', 'p2', 'p3'}
+
     def __init__(self, *args):
-        super(PropertyTest, self).__init__(*args)
+        super(UnitPropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
         self.dispatcher.bind(p=self.assert_callback,
                              p2=self.assert_callback,
                              p3=self.assert_callback)
-    def setUp(self):
-        self.dispatch_count = 0
-
-    def tearDown(self):
-        self.dispatch_count = 0
-
-    def assert_callback(self, inst, value):
-        self.dispatch_count += 1
-        print 'dispatching value {}'.format(value)
 
     def test_change_units(self):
         d = self.dispatcher
@@ -64,10 +48,10 @@ class PropertyTest(unittest.TestCase):
         # Change all properties units
         self.assertEqual(self.dispatch_count, 3)
         self._check_conversion('m')
-        self._check_conversion('inch')
+        self._check_conversion('inches')
         self._check_conversion('mm')
-        self._check_conversion('inch')
-        self._check_conversion('yard')
+        self._check_conversion('inches')
+        self._check_conversion('yards')
         self._check_conversion('km')
         self._check_conversion('cm')
         self._check_conversion('m')
@@ -86,7 +70,5 @@ class PropertyTest(unittest.TestCase):
             self.assertAlmostEqual(result, after[prop_name], 3)
 
 
-
-
-
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
