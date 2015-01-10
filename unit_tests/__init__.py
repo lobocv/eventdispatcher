@@ -20,6 +20,15 @@ class EventDispatcherTest(unittest.TestCase):
         logging.info('{testclass}: dispatching value {value}'.format(testclass=self.__class__.__name__,
                                                                      value=value))
 
-    # def assertEqual(self, first, second, dispatch_count, msg=None):
-    #     super(EventDispatcherTest, self).assertEqual(first, second, msg)
-    #     super(EventDispatcherTest, self).assertEqual(self.dispatch_count, dispatch_count, msg)
+    def set_property(self, ed, prop_name, values):
+        if not isinstance(values, list):
+            values = [values]
+        for value in values:
+            dc = self.dispatch_count
+            before_value = getattr(ed, prop_name)
+            expected_dc = dc + int(before_value != value)
+            setattr(ed, prop_name, value)
+            after_value = getattr(ed, prop_name)
+            self.assertEqual(after_value, value)
+            self.assertEqual(self.dispatch_count, expected_dc)
+

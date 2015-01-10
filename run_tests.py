@@ -7,8 +7,8 @@ from pprint import pprint
 from unit_tests.listproperty import ListPropertyTest
 from unit_tests.property import PropertyTest
 from unit_tests.unitproperty import UnitPropertyTest
-
-RUN_TESTS = [PropertyTest, UnitPropertyTest, ListPropertyTest]
+from unit_tests.dictproperty import DictPropertyTest
+RUN_TESTS = [PropertyTest, UnitPropertyTest, ListPropertyTest, DictPropertyTest]
 
 for test in RUN_TESTS:
     stream = StringIO()

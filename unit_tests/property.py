@@ -35,16 +35,15 @@ class PropertyTest(EventDispatcherTest):
 
         self.assertTrue(type(d) == Property)
 
-    def test_property_dispatch(self):
-        """
-        Tests that the callback is called ONLY when the value changes.
-        """
-        expected_dispatches = 5
-        self.dispatcher.p = 1
-        self.dispatcher.p = 'two'
-        self.dispatcher.p = 2
-        self.dispatcher.p = 3
-        self.dispatcher.p = None
+    def test_dispatch(self):
+        self.set_property(self.dispatcher, 'p', [1, '2', '2', 3, None, None, 6, 6])
+
+    def test_setter(self):
+        expected_dispatches = 3
+        self.dispatcher.bind(p=self.dispatcher.setter('p2'))
+        self.dispatcher.p2 = 14
+        self.dispatcher.p = 234
+        self.assertEqual(self.dispatcher.p, self.dispatcher.p2)
         self.assertEqual(self.dispatch_count, expected_dispatches)
 
 if __name__ == '__main__':
