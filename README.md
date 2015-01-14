@@ -1,9 +1,19 @@
 EventDispatcher
 ===============
 
-An event dispatcher framework inspired by the [Kivy project](http://kivy.org/#home). Property instances are monitored
-and dispatch events when their value changes. The event callback handler name defaults to the `on_PROPERTY_NAME` and is
+An event dispatcher framework inspired by the [Kivy project](http://kivy.org/#home).
+ 
+Property instances are monitored and dispatch events when their value changes. The event callback handler name defaults to the `on_PROPERTY_NAME` and is
 called with two arguments: the dispatcher instance and the <b>new</b> value of the property.
+
+New in Version 1.5
+==================
+
+- Speed increase of 3 times for dispatching
+- Speed increase of 4 times for setting property values
+- Speed increase of 3 times for getting property values
+- Property.get_property() has been replaced with Eventdispatcher.get_dispatcher_property()
+- More comprehensive UnitTests
     
 Learn by Example:
 ================
