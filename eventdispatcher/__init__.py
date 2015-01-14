@@ -12,7 +12,6 @@ class BindException(Exception):
 
 
 class EventDispatcher(object):
-
     def __init__(self, **kwargs):
         self._events = {}
         bindings = {}

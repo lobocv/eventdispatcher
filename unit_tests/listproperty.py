@@ -64,6 +64,7 @@ class ListPropertyTest(EventDispatcherTest):
         self.assertEqual(d.l, [1, 2, 3] * 2)
         self.assertEqual(self.dispatch_count, 2)
 
+
 if __name__ == '__main__':
     unittest.main(module=__file__)
 

@@ -8,6 +8,8 @@ from unit_tests.listproperty import ListPropertyTest
 from unit_tests.property import PropertyTest
 from unit_tests.unitproperty import UnitPropertyTest
 from unit_tests.dictproperty import DictPropertyTest
+
+
 RUN_TESTS = [PropertyTest, ListPropertyTest, DictPropertyTest, UnitPropertyTest]
 
 total_errors = 0

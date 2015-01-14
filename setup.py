@@ -1,7 +1,9 @@
 __author__ = 'lobocv'
 
 from distutils.core import setup
+
 from eventdispatcher import __version__
+
 
 setup(
     name='eventdispatcher',

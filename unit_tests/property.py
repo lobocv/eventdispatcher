@@ -4,7 +4,7 @@ import random
 
 from . import EventDispatcherTest
 from eventdispatcher import EventDispatcher
-from eventdispatcher import Property, DictProperty, ListProperty
+from eventdispatcher import Property
 
 
 class Dispatcher(EventDispatcher):
@@ -34,9 +34,6 @@ class PropertyTest(EventDispatcherTest):
             self.assertEqual(test_against, obs_dict_value)
         self.assertTrue(type(d) == Property)
 
-    def test_dispatch(self):
-        self.set_property(self.dispatcher, 'p', [1, '2', '2', 3, None, None, 6, 6])
-
     def test_setter(self):
         expected_dispatches = 3
         self.dispatcher.bind(p=self.dispatcher.setter('p2'))
@@ -44,6 +41,7 @@ class PropertyTest(EventDispatcherTest):
         self.dispatcher.p = 234
         self.assertEqual(self.dispatcher.p, self.dispatcher.p2)
         self.assertEqual(self.dispatch_count, expected_dispatches)
+
 
 if __name__ == '__main__':
     unittest.main()

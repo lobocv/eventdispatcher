@@ -1,6 +1,8 @@
 __author__ = 'calvin'
+from weakref import WeakSet
+
 from . import Property
-from weakref import WeakKeyDictionary
+
 
 """
 Create a dictionary of conversion methods between US Standard and Metric distance unit systems.
@@ -26,10 +28,11 @@ for v, v_per_meter in from_meter_conversions.iteritems():
 
 
 class UnitProperty(Property):
-    unit_properties = WeakKeyDictionary()
+    unit_properties = WeakSet()
 
     def __init__(self, default_value, units):
         self.units = units
+        self.default_units = units
         super(UnitProperty, self).__init__(default_value)
 
     @staticmethod
@@ -38,12 +41,11 @@ class UnitProperty(Property):
         Iterate through all instances of UnitProperty, performing conversions
         :param units:
         """
-        for unitproperty, instance in UnitProperty.unit_properties.iteritems():
-            if unitproperty.units == units:
-                continue
-            c = ConversionFactors["{}_to_{}".format(unitproperty.units, units)]
-            setattr(instance, unitproperty.name, c * unitproperty.instances[instance]['value'])
-            unitproperty.units = units
+        for unitproperty in UnitProperty.unit_properties:
+            for instance, info in unitproperty.instances.iteritems():
+                c = ConversionFactors["{}_to_{}".format(unitproperty.default_units, units)]
+                setattr(instance, unitproperty.name, unitproperty.default_value * c)
+                unitproperty.units = units
 
     def convert_to(self, units):
         if self.units == units:
@@ -57,4 +59,4 @@ class UnitProperty(Property):
         kwargs['units'] = self.units
         super(UnitProperty, self).register(instance, property_name, default_value, **kwargs)
         # Keep track of all the UnitProperties so that we can change them all when the unit system changes
-        self.unit_properties[self] = instance
+        self.unit_properties.add(self)

@@ -1,9 +1,10 @@
 __author__ = 'calvin'
 import unittest
-from . import EventDispatcherTest
 import random
 
-from eventdispatcher import EventDispatcher, DictProperty
+from . import EventDispatcherTest
+from eventdispatcher import EventDispatcher
+from eventdispatcher.dictproperty import DictProperty
 
 
 class Dispatcher(EventDispatcher):
@@ -28,7 +29,6 @@ class DictPropertyTest(EventDispatcherTest):
 
         self.assertTrue(type(d) == DictProperty)
 
-
     def test_dictproperty_dispatch(self):
         """
         Tests that the callback is called ONLY when the value changes.
@@ -41,6 +41,7 @@ class DictPropertyTest(EventDispatcherTest):
         self.dispatcher.d = {4: 'Test'}
 
         self.assertEqual(self.dispatch_count, expected_dispatches)
+
 
 if __name__ == '__main__':
     unittest.main()

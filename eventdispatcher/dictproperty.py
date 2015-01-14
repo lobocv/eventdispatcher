@@ -1,11 +1,10 @@
 __author__ = 'calvin'
-from . import Property
-from weakref import ref
 from functools import partial
+
+from . import Property
 
 
 class ObservableDict(object):
-
     def __init__(self, dictionary, dispatch_method):
         self.dictionary = dictionary.copy()
         self.dispatch = dispatch_method
@@ -28,6 +27,15 @@ class ObservableDict(object):
         self.dictionary[key] = value
         if check:
             self.dispatch(self.dictionary)
+
+    def __eq__(self, other):
+        return self.dictionary == other
+
+    def __cmp__(self, other):
+        return self.dictionary == other
+
+    def __ne__(self, other):
+        return self.dictionary != other
 
     def copy(self):
         return self.__class__(self.dictionary, self.dispatch)
@@ -55,7 +63,6 @@ class ObservableDict(object):
 
 
 class DictProperty(Property):
-
     def __init__(self, default_value, **kwargs):
         super(DictProperty, self).__init__(default_value, **kwargs)
         if not isinstance(default_value, dict):

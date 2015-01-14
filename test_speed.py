@@ -2,7 +2,8 @@ __author__ = 'Calvin'
 
 from pyperform import BenchmarkedClass, BenchmarkedFunction
 
-from eventdispatcher import EventDispatcher, Property #!
+from eventdispatcher import EventDispatcher, Property  # !
+
 
 @BenchmarkedClass(classname='Dispatcher')
 class Dispatcher(EventDispatcher):

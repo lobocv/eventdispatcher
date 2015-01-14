@@ -1,13 +1,12 @@
 __author__ = 'calvin'
 
 import collections
+from functools import partial
 
 from . import Property
-from functools import partial
 
 
 class ObservableList(collections.MutableSequence):
-
     def __init__(self, l, dispatch_method):
         if not type(l) == list and not type(l) == tuple and not isinstance(l, ObservableList):
             raise ValueError('Observable list must only be initialized with lists as arguments')
@@ -61,8 +60,8 @@ class ObservableList(collections.MutableSequence):
     def __ne__(self, other):
         return self.list != other
 
-class ListProperty(Property):
 
+class ListProperty(Property):
     def register(self, instance, property_name, value, **kwargs):
         self.value = ObservableList(value, dispatch_method=partial(instance.dispatch, property_name, instance))
         super(ListProperty, self).register(instance, property_name, self.value, **kwargs)

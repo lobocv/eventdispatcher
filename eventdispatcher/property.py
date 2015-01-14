@@ -1,11 +1,9 @@
 __author__ = 'calvin'
 
-import weakref
 import copy
 
 
 class Property(object):
-
     def __init__(self, default_value):
         self.instances = {}
         self.default_value = default_value
