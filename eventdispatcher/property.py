@@ -13,8 +13,7 @@ class Property(object):
         return obj.event_dispatcher_properties[self.name]['value']
 
     def __set__(self, obj, value):
-        prev_value = obj.event_dispatcher_properties[self.name]['value']
-        if value != prev_value:
+        if value != obj.event_dispatcher_properties[self.name]['value']:
             obj.event_dispatcher_properties[self.name]['value'] = value
             obj.dispatch(self.name, obj, value)
 

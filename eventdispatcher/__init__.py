@@ -7,7 +7,7 @@ from .listproperty import ListProperty
 from .unitproperty import UnitProperty
 
 
-class BindException(Exception):
+class BindError(Exception):
     pass
 
 
@@ -42,38 +42,41 @@ class EventDispatcher(object):
         self._events[name] = [getattr(self, 'on_{}'.format(name))] if hasattr(self, 'on_{}'.format(name)) else []
 
     def unbind(self, **kwargs):
+        all_properties = self.event_dispatcher_properties
         for prop_name, callback in kwargs.iteritems():
-            try:
-                prop_info = self.event_dispatcher_properties[prop_name]
-            except KeyError:
-                if callback in self._events:
+            if prop_name in all_properties:
+                try:
+                    all_properties[prop_name]['callbacks'].remove(callback)
+                except ValueError:
+                    raise BindError("No binding for {} in property '{}'".format(callback.__name__, prop_name))
+            elif callback in self._events:
+                try:
                     self._events.remove(callback)
-                else:
-                    raise ValueError('No such bindings for event %s' % prop_name)
+                except ValueError:
+                    raise BindError("No binding for {} in event '{}'".format(callback.__name__, prop_name))
             else:
-                prop_info['callbacks'].remove(callback)
+                raise BindError('No property or event by the name of %s' % prop_name)
 
     def unbind_all(self, *args):
+        all_properties = self.event_dispatcher_properties
         for prop_name in args:
-            try:
-                prop_info = self.event_dispatcher_properties[prop_name]
-            except KeyError:
-                if prop_name in self._events:
-                    self._events[prop_name] = []
-                else:
-                    raise ValueError('No such bindings for event %s' % prop_name)
+            if prop_name in all_properties:
+                del all_properties[prop_name]['callbacks'][:]
+            elif prop_name in self._events:
+                del self._events[prop_name][:]
             else:
-                prop_info['callbacks'] = []
-
+                raise BindError("No such property or event '%s'" % prop_name)
 
     def bind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
-            try:
+            if prop_name in self.event_dispatcher_properties:
                 # Queue the callback into the property
                 self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
-            except KeyError:
+            elif prop_name in self._events:
                 # If a property was not found, search in events
                 self._events[prop_name].append(callback)
+            else:
+                raise BindError("No property or event by the name of '%s'" % prop_name)
 
     def setter(self, prop_name):
         return lambda inst, value: setattr(self, prop_name, value)
