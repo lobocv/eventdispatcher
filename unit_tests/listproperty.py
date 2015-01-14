@@ -8,60 +8,52 @@ from eventdispatcher import ListProperty
 
 
 class Dispatcher(EventDispatcher):
-    l = ListProperty([])
-
+    p1 = ListProperty([])
+    p2 = ListProperty([])
 
 class ListPropertyTest(EventDispatcherTest):
     def __init__(self, *args):
         super(ListPropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
         self.dispatcher2 = Dispatcher()
-        self.dispatcher.bind(l=self.assert_callback)
-        self.dispatcher2.bind(l=self.assert_callback)
+        self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
+        self.dispatcher2.bind(p1=self.assert_callback, p2=self.assert_callback)
 
     def test_mutability(self):
         d, d2 = self.dispatcher, self.dispatcher2
-        d.l = [1, 2, 3]
-        d2.l = [4, 5, 6]
-        self.assertNotEquals(d.l, d2.l)
+        d.p1 = [1, 2, 3]
+        d2.p1 = [4, 5, 6]
+        self.assertNotEquals(d.p1, d2.p1)
         self.assertEqual(self.dispatch_count, 2)
 
-        d.l.append(1)
-        d2.l.append(2)
-        self.assertNotEquals(d.l, d2.l)
+        d.p1.append(1)
+        d2.p1.append(2)
+        self.assertNotEquals(d.p1, d2.p1)
         self.assertEqual(self.dispatch_count, 4)
 
     def test_append(self):
         d, d2 = self.dispatcher, self.dispatcher2
-        d.l.append(1)
-        d.l.append(2)
-        d.l.append(3)
-        self.assertEqual(d.l, [1, 2, 3])
+        d.p1.append(1)
+        d.p1.append(2)
+        d.p1.append(3)
+        self.assertEqual(d.p1, [1, 2, 3])
         self.assertEqual(self.dispatch_count, 3)
-
-    def test_set_new_list(self):
-        d, d2 = self.dispatcher, self.dispatcher2
-        d.l = [1, 2, 3]
-        d2.l = [4, 5, 6]
-        self.assertEquals(d.l, [1, 2, 3])
-        self.assertEquals(d2.l, [4, 5, 6])
-        self.assertEqual(self.dispatch_count, 2)
 
     def test_pop(self):
         d, d2 = self.dispatcher, self.dispatcher2
-        d.l = [1, 2, 3]
-        last = d.l.pop()
+        d.p1 = [1, 2, 3]
+        last = d.p1.pop()
         self.assertEqual(last, 3)
-        self.assertEqual(len(d.l), 2)
-        self.assertEqual(len(d2.l), 0)
+        self.assertEqual(len(d.p1), 2)
+        self.assertEqual(len(d2.p1), 0)
         self.assertEqual(self.dispatch_count, 2)
 
     def test_extend(self):
         d, d2 = self.dispatcher, self.dispatcher2
-        d.l.extend([1, 2, 3])
-        self.assertEqual(d.l, [1, 2, 3])
-        d.l.extend([1, 2, 3])
-        self.assertEqual(d.l, [1, 2, 3] * 2)
+        d.p1.extend([1, 2, 3])
+        self.assertEqual(d.p1, [1, 2, 3])
+        d.p1.extend([1, 2, 3])
+        self.assertEqual(d.p1, [1, 2, 3] * 2)
         self.assertEqual(self.dispatch_count, 2)
 
 

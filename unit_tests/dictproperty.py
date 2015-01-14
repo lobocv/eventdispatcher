@@ -8,37 +8,38 @@ from eventdispatcher.dictproperty import DictProperty
 
 
 class Dispatcher(EventDispatcher):
-    d = DictProperty({})
+    p1 = DictProperty({})
 
 
 class DictPropertyTest(EventDispatcherTest):
+
     def __init__(self, *args):
         super(DictPropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
-        self.dispatcher.bind(d=self.assert_callback)
+        self.dispatcher2 = Dispatcher()
+        self.dispatcher.bind(p1=self.assert_callback)
 
     def test_get_property(self):
         dispatcher = self.dispatcher
         test_dict = {'a': random.randint(0, 1000), 'b': random.randint(0, 1000), 'c': random.randint(0, 1000)}
-        dispatcher.d = test_dict
-        d = dispatcher.get_dispatcher_property('d')
+        dispatcher.p1 = test_dict
+        p1 = dispatcher.get_dispatcher_property('p1')
         for key in test_dict.keys():
             test_against = test_dict[key]
-            obs_dict_value = dispatcher.d[key]
+            obs_dict_value = dispatcher.p1[key]
             self.assertEqual(test_against, obs_dict_value)
-
-        self.assertTrue(type(d) == DictProperty)
+        self.assertTrue(type(p1) == DictProperty)
 
     def test_dictproperty_dispatch(self):
         """
         Tests that the callback is called ONLY when the value changes.
         """
         expected_dispatches = 4
-        self.dispatcher.d = {}
-        self.dispatcher.d.update({1: 1, 2: 2})
-        self.dispatcher.d[3] = 3
-        self.dispatcher.d[3] = 3
-        self.dispatcher.d = {4: 'Test'}
+        self.dispatcher.p1 = {}
+        self.dispatcher.p1.update({1: 1, 2: 2})
+        self.dispatcher.p1[3] = 3
+        self.dispatcher.p1[3] = 3
+        self.dispatcher.p1 = {4: 'Test'}
 
         self.assertEqual(self.dispatch_count, expected_dispatches)
 

@@ -8,7 +8,7 @@ from eventdispatcher.unitproperty import UnitProperty, ConversionFactors
 
 
 class Dispatcher(EventDispatcher):
-    p = UnitProperty(1, 'm')
+    p1 = UnitProperty(1, 'm')
     p2 = UnitProperty(10, 'm')
     p3 = UnitProperty(100, 'm')
 
@@ -19,7 +19,8 @@ class UnitPropertyTest(EventDispatcherTest):
     def __init__(self, *args):
         super(UnitPropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
-        self.dispatcher.bind(p=self.assert_callback,
+        self.dispatcher2 = Dispatcher()
+        self.dispatcher.bind(p1=self.assert_callback,
                              p2=self.assert_callback,
                              p3=self.assert_callback)
 
@@ -28,7 +29,7 @@ class UnitPropertyTest(EventDispatcherTest):
         units = 'ft'
         previous = {}
         after = {}
-        for p in self.property_names:
+        for p in d.event_dispatcher_properties.iterkeys():
             prop = d.get_dispatcher_property(p)
             prop_units = prop.units
             prop_value = getattr(d, p)
@@ -41,7 +42,7 @@ class UnitPropertyTest(EventDispatcherTest):
             # Change property's units individually
             prop.convert_to('ft')
 
-        for p in self.property_names:
+        for p in d.event_dispatcher_properties.iterkeys():
             value = getattr(d, p)
             self.assertAlmostEqual(value, after[p], 3)
 
@@ -57,15 +58,16 @@ class UnitPropertyTest(EventDispatcherTest):
         self._check_conversion('m')
 
     def _check_conversion(self, units):
+        d = self.dispatcher
         before = {}
         after = {}
-        for prop_name in self.property_names:
+        for prop_name in d.event_dispatcher_properties.iterkeys():
             p = self.dispatcher.get_dispatcher_property(prop_name)
             before[prop_name] = getattr(self.dispatcher, prop_name)
             c = ConversionFactors["{}_to_{}".format(p.units, units)]
             after[prop_name] = before[prop_name] * c
         UnitProperty.convert_all(units)
-        for prop_name in self.property_names:
+        for prop_name in d.event_dispatcher_properties.iterkeys():
             result = getattr(self.dispatcher, prop_name)
             self.assertAlmostEqual(result, after[prop_name], 3)
 
