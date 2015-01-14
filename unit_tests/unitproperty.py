@@ -29,7 +29,7 @@ class UnitPropertyTest(EventDispatcherTest):
         previous = {}
         after = {}
         for p in self.property_names:
-            prop = UnitProperty.get_property(d, p)
+            prop = d.get_dispatcher_property(p)
             prop_units = prop.units
             prop_value = getattr(d, p)
             if prop_units == units:
@@ -60,7 +60,7 @@ class UnitPropertyTest(EventDispatcherTest):
         before = {}
         after = {}
         for prop_name in self.property_names:
-            p = UnitProperty.get_property(self.dispatcher, prop_name)
+            p = self.dispatcher.get_dispatcher_property(prop_name)
             before[prop_name] = getattr(self.dispatcher, prop_name)
             c = ConversionFactors["{}_to_{}".format(p.units, units)]
             after[prop_name] = before[prop_name] * c

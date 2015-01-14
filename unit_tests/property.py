@@ -20,19 +20,18 @@ class PropertyTest(EventDispatcherTest):
 
 
     def test_get_property(self):
-        p = Property.get_property(self.dispatcher, 'p')
+        p = self.dispatcher.get_dispatcher_property('p')
         dispatcher = self.dispatcher
         dispatcher.p = 123456789
         self.assertTrue(type(p) == Property)
         self.assertEqual(dispatcher.p, 123456789)
         test_dict = {'a': random.randint(0, 1000), 'b': random.randint(0, 1000), 'c': random.randint(0, 1000)}
         dispatcher.d = test_dict
-        d = Property.get_property(self.dispatcher, 'p2')
+        d = self.dispatcher.get_dispatcher_property('p2')
         for key in test_dict.keys():
             test_against = test_dict[key]
             obs_dict_value = dispatcher.d[key]
             self.assertEqual(test_against, obs_dict_value)
-
         self.assertTrue(type(d) == Property)
 
     def test_dispatch(self):

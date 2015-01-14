@@ -20,7 +20,7 @@ class DictPropertyTest(EventDispatcherTest):
         dispatcher = self.dispatcher
         test_dict = {'a': random.randint(0, 1000), 'b': random.randint(0, 1000), 'c': random.randint(0, 1000)}
         dispatcher.d = test_dict
-        d = DictProperty.get_property(self.dispatcher, 'd')
+        d = dispatcher.get_dispatcher_property('d')
         for key in test_dict.keys():
             test_against = test_dict[key]
             obs_dict_value = dispatcher.d[key]
@@ -34,8 +34,7 @@ class DictPropertyTest(EventDispatcherTest):
         Tests that the callback is called ONLY when the value changes.
         """
         expected_dispatches = 4
-        d = self.dispatcher.d
-        self.dispatcher.d[1] = 1
+        self.dispatcher.d = {}
         self.dispatcher.d.update({1: 1, 2: 2})
         self.dispatcher.d[3] = 3
         self.dispatcher.d[3] = 3

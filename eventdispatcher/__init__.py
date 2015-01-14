@@ -6,8 +6,6 @@ from .dictproperty import DictProperty
 from .listproperty import ListProperty
 from .unitproperty import UnitProperty
 
-from functools import partial
-
 
 class BindException(Exception):
     pass
@@ -32,8 +30,7 @@ class EventDispatcher(object):
         self.bind(**bindings)
 
     def dispatch(self, key, *args):
-        prop = Property.get_property(self, key)
-        for callback in prop.instances[self]['callbacks']:
+        for callback in self.all_properties[key]['callbacks']:
             if callback(*args):
                 break
 
@@ -48,41 +45,40 @@ class EventDispatcher(object):
     def unbind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
             try:
-                prop = Property.get_property(self, prop_name)
+                prop_info = self.all_properties[prop_name]
             except KeyError:
                 if callback in self._events:
                     self._events.remove(callback)
                 else:
                     raise ValueError('No such bindings for event %s' % prop_name)
             else:
-                prop.instances[self]['callbacks'].remove(callback)
+                prop_info['callbacks'].remove(callback)
 
     def unbind_all(self, *args):
         for prop_name in args:
             try:
-                prop = Property.get_property(self, prop_name)
+                prop_info = self.all_properties[prop_name]
             except KeyError:
                 if prop_name in self._events:
                     self._events[prop_name] = []
                 else:
                     raise ValueError('No such bindings for event %s' % prop_name)
             else:
-                prop.instances[self]['callbacks'] = []
+                prop_info['callbacks'] = []
 
 
     def bind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
             try:
                 # Queue the callback into the property
-                prop = Property.get_property(self, prop_name)
-                prop.instances[self]['callbacks'].append(callback)
+                self.all_properties[prop_name]['callbacks'].append(callback)
             except KeyError:
                 # If a property was not found, search in events
                 self._events[prop_name].append(callback)
 
-
     def setter(self, prop_name):
-        # prop = Property.get_property(self, prop_name)
-        # p = prop.eventdispatcher_properties[prop_name]
-        # return p.fset
         return lambda inst, value: setattr(self, prop_name, value)
+
+    def get_dispatcher_property(self, prop_name):
+        return self.all_properties[prop_name]['property']
+

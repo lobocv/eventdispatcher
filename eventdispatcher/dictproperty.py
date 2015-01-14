@@ -62,12 +62,12 @@ class DictProperty(Property):
             raise ValueError('DictProperty takes dict only.')
 
     def register(self, instance, property_name, value, **kwargs):
-        self.value = ObservableDict(value,
-                                    dispatch_method=partial(instance.dispatch, property_name, instance))
-        super(DictProperty, self).register(instance, property_name, ref(self.value), **kwargs)
+        self.value = ObservableDict(value, dispatch_method=partial(instance.dispatch, property_name, instance))
+        super(DictProperty, self).register(instance, property_name, self.value, **kwargs)
 
     def __set__(self, obj, value):
         cb = self.instances[obj]['callbacks'][:]
         self.register(obj, self.name, value)
         self.instances[obj]['callbacks'] = cb
         obj.dispatch(self.name, obj, value)
+
