@@ -30,7 +30,7 @@ class EventDispatcher(object):
         self.bind(**bindings)
 
     def dispatch(self, key, *args):
-        for callback in self.all_properties[key]['callbacks']:
+        for callback in self.event_dispatcher_properties[key]['callbacks']:
             if callback(*args):
                 break
 
@@ -45,7 +45,7 @@ class EventDispatcher(object):
     def unbind(self, **kwargs):
         for prop_name, callback in kwargs.iteritems():
             try:
-                prop_info = self.all_properties[prop_name]
+                prop_info = self.event_dispatcher_properties[prop_name]
             except KeyError:
                 if callback in self._events:
                     self._events.remove(callback)
@@ -57,7 +57,7 @@ class EventDispatcher(object):
     def unbind_all(self, *args):
         for prop_name in args:
             try:
-                prop_info = self.all_properties[prop_name]
+                prop_info = self.event_dispatcher_properties[prop_name]
             except KeyError:
                 if prop_name in self._events:
                     self._events[prop_name] = []
@@ -71,7 +71,7 @@ class EventDispatcher(object):
         for prop_name, callback in kwargs.iteritems():
             try:
                 # Queue the callback into the property
-                self.all_properties[prop_name]['callbacks'].append(callback)
+                self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
             except KeyError:
                 # If a property was not found, search in events
                 self._events[prop_name].append(callback)
@@ -80,5 +80,5 @@ class EventDispatcher(object):
         return lambda inst, value: setattr(self, prop_name, value)
 
     def get_dispatcher_property(self, prop_name):
-        return self.all_properties[prop_name]['property']
+        return self.event_dispatcher_properties[prop_name]['property']
 

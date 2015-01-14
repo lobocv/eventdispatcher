@@ -12,12 +12,12 @@ class Property(object):
         self.value = copy.deepcopy(default_value)
 
     def __get__(self, obj, objtype=None):
-        return obj.all_properties[self.name]['value']
+        return obj.event_dispatcher_properties[self.name]['value']
 
     def __set__(self, obj, value):
-        prev_value = obj.all_properties[self.name]['value']
+        prev_value = obj.event_dispatcher_properties[self.name]['value']
         if value != prev_value:
-            obj.all_properties[self.name]['value'] = value
+            obj.event_dispatcher_properties[self.name]['value'] = value
             obj.dispatch(self.name, obj, value)
 
     def __delete__(self, obj):
@@ -28,9 +28,9 @@ class Property(object):
         info.update(kwargs)
         # Create the instances dictionary at registration so that each class has it's own instance of it.
         self.instances[instance] = info
-        if not hasattr(instance, 'all_properties'):
-            instance.all_properties = {}
-        instance.all_properties[property_name] = info
+        if not hasattr(instance, 'event_dispatcher_properties'):
+            instance.event_dispatcher_properties = {}
+        instance.event_dispatcher_properties[property_name] = info
 
     def get_dispatcher_property(self, property_name):
         return self.instances[self][property_name]

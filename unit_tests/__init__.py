@@ -42,7 +42,7 @@ class EventDispatcherTest(unittest.TestCase):
         def _some_function(*args):
             self._some_function_call_count += 1
 
-        for prop_name, info in self.dispatcher.all_properties.iteritems():
+        for prop_name, info in self.dispatcher.event_dispatcher_properties.iteritems():
             # Bind
             self.dispatcher.bind(**{prop_name: _some_function})
             cc = self._some_function_call_count
