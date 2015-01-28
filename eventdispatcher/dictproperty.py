@@ -73,8 +73,5 @@ class DictProperty(Property):
         super(DictProperty, self).register(instance, property_name, self.value, **kwargs)
 
     def __set__(self, obj, value):
-        cb = self.instances[obj]['callbacks'][:]
-        self.register(obj, self.name, value)
-        self.instances[obj]['callbacks'] = cb
+        self.instances[obj]['value'].dictionary = value          # Assign to the ObservableDict's value
         obj.dispatch(self.name, obj, value)
-

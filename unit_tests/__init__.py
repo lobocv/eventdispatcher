@@ -15,6 +15,21 @@ And all properties are named p1 or p2.
 """
 
 
+
+def create_different_value(value):
+    if isinstance(value, float):
+        different_value = random.random()
+    elif isinstance(value, int):
+        different_value = random.randint(0, 1000)
+    elif isinstance(value, list) or isinstance(value, ObservableList):
+        different_value = [random.randint(0, 1000) for i in xrange(10)]
+    elif isinstance(value, dict) or isinstance(value, ObservableDict):
+        different_value = {str(i): random.randint(0, 1000) for i in xrange(10)}
+    while different_value == value:
+        return create_different_value(value)
+    else:
+        return different_value
+
 class EventDispatcherTest(unittest.TestCase):
     def __init__(self, *args):
         super(EventDispatcherTest, self).__init__(*args)
@@ -32,20 +47,6 @@ class EventDispatcherTest(unittest.TestCase):
         logging.info('{testclass}: dispatching value {value}'.format(testclass=self.__class__.__name__,
                                                                      value=value))
 
-    def _create_different_value(self, value):
-        if isinstance(value, float):
-            different_value = random.random()
-        elif isinstance(value, int):
-            different_value = random.randint(0, 1000)
-        elif isinstance(value, list) or isinstance(value, ObservableList):
-            different_value = [random.randint(0, 1000) for i in xrange(10)]
-        elif isinstance(value, dict) or isinstance(value, ObservableDict):
-            different_value = {str(i): random.randint(0, 1000) for i in xrange(10)}
-        while different_value == value:
-            return self._create_different_value(value)
-        else:
-            return different_value
-
     def test_property_individuality(self):
         """
         Check that if you change the value of a property in one instance of EventDispatcher, that it does not change
@@ -56,9 +57,9 @@ class EventDispatcherTest(unittest.TestCase):
         d1_p1 = getattr(d1, 'p1')
         d2_p1 = getattr(d2, 'p1')
         # Create new values for each dispatcher.p1
-        new_d1_p1 = self._create_different_value(d1_p1)
+        new_d1_p1 = create_different_value(d1_p1)
         while new_d1_p1 == d2_p1:                           # Make sure it is different from d2.p1
-            new_d1_p1 = self._create_different_value(d1_p1)
+            new_d1_p1 = create_different_value(d1_p1)
         # Set d1.p1 to the new value and check that d2.p1 did not change
         setattr(d1, 'p1', new_d1_p1)
         self.assertNotEqual(d1.p1, d2.p1)
@@ -70,7 +71,7 @@ class EventDispatcherTest(unittest.TestCase):
         dispatcher = self.dispatcher
         for prop_name, info in dispatcher.event_dispatcher_properties.iteritems():
             value = info['value']
-            different_value = self._create_different_value(value)
+            different_value = create_different_value(value)
             dc = self.dispatch_count
             self.assertNotEqual(value, different_value)
             setattr(dispatcher, info['name'], different_value)
@@ -141,7 +142,7 @@ class EventDispatcherTest(unittest.TestCase):
         if self.assert_callback not in self.dispatcher2.event_dispatcher_properties['p1']['callbacks']:
             self.dispatcher2.bind(p1=self.assert_callback)
         for i in xrange(expected_dispatches/2):
-            self.dispatcher.p1 = self._create_different_value(self.dispatcher.p1)
+            self.dispatcher.p1 = create_different_value(self.dispatcher.p1)
             self.assertEqual(self.dispatcher.p1, self.dispatcher2.p1)
         self.assertEqual(self.dispatch_count, expected_dispatches)
         self.dispatcher2.unbind(p1=self.assert_callback)

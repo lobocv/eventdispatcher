@@ -67,7 +67,5 @@ class ListProperty(Property):
         super(ListProperty, self).register(instance, property_name, self.value, **kwargs)
 
     def __set__(self, obj, value):
-        cb = self.instances[obj]['callbacks'][:]
-        self.register(obj, self.name, value)
-        self.instances[obj]['callbacks'] = cb
-        obj.dispatch(self.name, obj, self.value.list)
+        self.instances[obj]['value'].list = value       # Assign to ObservableList's value
+        obj.dispatch(self.name, obj, value)
