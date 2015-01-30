@@ -13,7 +13,7 @@ class BindError(Exception):
 
 class EventDispatcher(object):
     def __init__(self, **kwargs):
-        self._events = {}
+        self.event_dispatcher_event_callbacks = {}
         bindings = {}
         # Walk through the MRO looking for Property attributes in the classes. Then register and bind them to
         # 'on_<prop_name>' if it exists.
@@ -34,12 +34,15 @@ class EventDispatcher(object):
                 break
 
     def dispatch_event(self, event, *args):
-        for callback in self._events[event]:
+        for callback in self.event_dispatcher_event_callbacks[event]:
             if callback(*args):
                 break
 
     def register_event(self, name):
-        self._events[name] = [getattr(self, 'on_{}'.format(name))] if hasattr(self, 'on_{}'.format(name)) else []
+        if hasattr(self, 'on_{}'.format(name)):
+            self.event_dispatcher_event_callbacks[name] = [getattr(self, 'on_{}'.format(name))]
+        else:
+            self.event_dispatcher_event_callbacks[name] = []
 
     def unbind(self, **kwargs):
         all_properties = self.event_dispatcher_properties
@@ -49,9 +52,9 @@ class EventDispatcher(object):
                     all_properties[prop_name]['callbacks'].remove(callback)
                 except ValueError:
                     raise BindError("No binding for {} in property '{}'".format(callback.__name__, prop_name))
-            elif callback in self._events:
+            elif prop_name in self.event_dispatcher_event_callbacks:
                 try:
-                    self._events.remove(callback)
+                    self.event_dispatcher_event_callbacks[prop_name].remove(callback)
                 except ValueError:
                     raise BindError("No binding for {} in event '{}'".format(callback.__name__, prop_name))
             else:
@@ -62,8 +65,8 @@ class EventDispatcher(object):
         for prop_name in args:
             if prop_name in all_properties:
                 del all_properties[prop_name]['callbacks'][:]
-            elif prop_name in self._events:
-                del self._events[prop_name][:]
+            elif prop_name in self.event_dispatcher_event_callbacks:
+                del self.event_dispatcher_event_callbacks[prop_name][:]
             else:
                 raise BindError("No such property or event '%s'" % prop_name)
 
@@ -72,9 +75,9 @@ class EventDispatcher(object):
             if prop_name in self.event_dispatcher_properties:
                 # Queue the callback into the property
                 self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
-            elif prop_name in self._events:
+            elif prop_name in self.event_dispatcher_event_callbacks:
                 # If a property was not found, search in events
-                self._events[prop_name].append(callback)
+                self.event_dispatcher_event_callbacks[prop_name].append(callback)
             else:
                 raise BindError("No property or event by the name of '%s'" % prop_name)
 
