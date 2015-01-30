@@ -14,8 +14,11 @@ class Property(object):
 
     def __set__(self, obj, value):
         if value != obj.event_dispatcher_properties[self.name]['value']:
-            obj.event_dispatcher_properties[self.name]['value'] = value
-            obj.dispatch(self.name, obj, value)
+            prop = obj.event_dispatcher_properties[self.name]
+            prop['value'] = value
+            for callback in prop['callbacks']:
+                if callback(obj, value):
+                    break
 
     def __delete__(self, obj):
         raise AttributeError("Cannot delete properties")
