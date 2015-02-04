@@ -47,7 +47,7 @@ class UnitPropertyTest(EventDispatcherTest):
             self.assertAlmostEqual(value, after[p], 3)
 
         # Change all properties units
-        self.assertEqual(self.dispatch_count, 3)
+        self.assertEqual(self.assert_callback_count, 3)
         self._check_conversion('m')
         self._check_conversion('inches')
         self._check_conversion('mm')

@@ -41,7 +41,7 @@ class DictPropertyTest(EventDispatcherTest):
         self.dispatcher.p1[3] = 3
         self.dispatcher.p1 = {4: 'Test'}
 
-        self.assertEqual(self.dispatch_count, expected_dispatches)
+        self.assertEqual(self.assert_callback_count, expected_dispatches)
 
 
 if __name__ == '__main__':

@@ -15,7 +15,6 @@ And all properties are named p1 or p2.
 """
 
 
-
 def create_different_value(value):
     if isinstance(value, float):
         different_value = random.random()
@@ -30,22 +29,29 @@ def create_different_value(value):
     else:
         return different_value
 
+
 class EventDispatcherTest(unittest.TestCase):
     def __init__(self, *args):
         super(EventDispatcherTest, self).__init__(*args)
-        self.dispatch_count = 0
-
+        self.assert_callback_count = 0
+        self.blocking_callback_count = 0
 
     def setUp(self):
-        self.dispatch_count = 0
+        self.assert_callback_count = 0
+        self.blocking_callback_count = 0
 
     def tearDown(self):
-        self.dispatch_count = 0
+        self.assert_callback_count = 0
+        self.blocking_callback_count = 0
 
     def assert_callback(self, inst, value):
-        self.dispatch_count += 1
+        self.assert_callback_count += 1
         logging.info('{testclass}: dispatching value {value}'.format(testclass=self.__class__.__name__,
                                                                      value=value))
+
+    def blocking_callback(self, inst, value):
+        self.blocking_callback_count += 1
+        return True
 
     def test_property_individuality(self):
         """
@@ -72,12 +78,28 @@ class EventDispatcherTest(unittest.TestCase):
         for prop_name, info in dispatcher.event_dispatcher_properties.iteritems():
             value = info['value']
             different_value = create_different_value(value)
-            dc = self.dispatch_count
+            dc = self.assert_callback_count
             self.assertNotEqual(value, different_value)
             setattr(dispatcher, info['name'], different_value)
             info = dispatcher.event_dispatcher_properties[prop_name]  # May need to get the updated reference to info.
-            self.assertEqual(dc + 1, self.dispatch_count)
+            self.assertEqual(dc + 1, self.assert_callback_count)
             self.assertEqual(info['value'], different_value)
+
+    def test_block_dispatch_propagation(self):
+        """
+        Test that if a callback in the dispatch sequence returns True, the propagation stops.
+        """
+        dispatcher = self.dispatcher
+        dispatcher.unbind_all('p1')
+        self.assertEqual(self.assert_callback_count, 0)
+        dispatcher.bind(p1=self.assert_callback)
+        dispatcher.bind(p1=self.assert_callback)
+        dispatcher.bind(p1=self.blocking_callback)
+        dispatcher.bind(p1=self.assert_callback)
+
+        dispatcher.p1 = create_different_value(dispatcher.p1)
+        self.assertEqual(self.assert_callback_count, 2)
+
 
     def test_bind_none_existent_property(self):
         """
@@ -144,7 +166,7 @@ class EventDispatcherTest(unittest.TestCase):
         for i in xrange(expected_dispatches/2):
             self.dispatcher.p1 = create_different_value(self.dispatcher.p1)
             self.assertEqual(self.dispatcher.p1, self.dispatcher2.p1)
-        self.assertEqual(self.dispatch_count, expected_dispatches)
+        self.assertEqual(self.assert_callback_count, expected_dispatches)
         self.dispatcher2.unbind(p1=self.assert_callback)
 
     def test_get_property(self):

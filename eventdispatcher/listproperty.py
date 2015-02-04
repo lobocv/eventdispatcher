@@ -51,7 +51,8 @@ class ObservableList(collections.MutableSequence):
 
     def pop(self, index=-1):
         value = self.list.pop(index)
-        self.dispatch(self.list)
+        # self.dispatch(self.list)
+
         return value
 
     def __eq__(self, other):
@@ -62,10 +63,13 @@ class ObservableList(collections.MutableSequence):
 
 
 class ListProperty(Property):
+
     def register(self, instance, property_name, value, **kwargs):
         self.value = ObservableList(value, dispatch_method=partial(instance.dispatch, property_name, instance))
         super(ListProperty, self).register(instance, property_name, self.value, **kwargs)
 
     def __set__(self, obj, value):
         self.instances[obj]['value'].list = value       # Assign to ObservableList's value
-        obj.dispatch(self.name, obj, value)
+        for callback in self.instances[obj]['callbacks']:
+            if callback(obj, value):
+                break

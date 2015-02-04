@@ -63,6 +63,7 @@ class ObservableDict(object):
 
 
 class DictProperty(Property):
+
     def __init__(self, default_value, **kwargs):
         super(DictProperty, self).__init__(default_value, **kwargs)
         if not isinstance(default_value, dict):
@@ -74,4 +75,6 @@ class DictProperty(Property):
 
     def __set__(self, obj, value):
         self.instances[obj]['value'].dictionary = value          # Assign to the ObservableDict's value
-        obj.dispatch(self.name, obj, value)
+        for callback in self.instances[obj]['callbacks']:
+            if callback(obj, value):
+                break

@@ -24,12 +24,12 @@ class ListPropertyTest(EventDispatcherTest):
         d.p1 = [1, 2, 3]
         d2.p1 = [4, 5, 6]
         self.assertNotEquals(d.p1, d2.p1)
-        self.assertEqual(self.dispatch_count, 2)
+        self.assertEqual(self.assert_callback_count, 2)
 
         d.p1.append(1)
         d2.p1.append(2)
         self.assertNotEquals(d.p1, d2.p1)
-        self.assertEqual(self.dispatch_count, 4)
+        self.assertEqual(self.assert_callback_count, 4)
 
     def test_append(self):
         d, d2 = self.dispatcher, self.dispatcher2
@@ -37,7 +37,7 @@ class ListPropertyTest(EventDispatcherTest):
         d.p1.append(2)
         d.p1.append(3)
         self.assertEqual(d.p1, [1, 2, 3])
-        self.assertEqual(self.dispatch_count, 3)
+        self.assertEqual(self.assert_callback_count, 3)
 
     def test_pop(self):
         d, d2 = self.dispatcher, self.dispatcher2
@@ -46,7 +46,7 @@ class ListPropertyTest(EventDispatcherTest):
         self.assertEqual(last, 3)
         self.assertEqual(len(d.p1), 2)
         self.assertEqual(len(d2.p1), 0)
-        self.assertEqual(self.dispatch_count, 2)
+        self.assertEqual(self.assert_callback_count, 2)
 
     def test_extend(self):
         d, d2 = self.dispatcher, self.dispatcher2
@@ -54,7 +54,15 @@ class ListPropertyTest(EventDispatcherTest):
         self.assertEqual(d.p1, [1, 2, 3])
         d.p1.extend([1, 2, 3])
         self.assertEqual(d.p1, [1, 2, 3] * 2)
-        self.assertEqual(self.dispatch_count, 2)
+        self.assertEqual(self.assert_callback_count, 2)
+
+    def test_insert(self):
+        d, d2 = self.dispatcher, self.dispatcher2
+        d.p1 = [1, 3]
+        self.assert_callback_count = 0
+        d.p1.insert(1, 2)
+        self.assertEqual(d.p1, [1, 2, 3])
+        self.assertEqual(self.assert_callback_count, 1)
 
 
 if __name__ == '__main__':
