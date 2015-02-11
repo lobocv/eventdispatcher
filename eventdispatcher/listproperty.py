@@ -51,7 +51,7 @@ class ObservableList(collections.MutableSequence):
 
     def pop(self, index=-1):
         value = self.list.pop(index)
-        # self.dispatch(self.list)
+        self.dispatch(self.list)
 
         return value
 

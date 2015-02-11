@@ -1,13 +1,14 @@
 __author__ = 'calvin'
 
-import copy
+from copy import deepcopy
 
 
 class Property(object):
+
     def __init__(self, default_value):
         self.instances = {}
         self.default_value = default_value
-        self.value = copy.deepcopy(default_value)
+        self.value = deepcopy(default_value)
 
     def __get__(self, obj, objtype=None):
         return obj.event_dispatcher_properties[self.name]['value']
