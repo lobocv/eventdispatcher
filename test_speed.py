@@ -5,6 +5,9 @@ from pyperform import BenchmarkedClass, BenchmarkedFunction
 from eventdispatcher import EventDispatcher, Property, ListProperty, DictProperty  #!
 from unit_tests import create_different_value #!
 
+from eventdispatcher import __version__
+print __version__
+
 @BenchmarkedClass(classname='Dispatcher')
 class Dispatcher(EventDispatcher):
     # p = ListProperty([1,2,3])
