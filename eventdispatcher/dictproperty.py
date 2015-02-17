@@ -37,6 +37,9 @@ class ObservableDict(object):
     def __ne__(self, other):
         return self.dictionary != other
 
+    def __nonzero__(self):
+        return bool(self.dictionary)
+
     def copy(self):
         return self.__class__(self.dictionary, self.dispatch)
 
