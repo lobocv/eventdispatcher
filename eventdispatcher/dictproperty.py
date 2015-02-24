@@ -40,6 +40,10 @@ class ObservableDict(object):
     def __nonzero__(self):
         return bool(self.dictionary)
 
+    def __delitem__(self, key):
+        del self.dictionary[key]
+        self.dispatch(self.dictionary)
+
     def copy(self):
         return self.__class__(self.dictionary, self.dispatch)
 
@@ -63,6 +67,7 @@ class ObservableDict(object):
         item = self.dictionary.pop(key)
         self.dispatch(self.dictionary)
         return item
+
 
 
 class DictProperty(Property):

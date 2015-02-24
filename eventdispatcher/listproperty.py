@@ -37,6 +37,9 @@ class ObservableList(collections.MutableSequence):
     def __iter__(self):
         return iter(self.list)
 
+    def __nonzero__(self):
+        return bool(self.list)
+
     def insert(self, index, value):
         self.list.insert(index, value)
         self.dispatch(self.list)
