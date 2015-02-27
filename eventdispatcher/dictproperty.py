@@ -48,8 +48,12 @@ class ObservableDict(object):
         return self.__class__(self.dictionary, self.dispatch)
 
     def update(self, E=None, **F):
-        self.dictionary.update(E, **F)
-        self.dispatch(self.dictionary)
+        if E and self.dictionary != E:
+            self.dictionary.update(E)
+            self.dispatch(self.dictionary)
+        elif F and self.dictionary != F:
+            self.dictionary.update(F)
+            self.dispatch(self.dictionary)
 
     def keys(self):
         return self.dictionary.keys()
@@ -69,7 +73,6 @@ class ObservableDict(object):
         return item
 
 
-
 class DictProperty(Property):
 
     def __init__(self, default_value, **kwargs):
@@ -82,8 +85,11 @@ class DictProperty(Property):
         super(DictProperty, self).register(instance, property_name, self.value, **kwargs)
 
     def __set__(self, obj, value):
-        self.instances[obj]['value'].dictionary.clear()
-        self.instances[obj]['value'].dictionary.update(value)          # Assign to the ObservableDict's value
-        for callback in self.instances[obj]['callbacks']:
-            if callback(obj, value):
-                break
+        p = self.instances[obj]
+        do_dispatch = p['value'] != value
+        p['value'].dictionary.clear()
+        p['value'].dictionary.update(value)          # Assign to the ObservableDict's value
+        if do_dispatch:
+            for callback in p['callbacks']:
+                if callback(obj, value):
+                    break

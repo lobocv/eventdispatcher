@@ -67,6 +67,7 @@ class ObservableList(collections.MutableSequence):
     def __nonzero__(self):
         return bool(self.list)
 
+
 class ListProperty(Property):
 
     def register(self, instance, property_name, value, **kwargs):
@@ -74,7 +75,10 @@ class ListProperty(Property):
         super(ListProperty, self).register(instance, property_name, self.value, **kwargs)
 
     def __set__(self, obj, value):
-        self.instances[obj]['value'].list[:] = value       # Assign to ObservableList's value
-        for callback in self.instances[obj]['callbacks']:
-            if callback(obj, value):
-                break
+        p = self.instances[obj]
+        do_dispatch = p['value'].list != value              # Check if we need to dispatch
+        self.instances[obj]['value'].list[:] = value        # Assign to ObservableList's value
+        if do_dispatch:
+            for callback in p['callbacks']:
+                if callback(obj, value):
+                    break

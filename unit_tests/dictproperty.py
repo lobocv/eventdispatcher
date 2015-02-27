@@ -34,12 +34,17 @@ class DictPropertyTest(EventDispatcherTest):
         """
         Tests that the callback is called ONLY when the value changes.
         """
-        expected_dispatches = 4
+        expected_dispatches = 5
         self.dispatcher.p1 = {}
-        self.dispatcher.p1.update({1: 1, 2: 2})
+        self.assert_callback_count = 0
+        self.dispatcher.p1.update({'a': 1, 'b': 2})         # Dispatch 1
+        self.dispatcher.p1.update({'a': 1, 'b': 2})
+        self.dispatcher.p1.update(a=1, b=2)
+        self.dispatcher.p1.update(c=3)                      # Dispatch 2
+        self.dispatcher.p1[3] = 3                           # Dispatch 3
         self.dispatcher.p1[3] = 3
-        self.dispatcher.p1[3] = 3
-        self.dispatcher.p1 = {4: 'Test'}
+        del self.dispatcher.p1[3]                           # Dispatch 4
+        self.dispatcher.p1 = {4: 'Test'}                    # Dispatch 5
 
         self.assertEqual(self.assert_callback_count, expected_dispatches)
 
