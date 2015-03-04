@@ -25,8 +25,8 @@ class Property(object):
         raise AttributeError("Cannot delete properties")
 
     def register(self, instance, property_name, default_value, **kwargs):
-        info = {'property': self, 'value': default_value, 'name': property_name, 'callbacks': []}
-        info.update(kwargs)
+        info = kwargs
+        info.update({'property': self, 'value': default_value, 'name': property_name, 'callbacks': []})
         # Create the instances dictionary at registration so that each class has it's own instance of it.
         self.instances[instance] = info
         if not hasattr(instance, 'event_dispatcher_properties'):
