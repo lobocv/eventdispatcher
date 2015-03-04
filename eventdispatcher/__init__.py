@@ -15,9 +15,9 @@ class EventDispatcher(object):
     def __init__(self, **kwargs):
         self.event_dispatcher_event_callbacks = {}
         bindings = {}
-        # Walk through the MRO looking for Property attributes in the classes. Then register and bind them to
-        # 'on_<prop_name>' if it exists.
-        for cls in self.__class__.__mro__:
+        # Walk backwards through the MRO looking for Property attributes in the classes. Then register and bind them to
+        # 'on_<prop_name>' if it exists. Walking backwards allows you to override the default value for a superclass.
+        for cls in reversed(self.__class__.__mro__):
             for prop_name, prop in cls.__dict__.iteritems():
                 if isinstance(prop, Property):
                     prop.name = prop_name
