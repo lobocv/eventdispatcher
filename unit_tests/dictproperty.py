@@ -48,6 +48,21 @@ class DictPropertyTest(EventDispatcherTest):
 
         self.assertEqual(self.assert_callback_count, expected_dispatches)
 
+    def test_iter(self):
+        self.dispatcher.p1 = {i: chr(i) for i in range(5)}
+        key = 0
+        for k in self.dispatcher.p1:
+            self.assertEqual(k, key)
+            key += 1
+
+        for k, v in self.dispatcher.p1.iteritems():
+            self.assertEqual(chr(k), v)
+
+        key = 0
+        for v in self.dispatcher.p1.itervalues():
+            self.assertEqual(chr(key), v)
+            key += 1
+
 
 if __name__ == '__main__':
     unittest.main()

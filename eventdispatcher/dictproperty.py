@@ -37,15 +37,30 @@ class ObservableDict(object):
     def __ne__(self, other):
         return self.dictionary != other
 
-    def __nonzero__(self):
-        return bool(self.dictionary)
-
     def __delitem__(self, key):
         del self.dictionary[key]
         self.dispatch(self.dictionary)
 
+    def __iter__(self):
+        return iter(self.dictionary)
+
+    def __nonzero__(self):
+        return bool(self.dictionary)
+
     def copy(self):
         return self.__class__(self.dictionary, self.dispatch)
+
+    def get(self, key, default=None):
+        self.dictionary.get(key, default)
+
+    def itervalues(self):
+        return self.dictionary.itervalues()
+
+    def iterkeys(self):
+        return self.dictionary.iterkeys()
+
+    def iteritems(self):
+        return self.dictionary.iteritems()
 
     def update(self, E=None, **F):
         if E and self.dictionary != E:
@@ -63,9 +78,6 @@ class ObservableDict(object):
 
     def items(self):
         return self.dictionary.items()
-
-    def iteritems(self):
-        return self.dictionary.iteritems()
 
     def pop(self, key):
         item = self.dictionary.pop(key)
