@@ -22,8 +22,9 @@ Creating a Dispatcher
 ---------------------
 
 In our example, we have a settings file that needs to be constantly written to and updated whenever certain settings 
-change. We have two settings that the file tracks, `last_login` and `favourite_color`. We can create a EventDispatcher
-class that can automatically update the file with the latest values whenever they are changed.
+change. We have two settings that the file tracks, `last_login` and `favourite_color`. 
+
+We can create a EventDispatcher class that can automatically update the file with the latest values whenever they are changed.
 
 ```python
     
@@ -65,15 +66,15 @@ do that for us!
 
 ```python
     s = SettingsFile('./myfile.json')
-    s.last_login = 'May 18 2015'                                        # Updates settings file
-    s.favourite_color = 'blue'                                          # Updates settings file  
+    s.last_login = 'May 18 2015'             # Updates settings file
+    s.favourite_color = 'blue'               # Updates settings file  
 ```
 
 The bound functions are only called when the value of the properties change, so assigning the same date and color will do nothing.
 
 ```python
-    s.last_login = 'May 18 2015'                                        # Does not update the settings file
-    s.favourite_color = 'blue'                                          # Does not update the settings file  
+    s.last_login = 'May 18 2015'             # Does not update the settings file
+    s.favourite_color = 'blue'               # Does not update the settings file  
 ```
     
 Binding Events
