@@ -1,46 +1,50 @@
+import json
 from eventdispatcher import EventDispatcher, Property, ListProperty
 
 
-def my_callback(inst, value):
-    print 'This is from my_callback'
+class SettingsFile(EventDispatcher):
+    last_login = Property(None)
+    color = Property('red')
 
+    def __init__(self, filepath):
+        super(SettingsFile, self).__init__()
+        self.filepath = filepath
+        self.number_of_file_updates = 0
+        # Bind the properties to the function that updates the file
+        self.bind(last_login=self.update_settings_file,
+                  color=self.update_settings_file)
 
-class Dispatcher(EventDispatcher):
-    name = Property('Bob')
-    favourite_foods = ListProperty(['pizza', 'tacos'])
+    def on_last_login(self, inst, last_login):
+        # Default handler for the last_login property
+        print 'last login was %s' % last_login
 
+    def on_color(self, inst, color):
+        # Default handler for the color property
+        print 'color has been set to %s' % color
 
-    def on_name(self, instance, value):
-        print 'My name has changed to %s!' % value
-
-
+    def update_settings_file(self, *args):
+        # Update the file with the latest settings.
+        print 'Updating settings file.'
+        self.number_of_file_updates += 1
+        with open(self.filepath, 'w') as _f:
+            settings = {'last_login': self.last_login, 'color': self.color}
+            json.dump(settings, _f)
 
 
 
 if __name__ == '__main__':
 
-    d = Dispatcher()
-    d2 = Dispatcher()
+    s = SettingsFile('./myfile.json')
+    s.last_login = 'May 18 2015'                                        # Updates settings file
+    s.last_login = 'May 18 2015'                                        # Does not update settings file
+    s.color = 'blue'                                          # Updates settings file
+    s.color = 'blue'                                          # Does not update settings file
+    s.color = 'red'                                           # Updates settings file
 
-    d.name = 'Bob'       # No event is dispatched, the value of name has not changed.
-    d2.name = 'Calvin'   # Event is dispatched because name changed from Bob to Calvin
-
-    d.bind(name=my_callback)
-    d.name = 'Rick'                                 # on_name() and my_callback() will be called
-    d.favourite_foods = ['hot dogs', 'burgers']     # Nothing will be called
-
+    print 'The file was updated %d times' % s.number_of_file_updates
 
 
-    def print_callback(inst, value):
-        print inst.name, value
 
-    d.bind(favourite_foods=d2.setter('favourite_foods'))    # Bind d.favourite_foods to d2.favourite_foods
-    d.bind(favourite_foods=print_callback)                  # Bind d.favourite_foods to print_callback
-    d2.bind(favourite_foods=print_callback)                 # Bind d2.favourite_foods to print_callback
 
-    d2.dispatch('favourite_foods', d, d.favourite_foods.list)       #  Rick ['hot dogs', 'burgers']
-    d.favourite_foods = ['apples', 'bananas']                       #  Calvin ['apples', 'bananas']
-                                                                    #  Rick ['apples', 'bananas']
-    d2.favourite_foods = ['beef', 'chicken']                        #  Calvin ['beef', 'chicken']
 
-    a=1
+
