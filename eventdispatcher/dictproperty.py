@@ -4,7 +4,7 @@ from functools import partial
 from . import Property
 
 
-class ObservableDict(collections.Mapping):
+class ObservableDict(collections.MutableMapping):
 
     def __init__(self, dictionary, dispatch_method):
         self.dictionary = dictionary.copy()
