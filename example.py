@@ -39,9 +39,21 @@ if __name__ == '__main__':
     s.last_login = 'May 18 2015'                                        # Does not update settings file
     s.color = 'blue'                                          # Updates settings file
     s.color = 'blue'                                          # Does not update settings file
-    s.color = 'red'                                           # Updates settings file
+
 
     print 'The file was updated %d times' % s.number_of_file_updates
+
+
+    file1 = SettingsFile('./myfile1.json')
+    file2 = SettingsFile('./myfile2.json')
+
+    # Binds the color property from file1 to the color property of file2
+    # Changing file1.color will automatically update the value of file2.color
+    file1.bind(color=file2.setter('color'))
+
+    file1.color = 'green'
+
+
 
 
 

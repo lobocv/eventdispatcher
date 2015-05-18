@@ -67,7 +67,6 @@ do that for us!
 ```python
     s = SettingsFile('./myfile.json')
     s.last_login = 'May 18 2015'             # Updates settings file
-    
     # last login was May 18 2015
     # Updating settings file.
     s.favourite_color = 'blue'               # Updates settings file
@@ -121,5 +120,13 @@ You can bind an event to another so that when one changes, the other will reflec
     # Binds the color property from file1 to the color property of file2
     # Changing file1.color will automatically update the value of file2.color
     file1.bind(color=file2.setter('color'))     
+    
+    file1.color = 'green'
+    # color has been set to green       
+    # Updating settings file.
+    # color has been set to green
+    # Updating settings file.
+
+    
     
     
