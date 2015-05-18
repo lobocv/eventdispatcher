@@ -10,6 +10,9 @@ class ObservableDict(collections.MutableMapping):
         self.dictionary = dictionary.copy()
         self.dispatch = dispatch_method
 
+    def __repr__(self):
+        return self.dictionary.__repr__()
+
     def __get__(self, instance, owner):
         return self.dictionary
 

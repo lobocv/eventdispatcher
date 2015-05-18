@@ -13,6 +13,9 @@ class ObservableList(collections.MutableSequence):
         self.list = list(l[:])
         self.dispatch = dispatch_method
 
+    def __repr__(self):
+        return self.list.__repr__()
+
     def __get__(self, instance, owner):
         return self.list
 

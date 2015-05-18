@@ -10,6 +10,9 @@ class ObservableSet(collections.MutableSet):
         self.set = dictionary.copy()
         self.dispatch = dispatch_method
 
+    def __repr__(self):
+        return self.set.__repr__()
+
     def __get__(self, instance, owner):
         return self.set
 
