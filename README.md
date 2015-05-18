@@ -67,7 +67,13 @@ do that for us!
 ```python
     s = SettingsFile('./myfile.json')
     s.last_login = 'May 18 2015'             # Updates settings file
-    s.favourite_color = 'blue'               # Updates settings file  
+    
+    # last login was May 18 2015
+    # Updating settings file.
+    s.favourite_color = 'blue'               # Updates settings file
+    # color has been set to blue
+    # Updating settings file.  
+      
 ```
 
 The bound functions are only called when the value of the properties change, so assigning the same date and color will do nothing.
