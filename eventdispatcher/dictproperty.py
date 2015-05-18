@@ -1,10 +1,11 @@
 __author__ = 'calvin'
+import collections
 from functools import partial
-
 from . import Property
 
 
-class ObservableDict(object):
+class ObservableDict(collections.Mapping):
+
     def __init__(self, dictionary, dispatch_method):
         self.dictionary = dictionary.copy()
         self.dispatch = dispatch_method
@@ -27,6 +28,9 @@ class ObservableDict(object):
         self.dictionary[key] = value
         if check:
             self.dispatch(self.dictionary)
+
+    def __len__(self):
+        return len(self.dictionary)
 
     def __eq__(self, other):
         return self.dictionary == other
