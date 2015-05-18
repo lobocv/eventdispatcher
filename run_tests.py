@@ -8,9 +8,10 @@ from unit_tests.listproperty import ListPropertyTest
 from unit_tests.property import PropertyTest
 from unit_tests.unitproperty import UnitPropertyTest
 from unit_tests.dictproperty import DictPropertyTest
+from unit_tests.setproperty import SetPropertyTest
 from unit_tests.events import EventTest
 
-RUN_TESTS = [EventTest, PropertyTest, ListPropertyTest, DictPropertyTest, UnitPropertyTest]
+RUN_TESTS = [EventTest, PropertyTest, ListPropertyTest, DictPropertyTest, UnitPropertyTest, SetPropertyTest]
 
 total_errors = 0
 total_failures = 0

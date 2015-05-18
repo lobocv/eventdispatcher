@@ -8,6 +8,7 @@ import random
 from eventdispatcher import BindError, Property, ListProperty
 from eventdispatcher.listproperty import ObservableList
 from eventdispatcher.dictproperty import ObservableDict
+from eventdispatcher.setproperty import ObservableSet
 
 """
 All tests are assuming the event dispatcher instance is stored in self.dispatcher or self.dispatcher2
@@ -24,6 +25,8 @@ def create_different_value(value):
         different_value = [random.randint(0, 1000) for i in xrange(10)]
     elif isinstance(value, dict) or isinstance(value, ObservableDict):
         different_value = {str(i): random.randint(0, 1000) for i in xrange(10)}
+    elif isinstance(value, set) or isinstance(value, ObservableSet):
+        different_value = set([random.randint(0, 1000) for i in xrange(10)])
     while different_value == value:
         return create_different_value(value)
     else:
