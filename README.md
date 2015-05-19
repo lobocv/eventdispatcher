@@ -3,8 +3,8 @@ EventDispatcher
 
 An event dispatcher framework inspired by the [Kivy project](http://kivy.org/#home).
  
-Property instances are monitored and dispatch events when their value changes. The event callback handler name defaults to the `on_PROPERTY_NAME` and is
-called with two arguments: the dispatcher instance and the <b>new</b> value of the property.
+Property instances are monitored and dispatch events when their value changes. The event callback handler name defaults to `on_PROPERTY_NAME` and is
+called with two arguments: the dispatcher instance and the value of the property.
 
 New in Version 1.5
 ==================
