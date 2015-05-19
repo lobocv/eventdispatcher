@@ -6,7 +6,7 @@ An event dispatcher framework inspired by the [Kivy project](http://kivy.org/#ho
 Property instances are monitored and dispatch events when their value changes. The event callback handler name defaults to `on_PROPERTY_NAME` and is
 called with two arguments: the dispatcher instance and the value of the property.
 
-New in Version 1.7
+New in Version 1.64
 ==================
 
 - Added SetProperty
