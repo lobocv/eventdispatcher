@@ -5,6 +5,7 @@ from .property import Property
 from .dictproperty import DictProperty
 from .listproperty import ListProperty
 from .unitproperty import UnitProperty
+from .setproperty import SetProperty
 
 
 class BindError(Exception):
