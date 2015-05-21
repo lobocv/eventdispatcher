@@ -32,8 +32,7 @@ class UnitProperty(Property):
 
     def __init__(self, default_value, units):
         self.units = units
-        self.default_units = units
-        super(UnitProperty, self).__init__(default_value)
+        super(UnitProperty, self).__init__(default_value, default_units=units)
 
     @staticmethod
     def convert_all(units):
@@ -43,7 +42,7 @@ class UnitProperty(Property):
         """
         for unitproperty in UnitProperty.unit_properties:
             for instance, info in unitproperty.instances.iteritems():
-                c = ConversionFactors["{}_to_{}".format(unitproperty.default_units, units)]
+                c = ConversionFactors["{}_to_{}".format(info['default_units'], units)]
                 setattr(instance, unitproperty.name, unitproperty.default_value * c)
                 unitproperty.units = units
 
@@ -55,8 +54,7 @@ class UnitProperty(Property):
             setattr(instance, self.name, c * self.instances[instance]['value'])
             self.units = units
 
-    def register(self, instance, property_name, default_value, **kwargs):
-        kwargs['units'] = self.units
-        super(UnitProperty, self).register(instance, property_name, default_value, **kwargs)
+    def register(self, instance, property_name, default_value):
+        super(UnitProperty, self).register(instance, property_name, default_value)
         # Keep track of all the UnitProperties so that we can change them all when the unit system changes
         self.unit_properties.add(self)

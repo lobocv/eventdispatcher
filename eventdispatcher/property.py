@@ -5,10 +5,11 @@ from copy import deepcopy
 
 class Property(object):
 
-    def __init__(self, default_value):
+    def __init__(self, default_value, **additionals):
         self.instances = {}
         self.default_value = default_value
         self.value = deepcopy(default_value)
+        self._additionals = additionals
 
     def __get__(self, obj, objtype=None):
         return obj.event_dispatcher_properties[self.name]['value']
@@ -24,8 +25,8 @@ class Property(object):
     def __delete__(self, obj):
         raise AttributeError("Cannot delete properties")
 
-    def register(self, instance, property_name, default_value, **kwargs):
-        info = kwargs
+    def register(self, instance, property_name, default_value):
+        info = self._additionals.copy()
         info.update({'property': self, 'value': default_value, 'name': property_name, 'callbacks': []})
         # Create the instances dictionary at registration so that each class has it's own instance of it.
         self.instances[instance] = info

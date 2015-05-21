@@ -99,9 +99,9 @@ class DictProperty(Property):
         if not isinstance(default_value, dict):
             raise ValueError('DictProperty takes dict only.')
 
-    def register(self, instance, property_name, value, **kwargs):
+    def register(self, instance, property_name, value):
         self.value = ObservableDict(value, dispatch_method=partial(instance.dispatch, property_name, instance))
-        super(DictProperty, self).register(instance, property_name, self.value, **kwargs)
+        super(DictProperty, self).register(instance, property_name, self.value)
 
     def __set__(self, obj, value):
         p = self.instances[obj]

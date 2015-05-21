@@ -90,9 +90,9 @@ class SetProperty(Property):
         if not isinstance(default_value, set):
             raise ValueError('SetProperty takes sets only.')
 
-    def register(self, instance, property_name, value, **kwargs):
+    def register(self, instance, property_name, value):
         self.value = ObservableSet(value, dispatch_method=partial(instance.dispatch, property_name, instance))
-        super(SetProperty, self).register(instance, property_name, self.value, **kwargs)
+        super(SetProperty, self).register(instance, property_name, self.value)
 
     def __set__(self, obj, value):
         p = self.instances[obj]
