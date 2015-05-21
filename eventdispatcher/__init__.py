@@ -6,7 +6,7 @@ from .dictproperty import DictProperty
 from .listproperty import ListProperty
 from .unitproperty import UnitProperty
 from .setproperty import SetProperty
-
+from .limitproperty import LimitProperty
 
 class BindError(Exception):
     pass

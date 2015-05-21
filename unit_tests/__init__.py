@@ -5,10 +5,8 @@ import logging
 import random
 
 # logging.getLogger().setLevel('INFO')
-from eventdispatcher import BindError, Property, ListProperty
-from eventdispatcher.listproperty import ObservableList
-from eventdispatcher.dictproperty import ObservableDict
-from eventdispatcher.setproperty import ObservableSet
+from eventdispatcher import BindError, Property
+
 
 """
 All tests are assuming the event dispatcher instance is stored in self.dispatcher or self.dispatcher2
@@ -16,28 +14,22 @@ And all properties are named p1 or p2.
 """
 
 
-def create_different_value(value):
-    if isinstance(value, float):
-        different_value = random.random()
-    elif isinstance(value, int):
-        different_value = random.randint(0, 1000)
-    elif isinstance(value, list) or isinstance(value, ObservableList):
-        different_value = [random.randint(0, 1000) for i in xrange(10)]
-    elif isinstance(value, dict) or isinstance(value, ObservableDict):
-        different_value = {str(i): random.randint(0, 1000) for i in xrange(10)}
-    elif isinstance(value, set) or isinstance(value, ObservableSet):
-        different_value = set([random.randint(0, 1000) for i in xrange(10)])
-    while different_value == value:
-        return create_different_value(value)
-    else:
-        return different_value
-
 
 class EventDispatcherTest(unittest.TestCase):
     def __init__(self, *args):
         super(EventDispatcherTest, self).__init__(*args)
         self.assert_callback_count = 0
         self.blocking_callback_count = 0
+
+    def create_different_value(self, value):
+        if isinstance(value, float):
+            different_value = random.random()
+        elif isinstance(value, int):
+            different_value = random.randint(0, 1000)
+        while different_value == value:
+            return self.create_different_value(value)
+        else:
+            return different_value
 
     def setUp(self):
         self.assert_callback_count = 0
@@ -66,9 +58,9 @@ class EventDispatcherTest(unittest.TestCase):
         d1_p1 = getattr(d1, 'p1')
         d2_p1 = getattr(d2, 'p1')
         # Create new values for each dispatcher.p1
-        new_d1_p1 = create_different_value(d1_p1)
+        new_d1_p1 = self.create_different_value(d1_p1)
         while new_d1_p1 == d2_p1:                           # Make sure it is different from d2.p1
-            new_d1_p1 = create_different_value(d1_p1)
+            new_d1_p1 = self.create_different_value(d1_p1)
         # Set d1.p1 to the new value and check that d2.p1 did not change
         setattr(d1, 'p1', new_d1_p1)
         self.assertNotEqual(d1.p1, d2.p1)
@@ -80,7 +72,7 @@ class EventDispatcherTest(unittest.TestCase):
         dispatcher = self.dispatcher
         for prop_name, info in dispatcher.event_dispatcher_properties.iteritems():
             value = info['value']
-            different_value = create_different_value(value)
+            different_value = self.create_different_value(value)
             dc = self.assert_callback_count
             self.assertNotEqual(value, different_value)
             setattr(dispatcher, info['name'], different_value)
@@ -100,7 +92,7 @@ class EventDispatcherTest(unittest.TestCase):
         dispatcher.bind(p1=self.blocking_callback)
         dispatcher.bind(p1=self.assert_callback)
 
-        dispatcher.p1 = create_different_value(dispatcher.p1)
+        dispatcher.p1 = self.create_different_value(dispatcher.p1)
         self.assertEqual(self.assert_callback_count, 2)
 
 
@@ -167,7 +159,7 @@ class EventDispatcherTest(unittest.TestCase):
         if self.assert_callback not in self.dispatcher2.event_dispatcher_properties['p1']['callbacks']:
             self.dispatcher2.bind(p1=self.assert_callback)
         for i in xrange(expected_dispatches/2):
-            self.dispatcher.p1 = create_different_value(self.dispatcher.p1)
+            self.dispatcher.p1 = self.create_different_value(self.dispatcher.p1)
             self.assertEqual(self.dispatcher.p1, self.dispatcher2.p1)
         self.assertEqual(self.assert_callback_count, expected_dispatches)
         self.dispatcher2.unbind(p1=self.assert_callback)

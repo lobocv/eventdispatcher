@@ -5,7 +5,7 @@ import unittest
 from . import EventDispatcherTest
 from eventdispatcher import EventDispatcher
 from eventdispatcher import ListProperty
-
+import random
 
 class Dispatcher(EventDispatcher):
     p1 = ListProperty([])
@@ -18,6 +18,13 @@ class ListPropertyTest(EventDispatcherTest):
         self.dispatcher2 = Dispatcher()
         self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
         self.dispatcher2.bind(p1=self.assert_callback, p2=self.assert_callback)
+
+    def create_different_value(self, value):
+        different_value = [random.randint(0, 1000) for i in xrange(10)]
+        while different_value == value:
+            return self.create_different_value(value)
+        else:
+            return different_value
 
     def test_mutability(self):
         d, d2 = self.dispatcher, self.dispatcher2
