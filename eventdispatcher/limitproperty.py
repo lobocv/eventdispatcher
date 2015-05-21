@@ -12,13 +12,15 @@ class LimitProperty(Property):
 
     def __set__(self, obj, value):
         info = obj.event_dispatcher_properties[self.name]
+        prop = obj.event_dispatcher_properties[self.name]
         if value != info['value']:
             # Clip the value to be within min/max
-            if value <= info['min']:
-                value = info['min']
-            elif value >= info['max']:
-                value = info['max']
-            prop = obj.event_dispatcher_properties[self.name]
+            if value < info['min']:
+                prop['value'] = info['min']
+                return
+            elif value > info['max']:
+                prop['value'] = info['max']
+                return
             prop['value'] = value
             for callback in prop['callbacks']:
                 if callback(obj, value):
