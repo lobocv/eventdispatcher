@@ -58,7 +58,7 @@ class ObservableDict(collections.MutableMapping):
         return self.__class__(self.dictionary, self.dispatch)
 
     def get(self, key, default=None):
-        self.dictionary.get(key, default)
+        return self.dictionary.get(key, default)
 
     def itervalues(self):
         return self.dictionary.itervalues()
