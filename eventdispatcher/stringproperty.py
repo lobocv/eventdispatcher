@@ -3,7 +3,6 @@ __author__ = 'calvin'
 import gettext
 
 from eventdispatcher import Property
-from weakref import WeakSet
 
 
 class StringProperty(Property):
@@ -20,7 +19,7 @@ class StringProperty(Property):
         if isinstance(value, _):
             prop = obj.event_dispatcher_properties[self.name]
             if '_' in prop:
-                value = value.translate()
+                value = value.translate(prop['_'])
             else:
                 # If it is tagged as translatable, register this object as an observer
                 prop.update({'_': value, 'obj': obj})
