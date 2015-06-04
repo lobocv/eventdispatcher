@@ -6,7 +6,7 @@ from eventdispatcher import Property
 
 
 class StringProperty(Property):
-    observers = []
+    observers = set()
     lang = None
 
     def __init__(self, default_value):
@@ -23,7 +23,7 @@ class StringProperty(Property):
             else:
                 # If it is tagged as translatable, register this object as an observer
                 prop.update({'_': value, 'obj': obj})
-                StringProperty.observers.append(self.translate)
+                StringProperty.observers.add(self.translate)
                 value = _.translate(value)
                 self.translatables.append(prop)
 
@@ -87,9 +87,9 @@ class _(str):
         else:
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
 
-
     @staticmethod
     def translate(s, *args, **kwargs):
+        print 'translating    %s' % s
         if _.lang is None:
             return s.format(args, kwargs)
         else:
