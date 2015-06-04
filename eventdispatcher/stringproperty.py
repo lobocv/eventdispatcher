@@ -89,7 +89,6 @@ class _(str):
 
     @staticmethod
     def translate(s, *args, **kwargs):
-        print 'translating    %s' % s
         if _.lang is None:
             return s.format(args, kwargs)
         else:
