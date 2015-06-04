@@ -74,6 +74,20 @@ class _(str):
 
         return self
 
+    def __mul__(self, other):
+        if type(other) is bool:
+            if other:
+                return self
+            else:
+                return ''
+        if type(other) is int:
+            if not hasattr(self, '_additionals'):
+                self._additionals = []
+            self._additionals.extend([self] * other)
+        else:
+            raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
+
+
     @staticmethod
     def translate(s, *args, **kwargs):
         if _.lang is None:
