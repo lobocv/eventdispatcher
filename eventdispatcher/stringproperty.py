@@ -54,7 +54,6 @@ class StringProperty(Property):
             callback()
 
 
-
 class _(str):
     """
     This is a wrapper to the gettext translation function _(). This wrapper allows the eventdispatcher.StringProperty
@@ -64,15 +63,27 @@ class _(str):
     """
     lang = None
 
-    def __init__(self, s, *args, **kwargs):
-        super(_, self).__init__(s, *args, **kwargs)
+    def __add__(self, other):
+        if not hasattr(self, '_additionals'):
+            self._additionals = []
+
+        if isinstance(other, _):
+            self._additionals.append(other)
+        else:
+            self._additionals.append(_(other))
+
+        return self
 
     @staticmethod
     def translate(s, *args, **kwargs):
         if _.lang is None:
             return s.format(args, kwargs)
         else:
-            return _.lang(s).format(args, kwargs)
+            if hasattr(s, '_additionals'):
+                return ''.join(map(lambda _s: _.lang(_s).format(args, kwargs), [s] + s._additionals))
+            else:
+                return _.lang(s).format(args, kwargs)
+
 
 if __name__ == '__main__':
 
@@ -105,6 +116,13 @@ if __name__ == '__main__':
     t2.s, t2.g
     t.s = _('{} {} {}'.format('1', 'two', '3'))
     t.g = _('abc {}')
+
+    # Test adding _'s
+    asd = _('asd')
+    qwe = _('qwe')
+
+    asdqwe = asd + qwe
+    assert isinstance(asdqwe, _)
 
     StringProperty.switch_lang(to_T)
     StringProperty.switch_lang(to_G)
