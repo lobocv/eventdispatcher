@@ -16,19 +16,14 @@ class StringProperty(Property):
             raise ValueError('StringProperty can only accepts strings.')
 
     def __set__(self, obj, value):
+        prop = obj.event_dispatcher_properties[self.name]
         if isinstance(value, _):
-            prop = obj.event_dispatcher_properties[self.name]
-            if '_' in prop:
-                value = value.translate(prop['_'])
-            else:
-                # If it is tagged as translatable, register this object as an observer
-                prop.update({'_': value, 'obj': obj})
-                StringProperty.observers.add(self.translate)
-                value = _.translate(value)
-                self.translatables.append(prop)
-
-        if value != obj.event_dispatcher_properties[self.name]['value']:
-            prop = obj.event_dispatcher_properties[self.name]
+            # If it is tagged as translatable, register this object as an observer
+            prop.update({'_': value, 'obj': obj})
+            StringProperty.observers.add(self.translate)
+            value = _.translate(value)
+            self.translatables.append(prop)
+        if value != prop['value']:
             prop['value'] = value
             for callback in prop['callbacks']:
                 if callback(obj, value):
@@ -62,6 +57,32 @@ class _(str):
 
     """
     lang = None
+    count = 0
+
+    def __init__(self, s, *args, **kwargs):
+        super(_, self).__init__(s, *args, **kwargs)
+
+    ''' Make comparisons of _ instances always equal False in order to correctly dispatch Properties that contain
+        _ instances such as DictProperty and ListProperty. Otherwise it will only compare the _ value and not it's
+        _additionals, which might change.
+
+        For example, assigning the value of the following expression will not trigger a dispatch when the value of
+        screen_saver changes, because the resultant _ object is still equal to "Screen Saver" but the _._additionals
+        change from _("ON") to _("OFF")
+
+            _("Screen Saver") + '\n' + (_('ON' if screen_saver else _('OFF')))
+        '''
+    def __eq__(self, other):
+        if isinstance(other, _):
+            return False
+        else:
+            return super(_, self).__eq__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, _):
+            return True
+        else:
+            return super(_, self).__ne__(other)
 
     def __add__(self, other):
         if not hasattr(self, '_additionals'):
@@ -70,7 +91,7 @@ class _(str):
         if isinstance(other, _):
             self._additionals.append(other)
         else:
-            self._additionals.append(_(other))
+            self._additionals.append(other)
 
         return self
 
@@ -88,12 +109,22 @@ class _(str):
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
 
     @staticmethod
-    def translate(s, *args, **kwargs):
+    def _join_translatables(s):
         if _.lang is None:
-            return s.format(args, kwargs)
+            return ''.join([s] + s._additionals)
         else:
-            if hasattr(s, '_additionals'):
-                return ''.join(map(lambda _s: _.lang(_s).format(args, kwargs), [s] + s._additionals))
+            l = [s]
+            for a in s._additionals:
+                l.append(_.lang(a) if isinstance(a, _) else a)
+            return ''.join(l)
+
+    @staticmethod
+    def translate(s, *args, **kwargs):
+        if hasattr(s, '_additionals'):
+            return _._join_translatables(s)
+        else:
+            if _.lang is None:
+                return s.format(args, kwargs)
             else:
                 return _.lang(s).format(args, kwargs)
 
