@@ -109,7 +109,7 @@ class _(str):
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
 
     @staticmethod
-    def _join_translatables(s):
+    def join_additionals(s):
         if _.lang is None:
             return ''.join([s] + s._additionals)
         else:
@@ -121,7 +121,7 @@ class _(str):
     @staticmethod
     def translate(s, *args, **kwargs):
         if hasattr(s, '_additionals'):
-            return _._join_translatables(s)
+            return _.join_additionals(s)
         else:
             if _.lang is None:
                 return s.format(args, kwargs)
