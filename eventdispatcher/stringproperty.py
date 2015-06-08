@@ -5,15 +5,27 @@ import gettext
 from eventdispatcher import Property
 
 
+translator = None
+
+def fake_translation(s):
+    return 'Le %s' % s if s != '\n' else '\n'
+
 class StringProperty(Property):
     observers = set()
-    lang = None
 
     def __init__(self, default_value):
         super(StringProperty, self).__init__(default_value)
-        self.translatables = []
+        self.translatables = set()
         if not isinstance(default_value, basestring):
             raise ValueError('StringProperty can only accepts strings.')
+
+    def register(self, instance, property_name, default_value):
+        super(StringProperty, self).register(instance, property_name, default_value)
+        if isinstance(default_value, _):
+            prop = instance.event_dispatcher_properties[property_name]
+            prop.update({'_': default_value, 'obj': instance})
+            StringProperty.observers.add(self.translate)
+            self.translatables.add(instance)
 
     def __set__(self, obj, value):
         prop = obj.event_dispatcher_properties[self.name]
@@ -21,8 +33,7 @@ class StringProperty(Property):
             # If it is tagged as translatable, register this object as an observer
             prop.update({'_': value, 'obj': obj})
             StringProperty.observers.add(self.translate)
-            value = _.translate(value)
-            self.translatables.append(prop)
+            self.translatables.add(obj)
         if value != prop['value']:
             prop['value'] = value
             for callback in prop['callbacks']:
@@ -30,21 +41,25 @@ class StringProperty(Property):
                     break
 
     def translate(self):
-        for prop in self.translatables:
+        for obj in self.translatables:
+            prop = obj.event_dispatcher_properties[self.name]
             prop['value'] = _.translate(prop['_'])
             for callback in prop['callbacks']:
                 callback(prop['obj'], prop['value'])
 
     @staticmethod
     def switch_lang(lang):
+        global translator
         # get the right locales directory, and instanciate a gettext
         #locale_dir = os.path.join(os.path.dirname(__file__), 'data', 'locales')
         if lang == 'english':
-            _.lang = None
+            translator = None
         else:
             # locales = gettext.translation(lang, _.locale_dir, languages=['languages'])
             # _.lang = locales.ugettext
-            _.lang = lang
+            translator = lang
+
+        # Dispatch the changes to all the observers
         for callback in StringProperty.observers:
             callback()
 
@@ -56,11 +71,15 @@ class _(str):
     re-translated automatically.
 
     """
-    lang = None
-    count = 0
 
-    def __init__(self, s, *args, **kwargs):
-        super(_, self).__init__(s, *args, **kwargs)
+    def __new__(cls, s, *args, **kwargs):
+        if translator:
+            trans = translator(s, *args, **kwargs)
+            obj = super(_, cls).__new__(cls, trans, *args, **kwargs)
+        else:
+             obj = super(_, cls).__new__(cls, s, *args, **kwargs)
+        obj.untranslated = s
+        return obj
 
     def __eq__(self, other):
         """
@@ -117,12 +136,12 @@ class _(str):
 
     @staticmethod
     def join_additionals(s):
-        if _.lang is None:
-            return ''.join([s] + s._additionals)
+        if translator is None:
+            return ''.join([s.untranslated] + s._additionals)
         else:
-            l = [_.lang(s)]
+            l = [translator(s.untranslated)]
             for a in s._additionals:
-                l.append(_.lang(a) if isinstance(a, _) else a)
+                l.append(translator(a.untranslated) if isinstance(a, _) else a)
             return ''.join(l)
 
     @staticmethod
@@ -130,10 +149,10 @@ class _(str):
         if hasattr(s, '_additionals'):
             return _.join_additionals(s)
         else:
-            if _.lang is None:
-                return s.format(args, kwargs)
+            if translator is None:
+                return s.untranslated.format(args, kwargs)
             else:
-                return _.lang(s).format(args, kwargs)
+                return translator(s).format(args, kwargs)
 
 
 if __name__ == '__main__':
@@ -154,19 +173,23 @@ if __name__ == '__main__':
         s = StringProperty('blah')
         g = StringProperty('blue')
 
-    @staticmethod
-    def to_T(s):
-        return 'T_' + s
+    def to_french(s):
+        return 'Le ' + s
 
-    @staticmethod
     def to_G(s):
         return 'G_' + s
 
+    StringProperty.switch_lang(to_french)
     t = Trans()
     t2 = Trans()
     t2.s, t2.g
-    t.s = _('{} {} {}'.format('1', 'two', '3'))
+
+    s = _('{} {} {}'.format('1', 'two', '3'))
+    t.s = s
     t.g = _('abc {}')
+    StringProperty.switch_lang(to_G)
+    StringProperty.switch_lang(to_french)
+
 
     # Test adding _'s
     asd = _('asd')
@@ -175,7 +198,7 @@ if __name__ == '__main__':
     asdqwe = asd + qwe
     assert isinstance(asdqwe, _)
 
-    StringProperty.switch_lang(to_T)
+
     StringProperty.switch_lang(to_G)
     sdf=3
 

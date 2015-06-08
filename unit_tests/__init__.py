@@ -95,7 +95,6 @@ class EventDispatcherTest(unittest.TestCase):
         dispatcher.p1 = self.create_different_value(dispatcher.p1)
         self.assertEqual(self.assert_callback_count, 2)
 
-
     def test_bind_none_existent_property(self):
         """
         Checks to make sure calling bind on a property that does not exist will raise a BindError
