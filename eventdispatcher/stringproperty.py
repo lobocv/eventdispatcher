@@ -62,29 +62,36 @@ class _(str):
     def __init__(self, s, *args, **kwargs):
         super(_, self).__init__(s, *args, **kwargs)
 
-    ''' Make comparisons of _ instances always equal False in order to correctly dispatch Properties that contain
-        _ instances such as DictProperty and ListProperty. Otherwise it will only compare the _ value and not it's
-        _additionals, which might change.
-
-        For example, assigning the value of the following expression will not trigger a dispatch when the value of
-        screen_saver changes, because the resultant _ object is still equal to "Screen Saver" but the _._additionals
-        change from _("ON") to _("OFF")
-
-            _("Screen Saver") + '\n' + (_('ON' if screen_saver else _('OFF')))
-        '''
     def __eq__(self, other):
+        """
+        Compare the fully translated string (including the _additionals) if comparing _ objects, otherwise compare
+        the english strings
+        """
         if isinstance(other, _):
-            return False
+            return _.translate(self) == _.translate(other)
         else:
             return super(_, self).__eq__(other)
 
     def __ne__(self, other):
+        """
+        Compare the fully translated string (including the _additionals) if comparing _ objects, otherwise compare
+        the english strings
+        """
         if isinstance(other, _):
-            return True
+            return _.translate(self) != _.translate(other)
         else:
             return super(_, self).__ne__(other)
 
     def __add__(self, other):
+        """
+        Rather than creating a new _ instance of the sum of the two strings, keep the added string as a reference so
+        that we can translate each individually. In this way we can make sure the following translates correctly:
+
+            eg.
+
+                _('Show Lines') + '\n' + (_('On') if show_lines else _('Off'))
+
+        """
         if not hasattr(self, '_additionals'):
             self._additionals = []
 
@@ -113,7 +120,7 @@ class _(str):
         if _.lang is None:
             return ''.join([s] + s._additionals)
         else:
-            l = [s]
+            l = [_.lang(s)]
             for a in s._additionals:
                 l.append(_.lang(a) if isinstance(a, _) else a)
             return ''.join(l)
