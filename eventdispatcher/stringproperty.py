@@ -1,14 +1,18 @@
-__author__ = 'calvin'
+author = 'calvin'
 
 import gettext
-
 from eventdispatcher import Property
 
-
+# The translation (gettext) function to be used
 translator = None
 
+
 def fake_translation(s):
+    """
+    A fake translation function to 'french' that can help you verify that you have tagged all text in the program
+    """
     return 'Le %s' % s if s != '\n' else '\n'
+
 
 class StringProperty(Property):
     observers = set()
@@ -48,23 +52,44 @@ class StringProperty(Property):
                 callback(prop['obj'], prop['value'])
 
     @staticmethod
-    def switch_lang(lang):
+    def remove_translation():
+        """
+        Remove the currently set translation function and return the language back to english (or default)
+        """
+        StringProperty.set_translation_function(None)
+
+    @staticmethod
+    def set_translation_function(func):
+        """
+        Set the translation function and dispatch all changes
+        """
         global translator
-        # get the right locales directory, and instanciate a gettext
-        #locale_dir = os.path.join(os.path.dirname(__file__), 'data', 'locales')
-        if lang == 'english':
-            translator = None
-        else:
-            # locales = gettext.translation(lang, _.locale_dir, languages=['languages'])
-            # _.lang = locales.ugettext
-            translator = lang
+        translator = func
+        # Dispatch the changes to all the observers
+        for callback in StringProperty.observers:
+            callback()
+
+    @staticmethod
+    def load_fake_translation():
+        """
+        Load a fake translation function to that can help you verify that you have tagged all text in the program.
+        Adds 'Le' to the beginning of every string.
+        """
+        StringProperty.set_translation_function(fake_translation)
+
+    @staticmethod
+    def switch_lang(domain, localedir=None, languages=None, class_=None, fallback=False, codeset=None):
+        global translator
+        # Create the translation class from gettext
+        translation = gettext.translation(domain, localedir, languages, class_, fallback, codeset)
+        translator = translation.ugettext
 
         # Dispatch the changes to all the observers
         for callback in StringProperty.observers:
             callback()
 
 
-class _(str):
+class _(unicode):
     """
     This is a wrapper to the gettext translation function _(). This wrapper allows the eventdispatcher.StringProperty
     to be automatically updated when the language (translation function) changes. In this way, all labels will be
@@ -77,7 +102,7 @@ class _(str):
             trans = translator(s, *args, **kwargs)
             obj = super(_, cls).__new__(cls, trans, *args, **kwargs)
         else:
-             obj = super(_, cls).__new__(cls, s, *args, **kwargs)
+            obj = super(_, cls).__new__(cls, s, *args, **kwargs)
         obj.untranslated = s
         return obj
 
@@ -152,7 +177,7 @@ class _(str):
             if translator is None:
                 return s.untranslated.format(args, kwargs)
             else:
-                return translator(s).format(args, kwargs)
+                return translator(s.untranslated).format(args, kwargs)
 
 
 if __name__ == '__main__':
@@ -161,34 +186,27 @@ if __name__ == '__main__':
 
     class Trans(EventDispatcher):
         s = StringProperty('testing')
-        g = StringProperty('cheese')
 
         def on_s(self, inst, s):
             print s
 
-        def on_g(self, inst, g):
-            print g
-
     class Trans2(EventDispatcher):
         s = StringProperty('blah')
-        g = StringProperty('blue')
-
-    def to_french(s):
-        return 'Le ' + s
 
     def to_G(s):
         return 'G_' + s
 
-    StringProperty.switch_lang(to_french)
-    t = Trans()
-    t2 = Trans()
-    t2.s, t2.g
+    locale_dir = "/home/calvin/smc/pygame/lib/PygameWidgets/PygameWidgets/resources/translations"
+    StringProperty.switch_lang('ssi', locale_dir, languages=['French'])
 
-    s = _('{} {} {}'.format('1', 'two', '3'))
-    t.s = s
-    t.g = _('abc {}')
-    StringProperty.switch_lang(to_G)
-    StringProperty.switch_lang(to_french)
+    t = Trans()
+    t.s = _('Color')
+    t.s = _("asd")
+    StringProperty.set_translation_function(to_G)
+    t.s = _('Color')
+    StringProperty.switch_lang('ssi', locale_dir, languages=['french'])
+
+    StringProperty.remove_translation()
 
 
     # Test adding _'s
@@ -199,6 +217,5 @@ if __name__ == '__main__':
     assert isinstance(asdqwe, _)
 
 
-    StringProperty.switch_lang(to_G)
     sdf=3
 
