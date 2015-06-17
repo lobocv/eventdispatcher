@@ -31,6 +31,13 @@ class StringProperty(Property):
             StringProperty.observers.add(self.translate)
             self.translatables.add(instance)
 
+    def __get__(self, obj, owner):
+        value = obj.event_dispatcher_properties[self.name]['value']
+        if isinstance(value, _):
+            return _.translate(value)
+        else:
+            return value
+
     def __set__(self, obj, value):
         prop = obj.event_dispatcher_properties[self.name]
         if isinstance(value, _):
@@ -111,20 +118,22 @@ class _(unicode):
         Compare the fully translated string (including the _additionals) if comparing _ objects, otherwise compare
         the english strings
         """
+        s = _.translate(self)
         if isinstance(other, _):
-            return _.translate(self) == _.translate(other)
+            return s == _.translate(other)
         else:
-            return super(_, self).__eq__(other)
+            return s == other
 
     def __ne__(self, other):
         """
         Compare the fully translated string (including the _additionals) if comparing _ objects, otherwise compare
         the english strings
         """
+        s = _.translate(self)
         if isinstance(other, _):
-            return _.translate(self) != _.translate(other)
+            return s != _.translate(other)
         else:
-            return super(_, self).__ne__(other)
+            return s != other
 
     def __add__(self, other):
         """
