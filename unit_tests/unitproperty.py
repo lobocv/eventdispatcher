@@ -9,8 +9,8 @@ from eventdispatcher.unitproperty import UnitProperty, ConversionFactors
 
 class Dispatcher(EventDispatcher):
     p1 = UnitProperty(1, 'm')
-    p2 = UnitProperty(10, 'm')
-    p3 = UnitProperty(100, 'm')
+    p2 = UnitProperty(1, 'm')
+    p3 = UnitProperty(10, 'm')
 
 
 class UnitPropertyTest(EventDispatcherTest):
@@ -24,52 +24,47 @@ class UnitPropertyTest(EventDispatcherTest):
                              p2=self.assert_callback,
                              p3=self.assert_callback)
 
+    def test_property_independence(self):
+        d = self.dispatcher
+        d2 = self.dispatcher2
+
+        for name in d.event_dispatcher_properties.keys():
+            self._check_conversion(d, name, 'm')
+            self._check_conversion(d2, name, 'm')
+            self.assert_callback_count = 0
+            # Check that when we convert the same property in d2, d1's value does not change
+            d2_value = getattr(d2, name)
+            self._check_conversion(d, name, 'ft')
+            d_value = getattr(d, name)
+            self.assertNotEqual(d2_value, d_value)
+            self.assertEquals(self.assert_callback_count, 1)
+
     def test_change_units(self):
         d = self.dispatcher
-        units = 'ft'
-        previous = {}
-        after = {}
-        for p in d.event_dispatcher_properties.iterkeys():
-            prop = d.get_dispatcher_property(p)
-            prop_units = prop.units
-            prop_value = getattr(d, p)
-            if prop_units == units:
-                c = 1.
-            else:
-                c = ConversionFactors['{}_to_{}'.format(prop_units, units)]
-            previous[p] = prop_value
-            after[p] = prop_value * c
-            # Change property's units individually
-            prop.convert_to('ft')
+        for name in d.event_dispatcher_properties.keys():
+            # Change all properties units
+            self._check_conversion(d, name, 'm')
+            self._check_conversion(d, name, 'inches')
+            self._check_conversion(d, name, 'mm')
+            self._check_conversion(d, name, 'inches')
+            self._check_conversion(d, name, 'yards')
+            self._check_conversion(d, name, 'km')
+            self._check_conversion(d, name, 'cm')
+            self._check_conversion(d, name, 'm')
+        self.assertEquals(self.assert_callback_count, 7 * len(d.event_dispatcher_properties))
 
-        for p in d.event_dispatcher_properties.iterkeys():
-            value = getattr(d, p)
-            self.assertAlmostEqual(value, after[p], 3)
-
-        # Change all properties units
-        self.assertEqual(self.assert_callback_count, 3)
-        self._check_conversion('m')
-        self._check_conversion('inches')
-        self._check_conversion('mm')
-        self._check_conversion('inches')
-        self._check_conversion('yards')
-        self._check_conversion('km')
-        self._check_conversion('cm')
-        self._check_conversion('m')
-
-    def _check_conversion(self, units):
-        d = self.dispatcher
-        before = {}
-        after = {}
-        for prop_name in d.event_dispatcher_properties.iterkeys():
-            p = self.dispatcher.get_dispatcher_property(prop_name)
-            before[prop_name] = getattr(self.dispatcher, prop_name)
-            c = ConversionFactors["{}_to_{}".format(p.units, units)]
-            after[prop_name] = before[prop_name] * c
-        UnitProperty.convert_all(units)
-        for prop_name in d.event_dispatcher_properties.iterkeys():
-            result = getattr(self.dispatcher, prop_name)
-            self.assertAlmostEqual(result, after[prop_name], 3)
+    def _check_conversion(self, dispatcher, prop_name, units):
+        """
+        Manually conver the from current units to `units` and ensure that UnitProperty.convert_to function results in
+        the same value
+        """
+        before = getattr(dispatcher, prop_name)
+        current_units = UnitProperty.get_units(dispatcher, prop_name)
+        c = ConversionFactors["{}_to_{}".format(current_units, units)]
+        after = before * c
+        UnitProperty.convert_to(dispatcher, prop_name, units)
+        result = getattr(self.dispatcher, prop_name)
+        self.assertAlmostEqual(result, after, 3)
 
 
 if __name__ == '__main__':

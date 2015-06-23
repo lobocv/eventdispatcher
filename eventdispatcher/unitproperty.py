@@ -31,28 +31,20 @@ class UnitProperty(Property):
     unit_properties = WeakSet()
 
     def __init__(self, default_value, units):
-        self.units = units
-        super(UnitProperty, self).__init__(default_value, default_units=units)
+        super(UnitProperty, self).__init__(default_value, units=units)
 
     @staticmethod
-    def convert_all(units):
-        """
-        Iterate through all instances of UnitProperty, performing conversions
-        :param units:
-        """
-        for unitproperty in UnitProperty.unit_properties:
-            for instance, info in unitproperty.instances.iteritems():
-                c = ConversionFactors["{}_to_{}".format(info['default_units'], units)]
-                setattr(instance, unitproperty.name, unitproperty.default_value * c)
-                unitproperty.units = units
+    def get_units(dispatcher, property_name):
+        return dispatcher.event_dispatcher_properties[property_name]['units']
 
-    def convert_to(self, units):
-        if self.units == units:
+    @staticmethod
+    def convert_to(dispatcher, property_name, units):
+        info = dispatcher.event_dispatcher_properties[property_name]
+        if info['units'] == units:
             return
-        c = ConversionFactors["{}_to_{}".format(self.units, units)]
-        for instance in self.instances:
-            setattr(instance, self.name, c * self.instances[instance]['value'])
-            self.units = units
+        c = ConversionFactors["{}_to_{}".format(info['units'], units)]
+        setattr(dispatcher, property_name, c * info['value'])
+        info['units'] = units
 
     def register(self, instance, property_name, default_value):
         super(UnitProperty, self).register(instance, property_name, default_value)
