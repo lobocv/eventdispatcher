@@ -150,6 +150,8 @@ class _(unicode):
 
         if isinstance(other, _):
             self._additionals.append(other)
+            if hasattr(other, '_additionals'):
+                self._additionals.extend(other._additionals)
         else:
             self._additionals.append(other)
 
