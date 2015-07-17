@@ -173,12 +173,14 @@ class _(unicode):
     @staticmethod
     def join_additionals(s):
         if translator is None:
-            return ''.join([s.untranslated] + s._additionals)
+            l = [s.untranslated]
+            for a in s._additionals:
+                l.append(a.untranslated if isinstance(a, _) else a)
         else:
             l = [translator(s.untranslated)]
             for a in s._additionals:
                 l.append(translator(a.untranslated) if isinstance(a, _) else a)
-            return ''.join(l)
+        return ''.join(l)
 
     @staticmethod
     def translate(s, *args, **kwargs):
