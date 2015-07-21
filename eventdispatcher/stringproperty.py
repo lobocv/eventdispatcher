@@ -186,13 +186,22 @@ class _(unicode):
 
     @staticmethod
     def translate(s, *args, **kwargs):
-        if hasattr(s, '_additionals'):
-            return _.join_additionals(s)
+        if isinstance(s, _):
+            # If we were passed a translatable string object _
+            if hasattr(s, '_additionals'):
+                return _.join_additionals(s)
+            else:
+                if translator is None:
+                    return s.untranslated.format(args, kwargs)
+                else:
+                    return translator(s.untranslated).format(args, kwargs)
         else:
             if translator is None:
-                return s.untranslated.format(args, kwargs)
+                return s
             else:
-                return translator(s.untranslated).format(args, kwargs)
+                return translator(s).format(args, kwargs)
+
+
 
 
 if __name__ == '__main__':
