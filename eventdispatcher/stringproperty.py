@@ -45,6 +45,9 @@ class StringProperty(Property):
             prop.update({'_': value, 'obj': obj})
             StringProperty.observers.add(self.translate)
             self.translatables.add(obj)
+        else:
+            if obj in self.translatables:
+                self.translatables.remove(obj)
         if value != prop['value']:
             prop['value'] = value
             for callback in prop['callbacks']:
