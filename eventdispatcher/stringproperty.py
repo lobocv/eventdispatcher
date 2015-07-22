@@ -45,6 +45,9 @@ class StringProperty(Property):
             prop.update({'_': value, 'obj': obj})
             StringProperty.observers.add(self.translate)
             self.translatables.add(obj)
+        else:
+            if obj in self.translatables:
+                self.translatables.remove(obj)
         if value != prop['value']:
             prop['value'] = value
             for callback in prop['callbacks']:
@@ -105,6 +108,8 @@ class _(unicode):
     """
 
     def __new__(cls, s, *args, **kwargs):
+        if isinstance(s, _):
+            s = unicode(s)
         if translator:
             trans = translator(s, *args, **kwargs)
             obj = super(_, cls).__new__(cls, trans, *args, **kwargs)
@@ -150,6 +155,8 @@ class _(unicode):
 
         if isinstance(other, _):
             self._additionals.append(other)
+            if hasattr(other, '_additionals'):
+                self._additionals.extend(other._additionals)
         else:
             self._additionals.append(other)
 
@@ -171,22 +178,33 @@ class _(unicode):
     @staticmethod
     def join_additionals(s):
         if translator is None:
-            return ''.join([s.untranslated] + s._additionals)
+            l = [s.untranslated]
+            for a in s._additionals:
+                l.append(a.untranslated if isinstance(a, _) else a)
         else:
             l = [translator(s.untranslated)]
             for a in s._additionals:
                 l.append(translator(a.untranslated) if isinstance(a, _) else a)
-            return ''.join(l)
+        return ''.join(l)
 
     @staticmethod
     def translate(s, *args, **kwargs):
-        if hasattr(s, '_additionals'):
-            return _.join_additionals(s)
+        if isinstance(s, _):
+            # If we were passed a translatable string object _
+            if hasattr(s, '_additionals'):
+                return _.join_additionals(s)
+            else:
+                if translator is None:
+                    return s.untranslated.format(args, kwargs)
+                else:
+                    return translator(s.untranslated).format(args, kwargs)
         else:
             if translator is None:
-                return s.untranslated.format(args, kwargs)
+                return s
             else:
-                return translator(s.untranslated).format(args, kwargs)
+                return translator(s).format(args, kwargs)
+
+
 
 
 if __name__ == '__main__':
