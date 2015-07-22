@@ -12,19 +12,27 @@ class LimitProperty(Property):
 
     def __set__(self, obj, value):
         info = obj.event_dispatcher_properties[self.name]
-        prop = obj.event_dispatcher_properties[self.name]
         if value != info['value']:
             # Clip the value to be within min/max
             if value < info['min']:
-                prop['value'] = info['min']
-                return
+                # Only dispatch if the current value is not already clipped to the minimum
+                if info['value'] != info['min']:
+                    info['value'] = info['min']
+                else:
+                    return
             elif value > info['max']:
-                prop['value'] = info['max']
-                return
-            prop['value'] = value
-            for callback in prop['callbacks']:
+                # Only dispatch if the current value is not already clipped to the maximum
+                if info['value'] != info['max']:
+                    info['value'] = info['max']
+                else:
+                    return
+            else:
+                info['value'] = value
+            # Dispatch callbacks
+            for callback in info['callbacks']:
                 if callback(obj, value):
                     break
+
 
     def __delete__(self, obj):
         raise AttributeError("Cannot delete properties")
