@@ -204,7 +204,15 @@ class _(unicode):
             else:
                 return translator(s).format(args, kwargs)
 
-
+    @classmethod
+    def join(cls, sep, iterable):
+        for ii, s in enumerate(iterable):
+            if ii == 0:
+                t = cls(s)
+            else:
+                t += sep
+                t += s
+        return t
 
 
 if __name__ == '__main__':
