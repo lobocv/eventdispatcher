@@ -176,7 +176,7 @@ class _(unicode):
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
 
     def __repr__(self):
-        return _.translate(self)
+        return u"{trans} ({orig})".format(trans=_.translate(self), orig=self.untranslated)
 
     def __str__(self):
         return _.translate(self)
