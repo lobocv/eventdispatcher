@@ -197,21 +197,21 @@ class _(unicode):
         return ''.join(l)
 
     @staticmethod
-    def translate(s, *args, **kwargs):
+    def translate(s):
         if isinstance(s, _):
             # If we were passed a translatable string object _
             if hasattr(s, '_additionals'):
                 return _.join_additionals(s)
             else:
                 if translator is None:
-                    return s.untranslated.format(args, kwargs)
+                    return s.untranslated
                 else:
-                    return translator(s.untranslated).format(args, kwargs)
+                    return translator(s.untranslated)
         else:
             if translator is None:
                 return s
             else:
-                return translator(s).format(args, kwargs)
+                return translator(s)
 
     @classmethod
     def join(cls, sep, iterable):
