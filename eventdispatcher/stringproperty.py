@@ -175,6 +175,15 @@ class _(unicode):
         else:
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
 
+    def __repr__(self):
+        return _.translate(self)
+
+    def __str__(self):
+        return _.translate(self)
+
+    def __unicode__(self):
+        return _.translate(self)
+
     @staticmethod
     def join_additionals(s):
         if translator is None:
