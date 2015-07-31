@@ -2,6 +2,7 @@ __author__ = 'calvin'
 
 from . import Property
 
+
 class LimitProperty(Property):
 
     def __init__(self, default_value, min, max):
@@ -32,7 +33,6 @@ class LimitProperty(Property):
             for callback in info['callbacks']:
                 if callback(obj, value):
                     break
-
 
     def __delete__(self, obj):
         raise AttributeError("Cannot delete properties")

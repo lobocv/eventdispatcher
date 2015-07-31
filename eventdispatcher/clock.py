@@ -9,8 +9,8 @@ class Clock(object):
     clock = None
 
     def __init__(self, *args, **kwargs):
-        self.scheduled_funcs = set()
-        self.scheduled_events = deque([])
+        self.scheduled_funcs = Counter()
+        self.queue = deque([])
         Clock.clock = self
         super(Clock, self).__init__(*args, **kwargs)
 
@@ -19,13 +19,12 @@ class Clock(object):
         return Clock.clock
 
     def _run_scheduled_events(self):
-        events = self.scheduled_events
+        events = self.queue
         funcs = self.scheduled_funcs
         popleft = events.popleft
-        remove = funcs.remove
         for i in xrange(len(events)):
             f = popleft()
-            remove(f)
+            funcs[f] -= 1
             f()
 
     def run(self):
