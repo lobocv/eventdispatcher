@@ -23,7 +23,7 @@ class ScheduledEvent(object):
         self.timeout = timeout
         self.lock = threading.Lock()
         self._active = 1
-        self.clock = Clock.get_running_clock()
+        ScheduledEvent.clock = Clock.get_running_clock()
 
     def __iter__(self):
         return self
