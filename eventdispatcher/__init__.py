@@ -8,13 +8,15 @@ from .unitproperty import UnitProperty
 from .setproperty import SetProperty
 from .limitproperty import LimitProperty
 from .stringproperty import StringProperty, _
+from .scheduledevent import ScheduledEvent
+
 
 class BindError(Exception):
     pass
 
 
 class EventDispatcher(object):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.event_dispatcher_event_callbacks = {}
         bindings = {}
         # Walk backwards through the MRO looking for Property attributes in the classes. Then register and bind them to
