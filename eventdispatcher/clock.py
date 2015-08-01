@@ -9,6 +9,7 @@ class Clock(object):
     clock = None
 
     def __init__(self, *args, **kwargs):
+        self._running = 0
         self.scheduled_funcs = Counter()
         self.queue = deque([])
         Clock.clock = self
@@ -27,8 +28,12 @@ class Clock(object):
             funcs[f] -= 1
             f()
 
+    def kill(self):
+        self._running = 0
+
     def run(self):
         # Use all local variables to speed up the loop
         _run_scheduled_events = self._run_scheduled_events
+        self._running = 1
         while self._running:
             _run_scheduled_events()
