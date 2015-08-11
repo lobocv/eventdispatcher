@@ -81,6 +81,8 @@ class ObservableSet(collections.MutableSet):
         self.dispatch(self.set)
         return item
 
+    def difference(self, items):
+        return self.set.difference(items)
 
 
 class SetProperty(Property):
