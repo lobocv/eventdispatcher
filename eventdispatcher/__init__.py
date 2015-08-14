@@ -32,6 +32,19 @@ class EventDispatcher(object):
 
         self.bind(**bindings)
 
+    def force_dispatch(self, prop_name, value):
+        """
+        Assigns the value to the property and then dispatches the event, regardless of whether that value is the same
+        as the previous value.
+        :param prop_name: property name
+        :param value: value to assign to the property
+        """
+        previous_value = getattr(self, prop_name)
+        if previous_value == value:
+            self.dispatch(prop_name, self, previous_value)
+        else:
+            setattr(self, prop_name, value)
+
     def dispatch(self, key, *args):
         for callback in self.event_dispatcher_properties[key]['callbacks']:
             if callback(*args):
