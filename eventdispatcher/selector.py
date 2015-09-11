@@ -5,10 +5,11 @@ from .dictproperty import DictProperty
 
 
 class Selector(EventDispatcher):
-    current = DictProperty({})
+    # current = DictProperty({})
 
     def __init__(self, options=[], keys=[], wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
+        self.current = {}
         self.wrap = wrap
         self.keys = []
         self.options = []

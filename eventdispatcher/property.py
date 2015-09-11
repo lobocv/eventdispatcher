@@ -30,8 +30,6 @@ class Property(object):
         info.update({'property': self, 'value': default_value, 'name': property_name, 'callbacks': []})
         # Create the instances dictionary at registration so that each class has it's own instance of it.
         self.instances[instance] = info
-        if not hasattr(instance, 'event_dispatcher_properties'):
-            instance.event_dispatcher_properties = {}
         instance.event_dispatcher_properties[property_name] = info
 
     def get_dispatcher_property(self, property_name):

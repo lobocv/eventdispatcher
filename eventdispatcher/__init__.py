@@ -18,6 +18,7 @@ class BindError(Exception):
 class EventDispatcher(object):
     def __init__(self, *args, **kwargs):
         self.event_dispatcher_event_callbacks = {}
+        self.event_dispatcher_properties = {}
         bindings = {}
         # Walk backwards through the MRO looking for Property attributes in the classes. Then register and bind them to
         # 'on_<prop_name>' if it exists. Walking backwards allows you to override the default value for a superclass.
