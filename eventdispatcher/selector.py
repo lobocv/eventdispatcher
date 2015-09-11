@@ -1,7 +1,8 @@
 __author__ = 'calvin'
 
-from . import EventDispatcher
-from .dictproperty import DictProperty
+from eventdispatcher import EventDispatcher
+from collections import deque
+from itertools import izip_longest
 
 
 class Selector(EventDispatcher):
@@ -9,71 +10,94 @@ class Selector(EventDispatcher):
 
     def __init__(self, options=[], keys=[], wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
-        self.current = {}
         self.wrap = wrap
-        self.keys = []
-        self.options = []
+        self.current_set = 'default'
+        self.option_sets = {}
+        self.set_options(options, keys)
         self.register_event('value')
         self.register_event('index')
         self.register_event('key')
-        self.set_options(options, keys)
 
-    def set_options(self, options, keys=[]):
+    def set_options(self, options, keys=[], name='default'):
+        options = deque([o for o in izip_longest(options, keys, xrange(len(options)), fillvalue='')])
+        self.option_sets[name] = options
         self.options = options
-        if keys:
-            self.keys = keys
-        else:
-            self.keys = [str(opt) for opt in options]
-        if options:
-            self.current.update({'index': 0, 'value': self.options[0], 'key': self.keys[0]})
-            # self.dispatch_event('index', self, self.index)
 
+    def __iter__(self):
+        return iter(self.option_sets[self.current_set])
     @property
     def index(self):
-        return self.current['index']
+        return self.option_sets[self.current_set][0][2]
 
     @index.setter
     def index(self, i):
-        self.current.update({'index': i, 'value': self.options[i], 'key': self.keys[i]})
+        options = self.option_sets[self.current_set]
+        for j, (value, key, index) in enumerate(options):
+            if i == index and j:
+                options.rotate(len(options) - j)
+                self.dispatch_selection_change()
+                return
 
     @property
     def value(self):
-        return self.current['value']
+        return self.option_sets[self.current_set][0][0]
 
     @value.setter
     def value(self, x):
-        i = self.options.index(x)
-        self.current.update({'index': i, 'value': x, 'key': self.keys[i]})
+        options = self.option_sets[self.current_set]
+        for j, (value, key, index) in enumerate(options):
+            if x == value and j:
+                options.rotate(len(options) - j)
+                self.dispatch_selection_change()
+                return
 
     @property
     def key(self):
-        return self.current['key']
+        return self.option_sets[self.current_set][0][1]
 
     @key.setter
     def key(self, x):
-        i = self.keys.index(x)
-        self.current.update({'index': i, 'value': self.options[i], 'key': x})
+        options = self.option_sets[self.current_set]
+        for j, (value, key, index) in enumerate(options):
+            if x == key and j:
+                options.rotate(len(options) - j)
+                self.dispatch_selection_change()
+                return
 
-    def on_current(self, inst, current):
-        self.dispatch_event('value', inst, current['value'])
-        self.dispatch_event('index', inst, current['index'])
-        self.dispatch_event('key', inst, current['key'])
+    def keys(self, name=None):
+        return [k for v, k, i in self.option_sets[self.current_set]]
+
+    def values(self, name=None):
+        return [v for v, k, i in self.option_sets[self.current_set]]
+
+    def dispatch_selection_change(self):
+        value, key, index = self.option_sets[self.current_set][0]
+        self.dispatch_event('value', self, value)
+        self.dispatch_event('index', self, index)
+        self.dispatch_event('key', self, key)
 
     def next(self, *args):
-        index = self.index + 1
-        if index < len(self.options):
-            self.index = index
-        elif self.wrap:
-            self.index = 0
+        self.option_sets[self.current_set].rotate(-1)
+        self.dispatch_selection_change()
 
     def prev(self, *args):
-        index = self.index - 1
-        if index >= 0:
-            self.index = index
-        elif self.wrap:
-            self.index = len(self.options) - 1
+        self.option_sets[self.current_set].rotate(1)
+        self.dispatch_selection_change()
 
     @property
     def json_repr(self):
-        options = [obj.json_repr if hasattr(obj, 'json_repr') else obj for obj in self.options]
-        return {'options': options, 'keys': self.keys, 'index': self.index}
+        s = {}
+        for name, optset in self.option_sets.iteritems():
+            s[name] = [(v.json_repr if hasattr(v, 'json_repr') else v, key, index) for v, key, index in optset]
+        return s
+
+
+if __name__ == '__main__':
+    def callback(asd, v):
+        print v
+
+    s = Selector(options=[10, 20, 30, 40, 50], keys=['calvin', 'chris', 'adam', 'steve', 'salma'])
+    s.bind(key=callback)
+    s.index = 2
+    s.value=50
+    s.key = 'calvin'
