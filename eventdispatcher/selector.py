@@ -1,12 +1,12 @@
 __author__ = 'calvin'
 
-from eventdispatcher import EventDispatcher
+from eventdispatcher import EventDispatcher, Property
 from collections import deque, OrderedDict
 from itertools import izip_longest
 
 
 class Selector(EventDispatcher):
-    # current = DictProperty({})
+    current_set = Property('Default')
 
     def __init__(self, options=[], keys=[], name='default', wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
@@ -17,6 +17,7 @@ class Selector(EventDispatcher):
         self.register_event('value')
         self.register_event('index')
         self.register_event('key')
+        self.bind(current_set=self.dispatch_selection_change)
 
     def set_options(self, options, keys=[], name='default'):
         options = deque([o for o in izip_longest(options, keys, xrange(len(options)), fillvalue='')])
@@ -80,12 +81,19 @@ class Selector(EventDispatcher):
                 return
 
     def keys(self, name=None):
-        return [k for v, k, i in self.option_sets[self.current_set]]
+        if name is None:
+            name = self.current_set
+        keys = sorted(list(self.option_sets[name]), key=lambda x: x[2])
+        return [k for v, k, i in keys]
+        # return [k for v, k, i in self.option_sets[name]]
 
     def values(self, name=None):
-        return [v for v, k, i in self.option_sets[self.current_set]]
+        if name is None:
+            name = self.current_set
+        values = sorted(list(self.option_sets[name]), key=lambda x: x[2])
+        return [v for v, k, i in values]
 
-    def dispatch_selection_change(self):
+    def dispatch_selection_change(self, *args):
         value, key, index = self.option_sets[self.current_set][0]
         self.dispatch_event('value', self, value)
         self.dispatch_event('index', self, index)
