@@ -8,7 +8,6 @@ from itertools import izip_longest
 class Selector(EventDispatcher):
     current_set = Property('Default')
 
-
     def __init__(self, options=[], keys=[], name='default', wrap=True, **kwargs):
         super(Selector, self).__init__(**kwargs)
         self.wrap = wrap
@@ -86,7 +85,6 @@ class Selector(EventDispatcher):
             name = self.current_set
         keys = sorted(list(self.option_sets[name]), key=lambda x: x[2])
         return [k for v, k, i in keys]
-        # return [k for v, k, i in self.option_sets[name]]
 
     def values(self, name=None):
         if name is None:
