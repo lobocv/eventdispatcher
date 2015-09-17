@@ -79,9 +79,32 @@ class ListProperty(Property):
 
     def __set__(self, obj, value):
         p = self.instances[obj]
-        do_dispatch = p['value'].list != value              # Check if we need to dispatch
+        # Check if we need to dispatch
+        do_dispatch = len(p['value'].list) != len(value) or not ListProperty.compare_sequences(p['value'], value)
         self.instances[obj]['value'].list[:] = value        # Assign to ObservableList's value
         if do_dispatch:
             for callback in p['callbacks']:
                 if callback(obj, value):
                     break
+
+    @staticmethod
+    def compare_sequences(iter1, iter2):
+        """
+        Compares two iterators to determine if they are equal. Used to compare lists and tuples
+        """
+        iter1, iter2 = iter(iter1), iter(iter2)
+        for i1 in iter1:
+            try:
+                i2 = next(iter2)
+            except StopIteration:
+                return False
+
+            if i1 != i2:
+                return False
+
+        try:
+            i2 = next(iter2)
+        except StopIteration:
+            return True
+
+        return False
