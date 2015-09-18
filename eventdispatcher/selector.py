@@ -99,10 +99,14 @@ class Selector(EventDispatcher):
         self.dispatch_event('key', self, key)
 
     def next(self, *args):
+        if self.index == len(self.option_sets[self.current_set]) - 1 and not self.wrap:
+            return
         self.option_sets[self.current_set].rotate(-1)
         self.dispatch_selection_change()
 
     def prev(self, *args):
+        if self.index == 0 and not self.wrap:
+            return
         self.option_sets[self.current_set].rotate(1)
         self.dispatch_selection_change()
 
