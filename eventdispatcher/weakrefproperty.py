@@ -31,7 +31,13 @@ class WeakRefProperty(Property):
             return value
 
     def __set__(self, obj, value):
-        super(WeakRefProperty, self).__set__(obj, ref(value))
+        wr = ref(value) if value is not None else None
+        if wr != obj.event_dispatcher_properties[self.name]['value']:
+            prop = obj.event_dispatcher_properties[self.name]
+            prop['value'] = wr
+            for callback in prop['callbacks']:
+                if callback(obj, value):
+                    break
 
     def register(self, instance, property_name, default_value):
         wr = None if default_value is None else ref(default_value)
