@@ -4,11 +4,6 @@ __author__ = 'calvin'
 
 from time import time
 import threading
-from functools import partial
-
-RUNNING = 1
-KILL = 0
-
 import weakref
 from clock import Clock
 
@@ -16,6 +11,8 @@ from clock import Clock
 class ScheduledEvent(object):
     """ Creates a trigger to the scheduler generator that is thread-safe."""
     objs = weakref.WeakValueDictionary({})
+    RUNNING = 1
+    KILL = 0
 
     def __init__(self, func, timeout=0):
         self.func = func
@@ -52,7 +49,7 @@ class ScheduledEvent(object):
 
         def _kill():
             try:
-                self.generator.send(KILL)
+                self.generator.send(ScheduledEvent.KILL)
             except StopIteration:
                 pass
         # We need to schedule the kill, in case it is being called from within the function/generator
@@ -73,11 +70,11 @@ class ScheduledEvent(object):
         return "ScheduledEvent for {}".format(self.func)
 
     def next(self, *args):
-        with self.lock:
-            try:
-                self.call_generator()
-            except StopIteration:
-                pass
+        try:
+            with self.lock:
+                self.generator.send(ScheduledEvent.RUNNING)
+        except StopIteration:
+            pass
 
     @staticmethod
     def schedule_once(func, timeout=0, start=True):
@@ -89,7 +86,6 @@ class ScheduledEvent(object):
         if timeout:
             s = ScheduledEvent(func, timeout)
             s.generator = s._timeout_generator(func)
-            s.call_generator = partial(s.generator.send, RUNNING)
             s.generator.next()
             s.start() if start else s.stop()
             return s
@@ -105,9 +101,7 @@ class ScheduledEvent(object):
         :param func: Scheduled Function
         """
         s = ScheduledEvent(func, timeout=0)
-        # s.generator = s._trigger_generator(func).next
         s.generator = s._trigger_generator(func)
-        s.call_generator = partial(s.generator.send, RUNNING)
         s.generator.next()
         return s.next
 
@@ -121,7 +115,6 @@ class ScheduledEvent(object):
         """
         s = ScheduledEvent(func, timeout=interval)
         s.generator = s._interval_generator(func)
-        s.call_generator = partial(s.generator.send, RUNNING)
         s.generator.next()
         s.start() if start else s.stop()
         ScheduledEvent.objs[id(s)] = s

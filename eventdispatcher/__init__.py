@@ -7,6 +7,7 @@ from .listproperty import ListProperty
 from .unitproperty import UnitProperty
 from .setproperty import SetProperty
 from .limitproperty import LimitProperty
+from .weakrefproperty import WeakRefProperty
 from .stringproperty import StringProperty, _
 from .scheduledevent import ScheduledEvent
 
