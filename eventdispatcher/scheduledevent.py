@@ -103,7 +103,7 @@ class ScheduledEvent(object):
         s = ScheduledEvent(func, timeout=0)
         s.generator = s._trigger_generator(func)
         s.generator.next()
-        return s.next
+        return s
 
     @staticmethod
     def schedule_interval(func, interval, start=False):
