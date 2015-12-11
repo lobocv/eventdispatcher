@@ -47,14 +47,14 @@ class EventDispatcher(object):
         else:
             setattr(self, prop_name, value)
 
-    def dispatch(self, key, *args):
+    def dispatch(self, key, *args, **kwargs):
         for callback in self.event_dispatcher_properties[key]['callbacks']:
-            if callback(*args):
+            if callback(*args, **kwargs):
                 break
 
-    def dispatch_event(self, event, *args):
+    def dispatch_event(self, event, *args, **kwargs):
         for callback in self.event_dispatcher_event_callbacks[event]:
-            if callback(*args):
+            if callback(*args, **kwargs):
                 break
 
     def register_event(self, name):
