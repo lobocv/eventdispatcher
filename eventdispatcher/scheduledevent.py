@@ -66,8 +66,19 @@ class ScheduledEvent(object):
             self.clock.scheduled_funcs[self.next] += 1
             self.clock.queue.append(self.next)
 
+    def reset_trigger(self, reschedule=False):
+        if self.clock.scheduled_funcs[self.func]:
+            self.clock.scheduled_funcs[self.func] -= 1
+            self.clock.queue.remove(self.func)
+        if reschedule:
+            self.next()
+
+    @property
+    def is_scheduled(self):
+        return bool(self.clock.scheduled_funcs[self.func])
+
     def __repr__(self):
-        return "ScheduledEvent for {}".format(self.func)
+        return "ScheduledEvent for {}{}".format(self.func, ' (scheduled)' if self.is_scheduled else '')
 
     def next(self, *args):
         try:
@@ -187,5 +198,3 @@ class ScheduledEvent(object):
                 running = yield
             else:
                 running = yield
-
-
