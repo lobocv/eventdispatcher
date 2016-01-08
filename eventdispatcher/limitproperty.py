@@ -24,7 +24,7 @@ class LimitProperty(Property):
             elif value > info['max']:
                 # Only dispatch if the current value is not already clipped to the maximum
                 if info['value'] != info['max']:
-                    info['value'] = info['max']
+                    info['value'] = value = info['max']
                 else:
                     return
             else:
