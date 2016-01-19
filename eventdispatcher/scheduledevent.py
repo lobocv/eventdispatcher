@@ -88,6 +88,22 @@ class ScheduledEvent(object):
             pass
 
     @staticmethod
+    def unschedule_event(func):
+        """
+        Unschedule an event in the queue. Fails safely if the scheduled function is not in the queue.
+        Be sure to use the same reference object if the scheduled function was a lambda or partial.
+        :param func: scheduled function in the queue
+        :return: True if the function was removed from the queue
+        """
+        clock = ScheduledEvent.clock
+        if clock.scheduled_funcs[func]:
+            clock.scheduled_funcs[func] -= 1
+            clock.queue.remove(func)
+            return True
+        else:
+            return False
+
+    @staticmethod
     def schedule_once(func, timeout=0, start=True):
         """
         Schedule a function to be called `interval` seconds later.
