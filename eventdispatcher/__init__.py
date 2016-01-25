@@ -11,6 +11,8 @@ from .weakrefproperty import WeakRefProperty
 from .stringproperty import StringProperty, _
 from .scheduledevent import ScheduledEvent
 
+import contextlib
+from collections import defaultdict
 
 class BindError(Exception):
     pass
@@ -106,3 +108,26 @@ class EventDispatcher(object):
     def get_dispatcher_property(self, prop_name):
         return self.event_dispatcher_properties[prop_name]['property']
 
+    @contextlib.contextmanager
+    def temp_unbind(self, **bindings):
+        # Enter / With
+        all_properties = self.event_dispatcher_properties
+        callbacks = {}
+        for prop_name, binding in bindings.iteritems():
+            if prop_name in all_properties:
+                # Make a copy of the callback sequence so we can revert back
+                callbacks[prop_name] = all_properties[prop_name]['callbacks'][:]
+                # Remove the specified bindings
+                if binding in all_properties[prop_name]['callbacks']:
+                    all_properties[prop_name]['callbacks'].remove(binding)
+            elif prop_name in self.event_dispatcher_event_callbacks:
+                callbacks[prop_name] = self.event_dispatcher_event_callbacks[prop_name][:]
+                self.event_dispatcher_event_callbacks[prop_name].remove(binding)
+        # Inside of with statement
+        yield None
+        # Finally / Exit
+        for prop_name, cb in callbacks.iteritems():
+            if prop_name in all_properties:
+                all_properties[prop_name]['callbacks'] = cb
+            elif prop_name in self.event_dispatcher_event_callbacks:
+                self.event_dispatcher_event_callbacks[prop_name] = callbacks[prop_name]
