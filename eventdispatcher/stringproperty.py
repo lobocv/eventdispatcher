@@ -109,7 +109,7 @@ class _(unicode):
 
     def __new__(cls, s, *args, **kwargs):
         if isinstance(s, _):
-            s = unicode(s)
+            s = unicode(s.untranslated)
         if translator:
             trans = translator(s, *args, **kwargs)
             obj = super(_, cls).__new__(cls, trans, *args, **kwargs)
