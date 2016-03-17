@@ -76,8 +76,8 @@ class ObservableSet(collections.MutableSet):
             self.set.update(*items)
             self.dispatch(self.set)
 
-    def pop(self, key):
-        item = self.set.pop(key)
+    def pop(self):
+        item = self.set.pop()
         self.dispatch(self.set)
         return item
 
