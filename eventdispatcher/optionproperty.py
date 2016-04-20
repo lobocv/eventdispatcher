@@ -1,4 +1,5 @@
 from . import Property
+from .exceptions import InvalidOptionError
 
 
 class OptionProperty(Property):
@@ -13,8 +14,10 @@ class OptionProperty(Property):
     def __set__(self, obj, value):
         if value in self.options:
             super(OptionProperty, self).__set__(obj, value)
-        else:
+        elif self.handler:
             self.handler(obj, value)
+        else:
+            raise InvalidOptionError(value, self.options)
 
     @staticmethod
     def set_options(inst, name, options):

@@ -1,22 +1,19 @@
 __author__ = 'Calvin Lobo'
 __version__ = '1.79'
 
+import contextlib
+
 from .property import Property
 from .dictproperty import DictProperty
-from .listproperty import ListProperty
-from .unitproperty import UnitProperty
-from .setproperty import SetProperty
 from .limitproperty import LimitProperty
-from .weakrefproperty import WeakRefProperty
-from .stringproperty import StringProperty, _
+from .listproperty import ListProperty
 from .optionproperty import OptionProperty
 from .scheduledevent import ScheduledEvent
-
-import contextlib
-from collections import defaultdict
-
-class BindError(Exception):
-    pass
+from .setproperty import SetProperty
+from .stringproperty import StringProperty, _
+from .unitproperty import UnitProperty
+from .weakrefproperty import WeakRefProperty
+from .exceptions import *
 
 
 class EventDispatcher(object):
