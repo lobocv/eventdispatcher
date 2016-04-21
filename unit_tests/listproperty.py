@@ -1,15 +1,17 @@
 __author__ = 'calvin'
 
 import unittest
+import random
+import json
 
 from . import EventDispatcherTest
-from eventdispatcher import EventDispatcher
-from eventdispatcher import ListProperty
-import random
+from eventdispatcher import EventDispatcher, ListProperty, PropertyEncoder
+
 
 class Dispatcher(EventDispatcher):
     p1 = ListProperty([])
     p2 = ListProperty([])
+
 
 class ListPropertyTest(EventDispatcherTest):
     def __init__(self, *args):
@@ -70,6 +72,11 @@ class ListPropertyTest(EventDispatcherTest):
         d.p1.insert(1, 2)
         self.assertEqual(d.p1, [1, 2, 3])
         self.assertEqual(self.assert_callback_count, 1)
+
+    def test_serialize(self):
+        self.dispatcher.p1 = range(10)
+        s = json.dumps(self.dispatcher.p1, cls=PropertyEncoder)
+        assert isinstance(s, basestring)
 
 
 if __name__ == '__main__':

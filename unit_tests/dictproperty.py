@@ -1,9 +1,10 @@
 __author__ = 'calvin'
 import unittest
 import random
+import json
 
 from . import EventDispatcherTest
-from eventdispatcher import EventDispatcher
+from eventdispatcher import EventDispatcher, PropertyEncoder
 from eventdispatcher.dictproperty import DictProperty
 
 
@@ -69,6 +70,11 @@ class DictPropertyTest(EventDispatcherTest):
         for v in self.dispatcher.p1.itervalues():
             self.assertEqual(chr(key), v)
             key += 1
+
+    def test_serialize(self):
+        self.dispatcher.p1 = {1: 'one', 'two': 2, 3: 3, 4: None, 5: [], 6: 2353.}
+        s = json.dumps(self.dispatcher.p1, cls=PropertyEncoder)
+        assert isinstance(s, basestring)
 
 
 if __name__ == '__main__':

@@ -2,11 +2,12 @@ __author__ = 'Calvin Lobo'
 __version__ = '1.79'
 
 import contextlib
+import json
 
 from .property import Property
-from .dictproperty import DictProperty
+from .dictproperty import DictProperty, ObservableDict
 from .limitproperty import LimitProperty
-from .listproperty import ListProperty
+from .listproperty import ListProperty, ObservableList
 from .optionproperty import OptionProperty
 from .scheduledevent import ScheduledEvent
 from .setproperty import SetProperty
@@ -129,3 +130,21 @@ class EventDispatcher(object):
                 all_properties[prop_name]['callbacks'] = cb
             elif prop_name in self.event_dispatcher_event_callbacks:
                 self.event_dispatcher_event_callbacks[prop_name] = callbacks[prop_name]
+
+
+class PropertyEncoder(json.JSONEncoder):
+    """
+    Encoder that helps with the JSON serializing of properties. In particular, ObservableDict and ObservableList
+    """
+
+    def default(self, o):
+        try:
+            r = super(PropertyEncoder, self).default(o)
+        except TypeError as e:
+            if isinstance(o, ObservableList):
+                return o.list
+            elif isinstance(o, ObservableDict):
+                return o.dictionary
+            else:
+                raise e
+        return r
