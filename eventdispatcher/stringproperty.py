@@ -217,10 +217,11 @@ class _(unicode):
     def join(cls, sep, iterable):
         for ii, s in enumerate(iterable):
             if ii == 0:
-                if isinstance(s, _):
-                    s = s.untranslated
                 t = cls(s)
             else:
                 t += sep
                 t += s
-        return t
+        try:
+            return t
+        except UnboundLocalError:
+            return _('')
