@@ -109,6 +109,10 @@ class EventDispatcher(object):
 
     @contextlib.contextmanager
     def temp_unbind(self, **bindings):
+        """
+        Context manager to temporarily suspend dispatching of a specified callback.
+        :param bindings: keyword argument of property_name=callback_func
+        """
         # Enter / With
         all_properties = self.event_dispatcher_properties
         callbacks = {}
@@ -130,6 +134,25 @@ class EventDispatcher(object):
                 all_properties[prop_name]['callbacks'] = cb
             elif prop_name in self.event_dispatcher_event_callbacks:
                 self.event_dispatcher_event_callbacks[prop_name] = callbacks[prop_name]
+
+    @contextlib.contextmanager
+    def temp_unbind_all(self, *prop_name):
+        """
+        Context manager to temporarily suspend dispatching of the listed properties. Assigning a different
+        value to these properties inside the with statement will not dispatch the bindings.
+        :param prop_name: properties to suspend
+        """
+        # Enter / With
+        all_properties = self.event_dispatcher_properties
+        callbacks = {}
+        for name in prop_name:
+            callbacks[name] = all_properties[name]['callbacks']
+            all_properties[name]['callbacks'] = []
+        # Inside of with statement
+        yield None
+        # Finally / Exit
+        for name in prop_name:
+            all_properties[name]['callbacks'] = callbacks[name]
 
 
 class PropertyEncoder(json.JSONEncoder):
