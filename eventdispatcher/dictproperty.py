@@ -57,7 +57,7 @@ class ObservableDict(collections.MutableMapping):
         return bool(self.dictionary)
 
     def copy(self):
-        return self.__class__(self.dictionary, self.dispatch)
+        return self.dictionary.copy()
 
     def get(self, key, default=None):
         return self.dictionary.get(key, default)
