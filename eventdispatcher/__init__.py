@@ -138,21 +138,28 @@ class EventDispatcher(object):
     @contextlib.contextmanager
     def temp_unbind_all(self, *prop_name):
         """
-        Context manager to temporarily suspend dispatching of the listed properties. Assigning a different
-        value to these properties inside the with statement will not dispatch the bindings.
-        :param prop_name: properties to suspend
+        Context manager to temporarily suspend dispatching of the listed properties or events. Assigning a different
+        value to these properties or dispatching events inside the with statement will not dispatch the bindings.
+        :param prop_name: property or event names to suspend
         """
         # Enter / With
-        all_properties = self.event_dispatcher_properties
-        callbacks = {}
+        property_callbacks = {}
+        event_callbacks = {}
         for name in prop_name:
-            callbacks[name] = all_properties[name]['callbacks']
-            all_properties[name]['callbacks'] = []
+            if name in self.event_dispatcher_properties:
+                property_callbacks[name] = self.event_dispatcher_properties[name]['callbacks']
+                self.event_dispatcher_properties[name]['callbacks'] = []
+            if name in self.event_dispatcher_event_callbacks:
+                event_callbacks[name] = self.event_dispatcher_event_callbacks[name]
+                self.event_dispatcher_event_callbacks[name] = []
         # Inside of with statement
         yield None
         # Finally / Exit
         for name in prop_name:
-            all_properties[name]['callbacks'] = callbacks[name]
+            if name in property_callbacks:
+                self.event_dispatcher_properties[name]['callbacks'] = property_callbacks[name]
+            if name in event_callbacks:
+                self.event_dispatcher_event_callbacks[name] = event_callbacks[name]
 
 
 class PropertyEncoder(json.JSONEncoder):
