@@ -55,6 +55,12 @@ class ObservableSet(collections.MutableSet):
     def __nonzero__(self):
         return bool(self.set)
 
+    def __getstate__(self):
+        return self.set
+
+    def __reduce__(self):
+        return (set, tuple(), None, iter(self.set), None)
+
     def add(self, value):
         self.set.add(value)
 

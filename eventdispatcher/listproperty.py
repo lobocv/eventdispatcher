@@ -44,6 +44,12 @@ class ObservableList(collections.MutableSequence):
     def __nonzero__(self):
         return bool(self.list)
 
+    def __getstate__(self):
+        return self.list
+
+    def __reduce__(self):
+        return (list, tuple(), None, iter(self.list), None)
+
     def insert(self, index, value):
         self.list.insert(index, value)
         self.dispatch(self.list)

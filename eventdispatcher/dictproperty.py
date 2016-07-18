@@ -56,6 +56,12 @@ class ObservableDict(collections.MutableMapping):
     def __nonzero__(self):
         return bool(self.dictionary)
 
+    def __getstate__(self):
+        return self.dictionary
+
+    def __reduce__(self):
+        return (dict, tuple(), None, None, self.dictionary.iteritems())
+
     def copy(self):
         return self.dictionary.copy()
 
