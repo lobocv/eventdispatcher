@@ -37,7 +37,7 @@ class ScheduledEvent(object):
         """
         self._active = 1
         self.t0 = time()
-        if self.next not in self.clock.scheduled_funcs:
+        if self.clock.scheduled_funcs[self.next] == 0:
             self.clock.scheduled_funcs[self.next] += 1
             self.clock.queue.append(self.next)
 
