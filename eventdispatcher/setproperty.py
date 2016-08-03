@@ -59,7 +59,7 @@ class ObservableSet(collections.MutableSet):
         return self.set
 
     def __reduce__(self):
-        return (set, tuple(), None, iter(self.set), None)
+        return (set, (tuple(self.set),), None, None, None)
 
     def add(self, value):
         self.set.add(value)
