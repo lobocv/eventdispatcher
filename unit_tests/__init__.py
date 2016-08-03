@@ -3,6 +3,7 @@ __author__ = 'Calvin'
 import unittest
 import logging
 import random
+import pickle
 
 # logging.getLogger().setLevel('INFO')
 from eventdispatcher import BindError, Property
@@ -183,3 +184,17 @@ class EventDispatcherTest(unittest.TestCase):
         self.assertIs(d1_p2, d2_p2)
         self.assertIsNot(d1_p, d1_p2)
         self.assertIsNot(d2_p, d2_p2)
+
+    def test_pickle(self):
+        """
+        Test that the property's value can be picked and unpickled. Note that unpickling a property does not
+        restore the property, only it's value.
+        :return:
+        """
+        self.dispatcher.p1 = value = self.create_different_value(self.dispatcher.p1)
+        # Test pickling
+        s = pickle.dumps(self.dispatcher.p1)
+        assert isinstance(s, basestring)
+        # Test un-pickling
+        o = pickle.loads(s)
+        self.assertEqual(o, value)
