@@ -49,22 +49,42 @@ class EventDispatcher(object):
             setattr(self, prop_name, value)
 
     def dispatch(self, key, *args, **kwargs):
+        """
+        Dispatch a property. This calls all functions bound to the property.
+        :param event: property name
+        :param args: arguments to provide to the bindings
+        :param kwargs: keyword arguments to provide to the bindings
+        """
         for callback in self.event_dispatcher_properties[key]['callbacks']:
             if callback(*args, **kwargs):
                 break
 
     def dispatch_event(self, event, *args, **kwargs):
+        """
+        Dispatch an event. This calls all functions bound to the event.
+        :param event: event name
+        :param args: arguments to provide to the bindings
+        :param kwargs: keyword arguments to provide to the bindings
+        """
         for callback in self.event_dispatcher_event_callbacks[event]:
             if callback(*args, **kwargs):
                 break
 
     def register_event(self, name):
+        """
+        Create an event that can be bound to and dispatched.
+        :param name: Name of the event
+        """
         if hasattr(self, 'on_{}'.format(name)):
             self.event_dispatcher_event_callbacks[name] = [getattr(self, 'on_{}'.format(name))]
         else:
             self.event_dispatcher_event_callbacks[name] = []
 
     def unbind(self, **kwargs):
+        """
+        Unbind the specified callbacks associated with the property / event names
+        :param kwargs: {property name: callback} bindings
+        """
         all_properties = self.event_dispatcher_properties
         for prop_name, callback in kwargs.iteritems():
             if prop_name in all_properties:
@@ -81,6 +101,10 @@ class EventDispatcher(object):
                 raise BindError('No property or event by the name of %s' % prop_name)
 
     def unbind_all(self, *args):
+        """
+        Unbind all callbacks associated with the specified property / event names
+        :param args: property / event names
+        """
         all_properties = self.event_dispatcher_properties
         for prop_name in args:
             if prop_name in all_properties:
@@ -91,6 +115,10 @@ class EventDispatcher(object):
                 raise BindError("No such property or event '%s'" % prop_name)
 
     def bind(self, **kwargs):
+        """
+        Bind a function to a property or event.
+        :param kwargs: {property name: callback} bindings
+        """
         for prop_name, callback in kwargs.iteritems():
             if prop_name in self.event_dispatcher_properties:
                 # Queue the callback into the property
