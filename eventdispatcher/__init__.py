@@ -129,6 +129,22 @@ class EventDispatcher(object):
             else:
                 raise BindError("No property or event by the name of '%s'" % prop_name)
 
+    def bind_once(self, **kwargs):
+        """
+        Bind a function to a property or event and unbind it after the first time the function has been called
+        :param kwargs: {property name: callback} bindings
+        """
+        for prop_name, callback in kwargs.items():
+            def _wrapped_binding(*args):
+                callback()
+                self.unbind(**{prop_name: _wrapped_binding})
+
+            self.bind(**{prop_name: _wrapped_binding})
+            kwargs.pop(prop_name)
+            if kwargs:
+                self.bind_once(**kwargs)
+                return
+
     def setter(self, prop_name):
         return lambda inst, value: setattr(self, prop_name, value)
 

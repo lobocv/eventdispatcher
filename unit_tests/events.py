@@ -58,5 +58,20 @@ class EventTest(unittest.TestCase):
         d.dispatch_event('event1')
         self.assertEqual(self.count, 1)
 
+    def test_bind_once(self):
+        self.d.bind_once(event1=self.increase_count, event2=self.tearDown)
+        self.d.dispatch_event('event1')
+        self.d.dispatch_event('event1')
+        self.d.dispatch_event('event1')
+        self.d.dispatch_event('event1')
+        self.assertEqual(self.count, 1)
+        self.assertEqual(self.d.event1_call_count, 4)
+        self.d.dispatch_event('event2')
+        self.assertEqual(self.count, 0)
+        self.d.dispatch_event('event2')
+        self.d.dispatch_event('event2')
+        self.d.dispatch_event('event2')
+        self.assertEqual(self.d.event2_call_count, 3)
+
 if __name__ == '__main__':
     unittest.main()
