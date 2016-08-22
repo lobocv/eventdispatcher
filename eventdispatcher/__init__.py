@@ -1,5 +1,5 @@
 __author__ = 'Calvin Lobo'
-__version__ = '1.80'
+__version__ = '1.81'
 
 import contextlib
 import json
