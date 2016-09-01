@@ -11,7 +11,7 @@ def fake_translation(s):
     """
     A fake translation function to 'french' that can help you verify that you have tagged all text in the program
     """
-    return 'Le %s' % s if s != '\n' else '\n'
+    return '#%s#' % s if s != '\n' else '\n'
 
 
 class StringProperty(Property):
@@ -80,12 +80,12 @@ class StringProperty(Property):
             callback()
 
     @staticmethod
-    def load_fake_translation():
+    def load_fake_translation(func=None):
         """
         Load a fake translation function to that can help you verify that you have tagged all text in the program.
         Adds 'Le' to the beginning of every string.
         """
-        StringProperty.set_translation_function(fake_translation)
+        StringProperty.set_translation_function(func or fake_translation)
 
     @staticmethod
     def switch_lang(domain, localedir=None, languages=None, class_=None, fallback=False, codeset=None):
