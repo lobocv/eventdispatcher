@@ -34,6 +34,11 @@ class ObservableDict(collections.MutableMapping):
         if check:
             self.dispatch(self.dictionary)
 
+    def clear(self):
+        if len(self.dictionary):
+            self.dictionary.clear()
+            self.dispatch(self.dictionary)
+
     def __len__(self):
         return len(self.dictionary)
 
