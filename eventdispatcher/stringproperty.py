@@ -1,6 +1,7 @@
 author = 'calvin'
 
 import gettext
+
 from eventdispatcher import Property
 
 # The translation (gettext) function to be used
@@ -183,6 +184,10 @@ class _(unicode):
 
     def __unicode__(self):
         return _.translate(self)
+
+    def center(self, width, fillchar=None):
+        s = _.translate(self)
+        return s.center(width, fillchar)
 
     @staticmethod
     def join_additionals(s):
