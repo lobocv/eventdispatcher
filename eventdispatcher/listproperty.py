@@ -1,7 +1,6 @@
 __author__ = 'calvin'
 
 import collections
-import json
 from functools import partial
 
 from . import Property
@@ -98,20 +97,8 @@ class ListProperty(Property):
     def compare_sequences(iter1, iter2):
         """
         Compares two iterators to determine if they are equal. Used to compare lists and tuples
-        """
-        iter1, iter2 = iter(iter1), iter(iter2)
-        for i1 in iter1:
-            try:
-                i2 = next(iter2)
-            except StopIteration:
+        # """
+        for a, b in zip(iter1, iter2):
+            if a != b:
                 return False
-
-            if i1 != i2:
-                return False
-
-        try:
-            i2 = next(iter2)
-        except StopIteration:
-            return True
-
-        return False
+        return True

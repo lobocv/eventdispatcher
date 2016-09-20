@@ -1,11 +1,11 @@
 __author__ = 'calvin'
 
-import unittest
-import random
 import json
+import random
+import unittest
 
-from . import EventDispatcherTest
 from eventdispatcher import EventDispatcher, ListProperty, PropertyEncoder
+from . import EventDispatcherTest
 
 
 class Dispatcher(EventDispatcher):
@@ -56,6 +56,17 @@ class ListPropertyTest(EventDispatcherTest):
         self.assertEqual(len(d.p1), 2)
         self.assertEqual(len(d2.p1), 0)
         self.assertEqual(self.assert_callback_count, 2)
+
+    def test_tuple_assignment(self):
+        value = self.create_different_value(self.dispatcher.p1)
+        self.dispatcher.p1 = value
+        self.assertEqual(self.assert_callback_count, 1)
+        self.dispatcher.p1 = tuple(value)
+        self.assertEqual(self.assert_callback_count, 1)
+        self.dispatcher.p1 = self.create_different_value(self.dispatcher.p1)
+        self.assertEqual(self.assert_callback_count, 2)
+        self.dispatcher.p1 = tuple(self.create_different_value(self.dispatcher.p1))
+        self.assertEqual(self.assert_callback_count, 3)
 
     def test_extend(self):
         d, d2 = self.dispatcher, self.dispatcher2

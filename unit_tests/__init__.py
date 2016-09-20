@@ -1,9 +1,9 @@
 __author__ = 'Calvin'
 
-import unittest
 import logging
-import random
 import pickle
+import random
+import unittest
 
 # logging.getLogger().setLevel('INFO')
 from eventdispatcher import BindError, Property
@@ -79,7 +79,10 @@ class EventDispatcherTest(unittest.TestCase):
             setattr(dispatcher, info['name'], different_value)
             info = dispatcher.event_dispatcher_properties[prop_name]  # May need to get the updated reference to info.
             self.assertEqual(dc + 1, self.assert_callback_count)
-            self.assertEqual(info['value'], different_value)
+            if hasattr(info['value'], '__iter__'):
+                self.assertItemsEqual(info['value'], different_value)
+            else:
+                self.assertEqual(info['value'], different_value)
 
     def test_block_dispatch_propagation(self):
         """
