@@ -1,9 +1,9 @@
 __author__ = 'calvin'
 import unittest
 
-from . import EventDispatcherTest
 from eventdispatcher import EventDispatcher, BindError
 from eventdispatcher import StringProperty, _
+from . import EventDispatcherTest
 
 class Dispatcher(EventDispatcher):
     p1 = StringProperty(_('abc'))
@@ -36,15 +36,15 @@ class StringPropertyTest(EventDispatcherTest):
         self.assertEquals(d.p1, 'abc')
         self.assertEquals(d.p2, 'xyz')
         StringProperty.load_fake_translation()
-        self.assertEquals(d.p1, 'Le abc')
-        self.assertEquals(d.p2, 'Le xyz')
+        self.assertEquals(d.p1, '#abc#')
+        self.assertEquals(d.p2, '#xyz#')
 
     def test_additionals(self):
         d = self.dispatcher
         d.p1 = _('abc') + ' def ' + _('ghi')
         StringProperty.load_fake_translation()
         # Notice that 'abc' and 'ghi' get translated but 'def' does not
-        self.assertEquals(d.p1, 'Le abc def Le ghi')
+        self.assertEquals(d.p1, '#abc# def #ghi#')
         StringProperty.remove_translation()
         self.assertEquals(d.p1, 'abc def ghi')
 
