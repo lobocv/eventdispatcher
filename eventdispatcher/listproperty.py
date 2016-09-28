@@ -3,14 +3,20 @@ __author__ = 'calvin'
 import collections
 from functools import partial
 
+import numpy as np
+
 from . import Property
 
 
 class ObservableList(collections.MutableSequence):
-    def __init__(self, l, dispatch_method):
+    def __init__(self, l, dispatch_method, dtype=None):
         if not type(l) == list and not type(l) == tuple and not isinstance(l, ObservableList):
-            raise ValueError('Observable list must only be initialized with lists as arguments')
-        self.list = list(l)
+            raise ValueError('Observable list must only be initialized with sequences as arguments')
+        if dtype:
+            self.list = np.array(l, dtype=dtype)
+        else:
+            self.list = list(l)
+
         self.dispatch = dispatch_method
 
     def __repr__(self):
@@ -79,8 +85,10 @@ class ObservableList(collections.MutableSequence):
 
 class ListProperty(Property):
 
-    def register(self, instance, property_name, value):
-        self.value = ObservableList(value, dispatch_method=partial(instance.dispatch, property_name, instance))
+    def register(self, instance, property_name, value, dtype=None):
+        self.value = ObservableList(value,
+                                    dispatch_method=partial(instance.dispatch, property_name, instance),
+                                    dtype=self._additionals.get('dtype'))
         super(ListProperty, self).register(instance, property_name, self.value)
 
     def __set__(self, obj, value):
