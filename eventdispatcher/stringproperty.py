@@ -70,6 +70,11 @@ class StringProperty(Property):
         StringProperty.set_translation_function(None)
 
     @staticmethod
+    def get_translation_function():
+        global translator
+        return translator
+
+    @staticmethod
     def set_translation_function(func):
         """
         Set the translation function and dispatch all changes
@@ -107,6 +112,7 @@ class _(unicode):
     re-translated automatically.
 
     """
+    LeftToRight = False
 
     def __new__(cls, s, *args, **kwargs):
         if isinstance(s, _):
@@ -199,7 +205,7 @@ class _(unicode):
             l = [translator(s.untranslated)]
             for a in s._additionals:
                 l.append(translator(a.untranslated) if isinstance(a, _) else a)
-        return ''.join(l)
+        return ''.join(reversed(l) if _.LeftToRight else l)
 
     @staticmethod
     def translate(s):
