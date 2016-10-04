@@ -95,10 +95,10 @@ class ListProperty(Property):
         p = self.instances[obj]
         # Check if we need to dispatch
         do_dispatch = len(p['value'].list) != len(value) or not ListProperty.compare_sequences(p['value'], value)
-        self.instances[obj]['value'].list[:] = value        # Assign to ObservableList's value
+        p['value'].list[:] = value        # Assign to ObservableList's value
         if do_dispatch:
             for callback in p['callbacks']:
-                if callback(obj, value):
+                if callback(obj, p['value'].list):
                     break
 
     @staticmethod
