@@ -1,11 +1,11 @@
 __author__ = 'calvin'
 
-__author__ = 'calvin'
-
 from time import time
+from clock import Clock
+
 import threading
 import weakref
-from clock import Clock
+import logging
 
 
 class ScheduledEvent(object):
@@ -68,8 +68,11 @@ class ScheduledEvent(object):
 
     def reset_trigger(self, reschedule=False):
         if self.clock.scheduled_funcs[self.func]:
-            self.clock.scheduled_funcs[self.func] -= 1
-            self.clock.queue.remove(self.func)
+            try:
+                self.clock.queue.remove(self.func)
+                self.clock.scheduled_funcs[self.func] -= 1
+            except ValueError as e:
+                logging.debug('Scheduled trigger was already removed from the queue. ')
         if reschedule:
             self.next()
 
