@@ -207,12 +207,16 @@ class _(unicode):
                 l.append(translator(a.untranslated) if isinstance(a, _) else a)
         return ''.join(reversed(l) if _.LeftToRight else l)
 
-    @staticmethod
-    def translate(s):
-        if isinstance(s, _):
+    @property
+    def translated(self):
+        return _.translate(self)
+
+    @classmethod
+    def translate(cls, s):
+        if isinstance(s, cls):
             # If we were passed a translatable string object _
             if hasattr(s, '_additionals'):
-                return _.join_additionals(s)
+                return cls.join_additionals(s)
             else:
                 if translator is None:
                     return s.untranslated
