@@ -118,6 +118,7 @@ class _(unicode):
     LeftToRight = False
 
     def __new__(cls, s, *args, **kwargs):
+
         if isinstance(s, _):
             s = unicode(s.untranslated)
         if translator:
@@ -126,7 +127,10 @@ class _(unicode):
         else:
             obj = super(_, cls).__new__(cls, s, *args, **kwargs)
         obj.untranslated = s
-
+        obj._additionals = [obj]
+        obj._placeholder_args = []
+        obj._placeholder_kwargs = {}
+        obj.format = obj._format
         return obj
 
     def __eq__(self, other):
@@ -187,7 +191,7 @@ class _(unicode):
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
 
     def __repr__(self):
-        return u"{trans} ({orig})".format(trans=_.translate(self), orig=self.untranslated)
+        return self.untranslated
 
     def __str__(self):
         return _.translate(self)
@@ -199,13 +203,6 @@ class _(unicode):
         s = _.translate(self)
         return s.center(width, fillchar)
 
-    @staticmethod
-    def join_additionals(s):
-        l = [translator(s.untranslated)]
-        for a in s._additionals:
-            l.append(translator(a.untranslated) if isinstance(a, _) else a)
-        return ''.join(reversed(l) if _.LeftToRight else l)
-
     @property
     def translated(self):
         return _.translate(self)
@@ -213,11 +210,20 @@ class _(unicode):
     @classmethod
     def translate(cls, s):
         if isinstance(s, cls):
-            # If we were passed a translatable string object _
-            if hasattr(s, '_additionals'):
-                return cls.join_additionals(s)
-            else:
-                return translator(s.untranslated)
+            l = []
+            for phrase in s._additionals:
+                # Translate each individual string and combine them
+                if isinstance(phrase, _):
+                    if phrase._placeholder_args or phrase._placeholder_kwargs:
+                        formatted_phrase = translator(phrase.untranslated).format(*[cls.translate(v) for v in phrase._placeholder_args],
+                                                                                  **{k: cls.translate(v) for k, v in phrase._placeholder_kwargs.iteritems()})
+                        l.append(formatted_phrase)
+                    else:
+                        l.append(translator(phrase.untranslated))
+
+                else:
+                    l.append(phrase)
+            return ''.join(reversed(l) if _.LeftToRight else l)
         else:
             return translator(s)
 
@@ -225,7 +231,7 @@ class _(unicode):
     def join(cls, sep, iterable):
         for ii, s in enumerate(iterable):
             if ii == 0:
-                t = cls(s)
+                t = s if isinstance(s, _) else cls(s)
             else:
                 t += sep
                 t += s
@@ -236,6 +242,10 @@ class _(unicode):
 
     @classmethod
     def format(cls, template, *args, **kwargs):
-        trans_args = [s.translated if isinstance(s, _) else s for s in args]
-        trans_kwargs = {k: s.translated if isinstance(s, _) else s for k, s in kwargs.iteritems()}
-        return template.format(*trans_args, **trans_kwargs)
+        s = cls(template).format(*args, **kwargs)
+        return s
+
+    def _format(self, *args, **kwargs):
+        self._placeholder_args = args
+        self._placeholder_kwargs = kwargs
+        return self
