@@ -5,7 +5,10 @@ import gettext
 from eventdispatcher import Property
 
 # The translation (gettext) function to be used
-translator = None
+
+def no_translation(s):
+    return s
+translator = no_translation
 
 
 def fake_translation(s):
@@ -67,7 +70,7 @@ class StringProperty(Property):
         """
         Remove the currently set translation function and return the language back to english (or default)
         """
-        StringProperty.set_translation_function(None)
+        StringProperty.set_translation_function(no_translation)
 
     @staticmethod
     def get_translation_function():
@@ -123,6 +126,7 @@ class _(unicode):
         else:
             obj = super(_, cls).__new__(cls, s, *args, **kwargs)
         obj.untranslated = s
+
         return obj
 
     def __eq__(self, other):
@@ -197,14 +201,9 @@ class _(unicode):
 
     @staticmethod
     def join_additionals(s):
-        if translator is None:
-            l = [s.untranslated]
-            for a in s._additionals:
-                l.append(a.untranslated if isinstance(a, _) else a)
-        else:
-            l = [translator(s.untranslated)]
-            for a in s._additionals:
-                l.append(translator(a.untranslated) if isinstance(a, _) else a)
+        l = [translator(s.untranslated)]
+        for a in s._additionals:
+            l.append(translator(a.untranslated) if isinstance(a, _) else a)
         return ''.join(reversed(l) if _.LeftToRight else l)
 
     @property
@@ -218,15 +217,9 @@ class _(unicode):
             if hasattr(s, '_additionals'):
                 return cls.join_additionals(s)
             else:
-                if translator is None:
-                    return s.untranslated
-                else:
-                    return translator(s.untranslated)
+                return translator(s.untranslated)
         else:
-            if translator is None:
-                return s
-            else:
-                return translator(s)
+            return translator(s)
 
     @classmethod
     def join(cls, sep, iterable):
