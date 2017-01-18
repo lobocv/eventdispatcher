@@ -240,3 +240,9 @@ class _(unicode):
             return t
         except UnboundLocalError:
             return _('')
+
+    @classmethod
+    def format(cls, template, *args, **kwargs):
+        trans_args = [s.translated if isinstance(s, _) else s for s in args]
+        trans_kwargs = {k: s.translated if isinstance(s, _) else s for k, s in kwargs.iteritems()}
+        return template.format(*trans_args, **trans_kwargs)
