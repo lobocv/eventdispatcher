@@ -38,6 +38,48 @@ class JSON_Map(EventDispatcher):
                     setattr(self, key, json[key])
         self.bind(**{p: partial(self._update_raw , p) for p in properties})
 
+    def keys(self):
+        return self.raw.keys()
+
+    def values(self):
+        return [v for v in self.itervalues()]
+
+    def items(self):
+        return [v for v in self.iteritems()]
+
+    def get(self, *args):
+        return getattr(self, *args)
+
+    def iteritems(self):
+        for key in self.event_dispatcher_properties:
+            yield key, getattr(self, key)
+
+    def iterkeys(self):
+        return self.event_dispatcher_properties.iterkeys()
+
+    def itervalues(self):
+        for key in self.event_dispatcher_properties:
+            yield getattr(self, key)
+
+    def __reduce__(self):
+        return dict, tuple(), None, None, self.raw.iteritems()
+
+    def __contains__(self, item):
+        return item in self.event_dispatcher_properties
+
+    def __getitem__(self, item):
+        if hasattr(self, item):
+            return getattr(self, item)
+        else:
+            raise KeyError(item)
+
+    def __setitem__(self, key, value):
+        if key in self.event_dispatcher_properties or isinstance(getattr(self.__class__, key, AttributeError), property):
+            # The key maps to an event dispatcher property or python property
+            setattr(self, key, value)
+        else:
+            raise TypeError('Cannot set %s using item assignment' % key)
+
     def _update_raw(self, property_name, inst, value):
         """
         Callback to keep property values in sync with the underlying JSON object.
