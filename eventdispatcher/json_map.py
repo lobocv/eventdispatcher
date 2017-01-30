@@ -14,21 +14,15 @@ class NoAttribute(object):
 
 class JSON_Map(EventDispatcher):
 
-    _mapped_classes = {}
-
     def __init__(self, json):
         self.raw = json
         # Check if this class has ever been initialized before, if not
         # perform the definition of event dispatcher properties to the class
         cls = self.__class__
-        class_name = cls.__name__
-        properties = JSON_Map._mapped_classes.get(class_name, None)
-        if properties is None:
-            properties = JSON_Map.map_attributes(self, json)
-            for prop_name, prop in properties.iteritems():
-                if not hasattr(self, prop_name):
-                    setattr(cls, prop_name, prop)
-            JSON_Map._mapped_classes[class_name] = properties
+        properties = JSON_Map.map_attributes(self, json)
+        for prop_name, prop in properties.iteritems():
+            if not hasattr(self, prop_name):
+                setattr(cls, prop_name, prop)
 
         super(JSON_Map, self).__init__(json)
 
