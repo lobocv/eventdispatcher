@@ -12,6 +12,23 @@ class NoAttribute(object):
     pass
 
 
+def dict_generator(indict, pre=None):
+    pre = pre[:] if pre else []
+    if isinstance(indict, dict):
+        for key, value in indict.items():
+            if isinstance(value, dict):
+                for d in dict_generator(value, [key] + pre):
+                    yield d
+            elif isinstance(value, list) or isinstance(value, tuple):
+                for v in value:
+                    for d in dict_generator(v, [key] + pre):
+                        yield d
+            else:
+                yield pre + [key, value]
+    else:
+        yield indict
+
+
 class JSON_Map(EventDispatcher):
 
     def __init__(self, json):
@@ -73,6 +90,18 @@ class JSON_Map(EventDispatcher):
             setattr(self, key, value)
         else:
             raise TypeError('Cannot set %s using item assignment' % key)
+
+    def update(self, E=None, **F):
+        if E and self.raw != E:
+            for k, v in E.items():
+                self[k] = v
+                if hasattr(self[k], 'update'):
+                    self[k].update(v)
+        elif F and self.raw != F:
+            for k, v in F.items():
+                self[k] = v
+                if hasattr(self[k], 'update'):
+                    self[k].update(v)
 
     def _update_raw(self, property_name, inst, value):
         """
