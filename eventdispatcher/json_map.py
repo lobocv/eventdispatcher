@@ -94,14 +94,16 @@ class JSON_Map(EventDispatcher):
     def update(self, E=None, **F):
         if E and self.raw != E:
             for k, v in E.items():
-                self[k] = v
                 if hasattr(self[k], 'update'):
                     self[k].update(v)
+                else:
+                    self[k] = v
         elif F and self.raw != F:
             for k, v in F.items():
-                self[k] = v
                 if hasattr(self[k], 'update'):
                     self[k].update(v)
+                else:
+                    self[k] = v
 
     def _update_raw(self, property_name, inst, value):
         """
