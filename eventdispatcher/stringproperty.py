@@ -126,16 +126,17 @@ class _(unicode):
         else:
             obj = super(_, cls).__new__(cls, s, *args, **kwargs)
         obj.untranslated = s
-
+        obj._additionals = []
         return obj
 
     def __eq__(self, other):
         """
-        Compare the fully translated string (including the _additionals) if comparing _ objects, otherwise compare
-        the english strings
+        Compare the fully joined string (summation of the _additionals) if comparing _ objects, otherwise compare
+        the untranslated strings
         """
         if isinstance(other, _):
-            return self.untranslated == other.untranslated
+            return (self.untranslated == other.untranslated) and \
+                   (self._additionals == other._additionals)
         else:
             return self.untranslated == other
 
@@ -160,13 +161,9 @@ class _(unicode):
                 _('Show Lines') + '\n' + (_('On') if show_lines else _('Off'))
 
         """
-        if not hasattr(self, '_additionals'):
-            self._additionals = []
-
         if isinstance(other, _):
             self._additionals.append(other)
-            if hasattr(other, '_additionals'):
-                self._additionals.extend(other._additionals)
+            self._additionals.extend(other._additionals)
         else:
             self._additionals.append(other)
 
@@ -179,8 +176,6 @@ class _(unicode):
             else:
                 return ''
         if type(other) is int:
-            if not hasattr(self, '_additionals'):
-                self._additionals = []
             self._additionals.extend([self] * other)
         else:
             raise TypeError("can't multiply sequence by non-int of type %s" % type(other))
@@ -213,7 +208,7 @@ class _(unicode):
     def translate(cls, s):
         if isinstance(s, cls):
             # If we were passed a translatable string object _
-            if hasattr(s, '_additionals'):
+            if s._additionals:
                 return cls.join_additionals(s)
             else:
                 return translator(s.untranslated)
