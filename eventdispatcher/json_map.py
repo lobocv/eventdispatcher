@@ -1,5 +1,4 @@
 import json as JSON
-import warnings
 
 from eventdispatcher import DictProperty, ListProperty, Property, StringProperty, EventDispatcher
 from collections import OrderedDict
@@ -114,10 +113,6 @@ class JSON_Map(EventDispatcher):
                 # Check if any class attributes are properties
                 continue
             else:
-                if type(v) is OrderedDict:
-                    warnings.warn('JSON Mapping has encountered an OrderedDict "%s". ' % k + \
-                                  'OrderedDicts are not yet supported and will be mapped to regular dictionary. ' + \
-                                  'Order of items may be lost.')
                 attrs[k] = eventdispatcher_map[type(v)](v)
         return attrs
 
