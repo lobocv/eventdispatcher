@@ -114,7 +114,7 @@ class JSON_Map(EventDispatcher):
                 # Check if any class attributes are properties
                 continue
             else:
-                if type(v) is dict:
+                if type(v) is OrderedDict:
                     warnings.warn('JSON Mapping has encountered an OrderedDict "%s". ' % k + \
                                   'OrderedDicts are not yet supported and will be mapped to regular dictionary. ' + \
                                   'Order of items may be lost.')
