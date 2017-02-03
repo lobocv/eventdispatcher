@@ -1,8 +1,10 @@
 from eventdispatcher import DictProperty, ListProperty, Property, StringProperty, EventDispatcher
+from collections import OrderedDict
 import json as JSON
 from functools import partial
 
-eventdispatcher_map = {dict: DictProperty,        list: ListProperty,     tuple: Property,
+eventdispatcher_map = {dict: DictProperty,        OrderedDict: DictProperty,
+                       list: ListProperty,        tuple: Property,
                        int: Property,             float: Property,        long: Property,
                        bool: Property,            None: Property,
                        unicode: StringProperty,   str: StringProperty}
