@@ -134,11 +134,10 @@ class _(unicode):
         Compare the fully translated string (including the _additionals) if comparing _ objects, otherwise compare
         the english strings
         """
-        s = _.translate(self)
         if isinstance(other, _):
-            return s == _.translate(other)
+            return self.untranslated == other.untranslated
         else:
-            return s == other
+            return self.untranslated == other
 
     def __ne__(self, other):
         """
