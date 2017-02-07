@@ -66,10 +66,11 @@ class JSON_Map(EventDispatcher):
                isinstance(getattr(self.__class__, item, AttributeError), property)
 
     def __getitem__(self, item):
-        if hasattr(self, item):
-            return getattr(self, item)
-        else:
+        value = getattr(self, item, KeyError)
+        if value is KeyError:
             raise KeyError(item)
+        else:
+            return value
 
     def __setitem__(self, key, value):
         if key in self.event_dispatcher_properties or isinstance(getattr(self.__class__, key, AttributeError), property):
