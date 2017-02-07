@@ -21,6 +21,26 @@ class ScheduledEvent(object):
         self._active = 1
         ScheduledEvent.clock = Clock.get_running_clock()
 
+    @classmethod
+    def set_debug(cls):
+        """
+        Tracks the traceback at the time of triggering in the scheduled event
+        This must be called on startup as it only affects ScheduledEvents created after this function is called.
+        """
+        import traceback
+
+        def debug_trigger_generator(self, *args):
+            g = self._trigger_generator_real(*args)
+            g.next()
+            while 1:
+                self.traceback = traceback.extract_stack()
+                signal = yield
+                g.send(signal)
+
+        cls._trigger_generator_real = cls._trigger_generator
+        cls._trigger_generator = debug_trigger_generator
+        logging.debug('ScheduledEvent debugging turned on.')
+
     def __iter__(self):
         return self
 
