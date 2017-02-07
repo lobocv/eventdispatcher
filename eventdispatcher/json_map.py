@@ -3,6 +3,7 @@ import json as JSON
 from eventdispatcher import DictProperty, ListProperty, Property, StringProperty, EventDispatcher
 from collections import OrderedDict
 from functools import partial
+from itertools import chain
 
 eventdispatcher_map = {dict: DictProperty,        OrderedDict: DictProperty,
                        list: ListProperty,        tuple: Property,
@@ -28,6 +29,16 @@ class JSON_Map(EventDispatcher):
                 setattr(cls, prop_name, prop)
 
         super(JSON_Map, self).__init__(json)
+        self._python_properties = set()
+        for c in cls.__mro__:
+            for attr_name, attr in c.__dict__.iteritems():
+                if isinstance(attr, property):
+                    self._python_properties.add(attr_name)
+
+        self._json_maps = {}
+        for attr_name, attr in self.__dict__.iteritems():
+            if isinstance(attr, JSON_Map) and attr_name in json:
+                self._json_maps[attr_name] = attr
 
         with self.temp_unbind_all(*self.event_dispatcher_properties.iterkeys()):
             for key in properties.iterkeys():
@@ -36,7 +47,7 @@ class JSON_Map(EventDispatcher):
         self.bind(**{p: partial(self._update_raw , p) for p in properties})
 
     def keys(self):
-        return self.raw.keys()
+        return [v for v in self.iterkeys()]
 
     def values(self):
         return [v for v in self.itervalues()]
@@ -48,18 +59,18 @@ class JSON_Map(EventDispatcher):
         return getattr(self, *args)
 
     def iteritems(self):
-        for key in self.event_dispatcher_properties:
+        for key in self.iterkeys():
             yield key, getattr(self, key)
 
     def iterkeys(self):
-        return self.event_dispatcher_properties.iterkeys()
+        return chain(self.event_dispatcher_properties.iterkeys(), self._python_properties, self._json_maps.iterkeys())
 
     def itervalues(self):
-        for key in self.event_dispatcher_properties:
+        for key in self.iterkeys():
             yield getattr(self, key)
 
     def __reduce__(self):
-        return dict, tuple(), None, None, self.raw.iteritems()
+        return dict, tuple(), None, None, self.iteritems()
 
     def __contains__(self, item):
         return item in self.event_dispatcher_properties or \
