@@ -62,7 +62,8 @@ class JSON_Map(EventDispatcher):
         return dict, tuple(), None, None, self.raw.iteritems()
 
     def __contains__(self, item):
-        return item in self.event_dispatcher_properties
+        return item in self.event_dispatcher_properties or \
+               isinstance(getattr(self.__class__, item, AttributeError), property)
 
     def __getitem__(self, item):
         if hasattr(self, item):
