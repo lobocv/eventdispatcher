@@ -10,7 +10,6 @@ import logging
 
 class ScheduledEvent(object):
     """ Creates a trigger to the scheduler generator that is thread-safe."""
-    objs = weakref.WeakValueDictionary({})
     RUNNING = 1
     KILL = 0
 
@@ -147,7 +146,6 @@ class ScheduledEvent(object):
         s.generator = s._interval_generator(func)
         s.generator.next()
         s.start() if start else s.stop()
-        ScheduledEvent.objs[id(s)] = s
         return s
 
     """
