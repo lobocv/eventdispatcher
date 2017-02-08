@@ -1,6 +1,7 @@
 import json as JSON
 
-from eventdispatcher import DictProperty, ListProperty, Property, StringProperty, EventDispatcher
+from eventdispatcher import DictProperty, ListProperty, Property, StringProperty, EventDispatcher,\
+                            ObservableDict, ObservableList
 from collections import OrderedDict
 from functools import partial
 from itertools import chain
@@ -97,6 +98,22 @@ class JSON_Map(EventDispatcher):
             setattr(self, key, value)
         else:
             raise TypeError('Cannot set %s using item assignment' % key)
+
+    def to_dict(self):
+        """
+        Creates a dictionary representation of the JSON_Map that includes it's @property values and all sub-JSON_Maps
+        """
+        d = {}
+        for (k, v) in self.iteritems():
+            if isinstance(v, JSON_Map):
+                d[k] = v.to_dict()
+            elif isinstance(v, ObservableDict):
+                d[k] = dict(v)
+            elif isinstance(v, ObservableList):
+                d[k] = list(v)
+            else:
+                d[k] = v
+        return d
 
     def update(self, E=None, **F):
         if E and self.raw != E:
