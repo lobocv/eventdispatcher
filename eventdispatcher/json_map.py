@@ -4,12 +4,20 @@ from eventdispatcher import DictProperty, ListProperty, Property, StringProperty
 from collections import OrderedDict
 from functools import partial
 from itertools import chain
+import numpy as np
+
 
 eventdispatcher_map = {dict: DictProperty,        OrderedDict: DictProperty,
-                       list: ListProperty,        tuple: Property,
-                       int: Property,             float: Property,        long: Property,
+                       list: ListProperty,        np.ndarray: ListProperty,
+                       tuple: Property,           int: Property,
+                       float: Property,           long: Property,
                        bool: Property,            None: Property,
                        unicode: StringProperty,   str: StringProperty}
+
+eventdispatcher_map.update({t: Property for t in (np.int8, np.int16, np.int32, np.int64,
+                                                  np.uint8, np.uint16, np.uint32, np.uint64,
+                                                  np.float16, np.float32, np.float64,
+                                                  )})
 
 
 class NoAttribute(object):
