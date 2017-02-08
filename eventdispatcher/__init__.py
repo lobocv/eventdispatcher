@@ -10,7 +10,7 @@ from .limitproperty import LimitProperty
 from .listproperty import ListProperty, ObservableList
 from .optionproperty import OptionProperty
 from .scheduledevent import ScheduledEvent
-from .setproperty import SetProperty
+from .setproperty import SetProperty, ObservableSet
 from .stringproperty import StringProperty, _
 from .unitproperty import UnitProperty
 from .weakrefproperty import WeakRefProperty
