@@ -29,15 +29,14 @@ class JSON_Map(EventDispatcher):
 
     def __init__(self, json):
         self.raw = json
-        # Check if this class has ever been initialized before, if not
-        # perform the definition of event dispatcher properties to the class
-        cls = self.__class__
-        properties = JSON_Map.map_attributes(self, json)
-        for prop_name, prop in properties.iteritems():
-            if not hasattr(self, prop_name):
-                setattr(cls, prop_name, prop)
-
         super(JSON_Map, self).__init__(json)
+
+        cls = self.__class__
+
+        # Map the json structure to event dispatcher properties
+        # but only those attributes which do not already exist in the object
+        properties = JSON_Map.map_attributes(self, json)
+
         self._python_properties = set()
         for c in cls.__mro__:
             for attr_name, attr in c.__dict__.iteritems():
@@ -140,19 +139,26 @@ class JSON_Map(EventDispatcher):
 
     @staticmethod
     def map_attributes(obj, json):
-        # Iterate through the JSON structure and create eventdispatcher properties for the attributes
+        """
+        Iterate through the JSON structure and create eventdispatcher properties for the attributes
+        """
         cls = obj.__class__
-        attrs = {}
-        for k, v in json.iteritems():
-            obj_attr_exists = hasattr(obj, k)
-            if obj_attr_exists:
+        unregistered = {}
+        properties = {}
+        for attr, value in json.iteritems():
+            if hasattr(obj, attr):
+                if attr in obj.event_dispatcher_properties:
+                    properties[attr] = obj.event_dispatcher_properties[attr]
                 continue
-            elif any([isinstance(getattr(c, k, NoAttribute), property) for c in cls.__mro__]):
+            elif any([isinstance(getattr(c, attr, NoAttribute), property) for c in cls.__mro__]):
                 # Check if any class attributes are properties
                 continue
             else:
-                attrs[k] = eventdispatcher_map[type(v)](v)
-        return attrs
+                properties[attr] = unregistered[attr] = eventdispatcher_map[type(value)](value)
+                setattr(cls, attr, properties[attr])
+        if unregistered:
+            EventDispatcher.register_properties(obj, unregistered)
+        return properties
 
 
 if __name__ == '__main__':

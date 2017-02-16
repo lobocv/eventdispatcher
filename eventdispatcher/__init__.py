@@ -21,19 +21,37 @@ class EventDispatcher(object):
     def __init__(self, *args, **kwargs):
         self.event_dispatcher_event_callbacks = {}
         self.event_dispatcher_properties = {}
-        bindings = {}
-        # Walk backwards through the MRO looking for Property attributes in the classes. Then register and bind them to
-        # 'on_<prop_name>' if it exists. Walking backwards allows you to override the default value for a superclass.
-        for cls in reversed(self.__class__.__mro__):
-            for prop_name, prop in cls.__dict__.iteritems():
-                if isinstance(prop, Property):
-                    prop.name = prop_name
-                    prop.register(self, prop_name, prop.default_value)
-                    if hasattr(self, 'on_{}'.format(prop_name)):
-                        func = getattr(self, 'on_{}'.format(prop_name))
-                        bindings.update({prop_name: func})
-
+        bindings = EventDispatcher.register_properties(self)
         self.bind(**bindings)
+
+    @staticmethod
+    def register_properties(obj, properties=None):
+        """
+        Walk backwards through the MRO looking for event dispatcher Property attributes in the classes.
+        Then register and bind them to the default handler 'on_<prop_name>' if it exists.
+        Walking backwards allows you to override the default value for a superclass.
+
+        If the 'properties' argument is given, then only register the properties in the dictionary
+        'properties' must be a dictionary of keys being the attribute name and values being the eventdispatcher
+        Property object.
+        """
+        bindings = {}
+        if properties is None:
+            for cls in reversed(obj.__class__.__mro__):
+                for prop_name, prop in cls.__dict__.iteritems():
+                    if isinstance(prop, Property):
+                        prop.name = prop_name
+                        prop.register(obj, prop_name, prop.default_value)
+                        if hasattr(obj, 'on_%s' % prop_name):
+                            bindings[prop_name] = getattr(obj, 'on_{}'.format(prop_name))
+        else:
+            for prop_name, prop in properties.iteritems():
+                prop.name = prop_name
+                prop.register(obj, prop_name, prop.default_value)
+                if hasattr(obj, 'on_%s' % prop_name):
+                    bindings[prop_name] = getattr(obj, 'on_{}'.format(prop_name))
+
+        return bindings
 
     def force_dispatch(self, prop_name, value):
         """
