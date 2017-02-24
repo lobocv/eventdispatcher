@@ -220,6 +220,8 @@ class _(unicode):
         for ii, s in enumerate(iterable):
             if ii == 0:
                 t = cls(s)
+                if isinstance(s, _):
+                    t._additionals = s._additionals[:]
             else:
                 t += sep
                 t += s
