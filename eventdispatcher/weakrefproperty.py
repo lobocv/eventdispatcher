@@ -2,7 +2,7 @@ __author__ = 'calvin'
 
 from copy import deepcopy
 
-from eventdispatcher import Property
+from .property import Property
 from weakref import ref
 
 

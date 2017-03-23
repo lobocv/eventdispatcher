@@ -5,7 +5,7 @@ from functools import partial
 
 import numpy as np
 
-from . import Property
+from .property import Property
 
 
 class ObservableList(collections.MutableSequence):

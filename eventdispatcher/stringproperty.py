@@ -2,7 +2,7 @@ author = 'calvin'
 
 import gettext
 
-from eventdispatcher import Property
+from .property import Property
 
 # The translation (gettext) function to be used
 

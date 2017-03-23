@@ -3,7 +3,7 @@ import collections
 import json
 
 from functools import partial
-from . import Property
+from .property import Property
 
 
 class ObservableDict(collections.MutableMapping):
