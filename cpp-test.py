@@ -21,6 +21,8 @@ class EventDispatcher(ED.cEventDispatcher):
                     prop.register_(self, prop_name, prop.default_value)
 
 
+def do_something(inst, value):
+    print 'Doing something! %s, %s' % (inst, value)
 
 
 pyprint('Creating EventDispatcher object')
@@ -36,7 +38,17 @@ pyprint(e.event_dispatcher_properties)
 
 
 
+e.event_dispatcher_properties['age']['callbacks'].append(do_something)
+
+pyprint(e.event_dispatcher_properties)
+
 pyprint('Getting cProperty "age": %s' % e.age)
+
+pyprint('Setting cProperty "age to 30": ')
+e.age = 30
+pyprint('Getting cProperty "age": %s' % e.age)
+
+
 pyprint('Setting cProperty "age to 30": ')
 e.age = 30
 

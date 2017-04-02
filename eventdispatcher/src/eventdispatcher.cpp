@@ -6,11 +6,6 @@
 
 namespace bp = boost::python;
 
-char const* help()
-{
-   return "This is where the help would go if I wasn't lazy";
-}
-
 
 // Define an operator that works on boost::python::object
 std::ostream& operator<<(std::ostream& os, const bp::object& o)
@@ -55,6 +50,7 @@ class cProperty : bp::object {
 	public:
         bp::object default_value;
         const char* name;
+        //bp::str name;
         bp::dict instances;
         bp::object _additionals;
 
@@ -67,14 +63,34 @@ class cProperty : bp::object {
 		bp::object __get__(cEventDispatcher obj, bp::object asd) {
             bp::object value;
 			value = obj.event_dispatcher_properties[name]["value"];
+
 			std::cout <<  "call to C++ __get__: " << value << std::endl;
 
 			return value;
 		}
 
-		void __set__(bp::object obj, bp::object value) {
+		void __set__(cEventDispatcher obj, bp::object value) {
 			std::cout <<  "call to C++ __set__: " << value << std::endl;
+
+			if (obj.event_dispatcher_properties[name]["value"] != value) {
+                obj.event_dispatcher_properties[name]["value"] = value;
+                this->_dispatch(obj, value);
+			}
+
 		}
+
+
+        void _dispatch(cEventDispatcher obj, bp::object value) {
+            std::cout << "C++ DISPATCHING " << this->name << std::endl;
+
+            for (int ii=0; ii < len(obj.event_dispatcher_properties[this->name]["callbacks"]); ii++) {
+                const bp::object cb = bp::extract<bp::object>(obj.event_dispatcher_properties[this->name]["callbacks"][ii]);
+                std::cout << cb << " : ";
+                cb(obj, value);
+                std::cout << std::endl;
+            };
+
+        }
 
         void register_(cEventDispatcher instance, const char* property_name, bp::object default_value) {
             bp::dict info;
@@ -130,8 +146,6 @@ BOOST_PYTHON_MODULE(eventdispatcher)
 {
     using namespace boost::python;
 
-    def("help", help);
-
 
 	// Expose the class by wrapping it with the class_ template. The first argument is the name to expose it as and the second
 	// argument is the constructor function. Pass no_init to postpone the defining of __init__ function under after raw_function.
@@ -153,6 +167,7 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def("__set__", &cProperty::__set__)			// expose the defined a class method
         .def("__get__", &cProperty::__get__)			// expose the defined a class method
         .def("register_", &cProperty::register_)			// expose the defined a class method
+        .def("_dispatch", &cProperty::_dispatch)			// expose the defined a class method
         ;
 
 }
