@@ -1,7 +1,7 @@
 from eventdispatcher.cpp import eventdispatcher as ED
 
 def pyprint(text):
-    print "Python:       %s" % text
+    print "Python:       %s\n" % text
 
 print "\n\n"
 pyprint('Starting edtest.py\n')
@@ -38,7 +38,10 @@ pyprint(e.event_dispatcher_properties)
 
 
 
-e.event_dispatcher_properties['age']['callbacks'].append(do_something)
+#e.event_dispatcher_properties['age']['callbacks'].append(do_something)
+pyprint('Binding')
+asd = e.bind(age=do_something)
+pyprint('asd = %s' % asd)
 
 pyprint(e.event_dispatcher_properties)
 

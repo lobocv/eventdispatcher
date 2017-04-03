@@ -30,9 +30,6 @@ class cEventDispatcher : public bp::object {
 			std::cout <<  "call to C++ __set__: " << value << std::endl;
 		}
 
-        void bind(bp::object f) {
-            this->event_dispatcher_event_callbacks.append(f);
-        }
 
 
         void dispatch() {
@@ -43,6 +40,8 @@ class cEventDispatcher : public bp::object {
 
 
 };
+
+
 
 
 class cProperty : bp::object {
@@ -114,7 +113,22 @@ class cProperty : bp::object {
 
 
 
+bp::object bind(bp::tuple args, bp::dict bindings) {
+    bp::list keys = bindings.keys();
+    cEventDispatcher eventdispatcher = bp::extract<cEventDispatcher>(args[0]);
+    //std::cout << keys;
+    for (int ii=0; ii<len(keys); ii++) {
+        bp::object key = bp::extract<bp::str>(keys[ii]);
+        bp::object value = bindings[key];
+        std::cout << "Binding "<< key << " = " << value << std::endl;
+        eventdispatcher.event_dispatcher_properties[key]["callbacks"].attr("append")(value);
+    }
+    return bp::object();
 
+}
+
+
+// See for explanation of using *args, **kwargs: https://wiki.python.org/moin/boost.python/HowTo#A.22Raw.22_function
 bp::object cEventDispatcher_init(bp::tuple args, bp::dict kwargs) {
      std::cout <<  "call to c++ wrapped initializer" << std::endl;
 
@@ -155,19 +169,19 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def(init<>())
         .def_readwrite("event_dispatcher_properties", &cEventDispatcher::event_dispatcher_properties)
         .def_readwrite("event_dispatcher_callbacks", &cEventDispatcher::event_dispatcher_event_callbacks)
-        .def("__set__", &cEventDispatcher::__set__)			// expose the defined a class method
-        .def("bind", &cEventDispatcher::bind)			// expose the defined a class method
-        .def("dispatch", &cEventDispatcher::dispatch)			// expose the defined a class method
+        .def("__set__", &cEventDispatcher::__set__)
+        .def("bind", raw_function(bind) )
+        .def("dispatch", &cEventDispatcher::dispatch)
     ;
 
     class_<cProperty>("cProperty", init<object>())
         .def_readwrite("instances", &cProperty::instances)
         .def_readwrite("_additionals", &cProperty::_additionals)
         .def_readwrite("default_value", &cProperty::default_value)
-        .def("__set__", &cProperty::__set__)			// expose the defined a class method
-        .def("__get__", &cProperty::__get__)			// expose the defined a class method
-        .def("register_", &cProperty::register_)			// expose the defined a class method
-        .def("_dispatch", &cProperty::_dispatch)			// expose the defined a class method
+        .def("__set__", &cProperty::__set__)
+        .def("__get__", &cProperty::__get__)
+        .def("register_", &cProperty::register_)
+        .def("_dispatch", &cProperty::_dispatch)
         ;
 
 }
