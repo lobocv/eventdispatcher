@@ -1,36 +1,13 @@
-__author__ = 'Calvin Lobo'
-__version__ = '1.81'
+__author__ = 'calvin'
 
-import json
-import os
+import contextlib
 
-MODULE_DIR = os.path.dirname(os.path.realpath(__file__))
-IS_COMPILED = os.path.exists(os.path.join(MODULE_DIR, 'cpp', 'eventdispatcher.so'))
-
-if IS_COMPILED:
-    print 'Compiled version of EventDispatcher found.'
-    from cpp import eventdispatcher as cED
-    EventDispatcherBase = cED.cEventDispatcher
-else:
-    EventDispatcherBase = object
-
-from .eventdispatcher import EventDispatcher
 from .property import Property
-from .dictproperty import DictProperty, ObservableDict
-from .limitproperty import LimitProperty
-from .listproperty import ListProperty, ObservableList
-from .optionproperty import OptionProperty
-from .scheduledevent import ScheduledEvent
-from .setproperty import SetProperty, ObservableSet
-from .stringproperty import StringProperty, _
-from .unitproperty import UnitProperty
-from .weakrefproperty import WeakRefProperty
 from .exceptions import *
 
 
-class EventDispatcher(EventDispatcherBase):
+class EventDispatcher(object):
     def __init__(self, *args, **kwargs):
-        super(EventDispatcher, self).__init__()
         self.event_dispatcher_event_callbacks = {}
         self.event_dispatcher_properties = {}
         bindings = EventDispatcher.register_properties(self)
@@ -144,21 +121,20 @@ class EventDispatcher(EventDispatcherBase):
             else:
                 raise BindError("No such property or event '%s'" % prop_name)
 
-    if not IS_COMPILED:
-        def bind(self, **kwargs):
-            """
-            Bind a function to a property or event.
-            :param kwargs: {property name: callback} bindings
-            """
-            for prop_name, callback in kwargs.iteritems():
-                if prop_name in self.event_dispatcher_properties:
-                    # Queue the callback into the property
-                    self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
-                elif prop_name in self.event_dispatcher_event_callbacks:
-                    # If a property was not found, search in events
-                    self.event_dispatcher_event_callbacks[prop_name].append(callback)
-                else:
-                    raise BindError("No property or event by the name of '%s'" % prop_name)
+    def bind(self, **kwargs):
+        """
+        Bind a function to a property or event.
+        :param kwargs: {property name: callback} bindings
+        """
+        for prop_name, callback in kwargs.iteritems():
+            if prop_name in self.event_dispatcher_properties:
+                # Queue the callback into the property
+                self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
+            elif prop_name in self.event_dispatcher_event_callbacks:
+                # If a property was not found, search in events
+                self.event_dispatcher_event_callbacks[prop_name].append(callback)
+            else:
+                raise BindError("No property or event by the name of '%s'" % prop_name)
 
     def bind_once(self, **kwargs):
         """
@@ -235,21 +211,3 @@ class EventDispatcher(EventDispatcherBase):
                 self.event_dispatcher_properties[name]['callbacks'] = property_callbacks[name]
             if name in event_callbacks:
                 self.event_dispatcher_event_callbacks[name] = event_callbacks[name]
-
-
-class PropertyEncoder(json.JSONEncoder):
-    """
-    Encoder that helps with the JSON serializing of properties. In particular, ObservableDict and ObservableList
-    """
-
-    def default(self, o):
-        try:
-            r = super(PropertyEncoder, self).default(o)
-        except TypeError as e:
-            if isinstance(o, ObservableList):
-                return o.list
-            elif isinstance(o, ObservableDict):
-                return o.dictionary
-            else:
-                raise e
-        return r

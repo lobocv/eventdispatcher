@@ -20,7 +20,6 @@ class Property(PropertyBase):
         super(Property, self).__init__(default_value)
         self.instances = {}
         self.default_value = default_value
-        self.value = deepcopy(default_value)
         self._additionals = additionals
 
     if not IS_COMPILED:
