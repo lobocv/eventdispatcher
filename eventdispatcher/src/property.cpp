@@ -36,11 +36,17 @@ void cProperty::__set__(cEventDispatcher obj, bp::object value) {
 
 void cProperty::dispatch(cEventDispatcher obj, bp::object value) {
     std::cout << "C++ DISPATCHING " << this->name << std::endl;
-
+    bp::object ret;
+    bp::object cb;
+    // Call all bound callbacks in order. Stop if any bound function returns True
     for (int ii=0; ii < len(obj.event_dispatcher_properties[this->name]["callbacks"]); ii++) {
-        const bp::object cb = bp::extract<bp::object>(obj.event_dispatcher_properties[this->name]["callbacks"][ii]);
+        cb = bp::extract<bp::object>(obj.event_dispatcher_properties[this->name]["callbacks"][ii]);
         std::cout << cb << " : ";
-        cb(obj, value);
+        ret = cb(obj, value);
+
+        if (ret  == true) {
+            return;
+            }
         std::cout << std::endl;
     };
 

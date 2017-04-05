@@ -23,6 +23,11 @@ class EventDispatcher(ED.cEventDispatcher):
 
 def do_something(inst, value):
     print 'Doing something! %s, %s' % (inst, value)
+    return True
+
+def do_something_else(inst, value):
+    print 'something ELSE! %s, %s' % (inst, value)
+
 
 
 pyprint('Creating EventDispatcher object')
@@ -41,6 +46,7 @@ pyprint(e.event_dispatcher_properties)
 #e.event_dispatcher_properties['age']['callbacks'].append(do_something)
 pyprint('Binding')
 asd = e.bind(age=do_something)
+asd = e.bind(age=do_something_else)
 pyprint('asd = %s' % asd)
 
 pyprint(e.event_dispatcher_properties)
