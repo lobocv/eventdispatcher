@@ -12,7 +12,7 @@ namespace bp = boost::python;
 
 // constructor function (equivalent to __init__ for python classes)
 cEventDispatcher::cEventDispatcher() {
-    std::cout <<  "call to C++ EventDispatcher constructor" << std::endl;
+    //std::cout <<  "call to C++ EventDispatcher constructor" << std::endl;
 }
 
 
@@ -27,11 +27,11 @@ void cEventDispatcher::dispatch() {
 bp::object bind(bp::tuple args, bp::dict bindings) {
     bp::list keys = bindings.keys();
     cEventDispatcher eventdispatcher = bp::extract<cEventDispatcher>(args[0]);
-    //std::cout << keys;
+    ////std::cout << keys;
     for (int ii=0; ii<len(keys); ii++) {
         bp::object key = bp::extract<bp::str>(keys[ii]);
         bp::object value = bindings[key];
-        std::cout << "Binding "<< key << " = " << value << std::endl;
+        //std::cout << "Binding "<< key << " = " << value << std::endl;
         eventdispatcher.event_dispatcher_properties[key]["callbacks"].attr("append")(value);
     }
     return bp::object();
@@ -41,15 +41,15 @@ bp::object bind(bp::tuple args, bp::dict bindings) {
 
 // See for explanation of using *args, **kwargs: https://wiki.python.org/moin/boost.python/HowTo#A.22Raw.22_function
 bp::object cEventDispatcher_init(bp::tuple args, bp::dict kwargs) {
-     std::cout <<  "call to c++ wrapped initializer" << std::endl;
+     //std::cout <<  "call to c++ wrapped initializer" << std::endl;
 
      // strip off self
-     std::cout <<  "Arugments to c++ wrapped initializer:" << std::endl;
+     //std::cout <<  "Arugments to c++ wrapped initializer:" << std::endl;
      bp::object self = args[0];
      args = bp::tuple(args.slice(1, len(args)));
      for (int ii=0; ii< len(args); ii++) {
         const bp::object n = bp::extract<bp::object>(args[ii]);
-        std::cout << n << std::endl;
+        //std::cout << n << std::endl;
      }
 
      // call appropriate C++ constructor
