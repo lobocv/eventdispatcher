@@ -16,11 +16,6 @@ cEventDispatcher::cEventDispatcher() {
 }
 
 
-void cEventDispatcher::__set__(bp::object obj, int value) {
-    std::cout <<  "call to C++ __set__: " << value << std::endl;
-}
-
-
 
 void cEventDispatcher::dispatch() {
     bp::list callbacks = this->event_dispatcher_event_callbacks;
@@ -85,7 +80,6 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def(init<>())
         .def_readwrite("event_dispatcher_properties", &cEventDispatcher::event_dispatcher_properties)
         .def_readwrite("event_dispatcher_callbacks", &cEventDispatcher::event_dispatcher_event_callbacks)
-        .def("__set__", &cEventDispatcher::__set__)
         .def("bind", raw_function(bind) )
         .def("dispatch", &cEventDispatcher::dispatch)
     ;
@@ -97,8 +91,7 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def_readwrite("default_value", &cProperty::default_value)
         .def("__set__", &cProperty::__set__)
         .def("__get__", &cProperty::__get__)
-        .def("register_", &cProperty::register_)
-        .def("_dispatch", &cProperty::_dispatch)
+        .def("register", &cProperty::register_property)
         ;
 
 

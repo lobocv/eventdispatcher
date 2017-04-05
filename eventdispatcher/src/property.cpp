@@ -29,12 +29,12 @@ void cProperty::__set__(cEventDispatcher obj, bp::object value) {
 
     if (obj.event_dispatcher_properties[name]["value"] != value) {
         obj.event_dispatcher_properties[name]["value"] = value;
-        this->_dispatch(obj, value);
+        this->dispatch(obj, value);
     }
 }
 
 
-void cProperty::_dispatch(cEventDispatcher obj, bp::object value) {
+void cProperty::dispatch(cEventDispatcher obj, bp::object value) {
     std::cout << "C++ DISPATCHING " << this->name << std::endl;
 
     for (int ii=0; ii < len(obj.event_dispatcher_properties[this->name]["callbacks"]); ii++) {
@@ -46,7 +46,7 @@ void cProperty::_dispatch(cEventDispatcher obj, bp::object value) {
 
 }
 
-void cProperty::register_(cEventDispatcher instance, const char* property_name, bp::object default_value) {
+void cProperty::register_property(cEventDispatcher instance, const char* property_name, bp::object default_value) {
     bp::dict info;
     bp::list callback_list;
 

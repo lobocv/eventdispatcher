@@ -18,7 +18,7 @@ class EventDispatcher(ED.cEventDispatcher):
             for prop_name, prop in cls.__dict__.iteritems():
                 if isinstance(prop, ED.cProperty):
                     pyprint('Registering EventDispatcher property %s' % prop_name)
-                    prop.register_(self, prop_name, prop.default_value)
+                    prop.register(self, prop_name, prop.default_value)
 
 
 def do_something(inst, value):

@@ -24,10 +24,12 @@ class cProperty : public bp::object {
 		bp::object __get__(cEventDispatcher obj, bp::object asd);
 
 		void __set__(cEventDispatcher obj, bp::object value);
+        void register_property(cEventDispatcher instance, const char* property_name, bp::object default_value);
 
-        void _dispatch(cEventDispatcher obj, bp::object value) ;
+    private:
+        void dispatch(cEventDispatcher obj, bp::object value) ;
 
-        void register_(cEventDispatcher instance, const char* property_name, bp::object default_value);
+
 
 
 };
