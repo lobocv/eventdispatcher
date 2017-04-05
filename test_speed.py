@@ -3,7 +3,7 @@ __author__ = 'Calvin'
 from pyperform import BenchmarkedClass, BenchmarkedFunction
 
 from eventdispatcher import EventDispatcher, Property, ListProperty, DictProperty  #!
-from unit_tests import create_different_value #!
+from unit_tests import EventDispatcherTest #!
 
 from eventdispatcher import __version__
 print __version__
@@ -11,8 +11,9 @@ print __version__
 @BenchmarkedClass(classname='Dispatcher')
 class Dispatcher(EventDispatcher):
     # p = ListProperty([1,2,3])
-    # p = Property(1)
-    p = DictProperty({1: 'asd'})
+    p = Property(1)
+    # p = DictProperty({1: 'asd'})
+    N_dispatches = 1000
 
     def __init__(self):
         super(Dispatcher, self).__init__()
@@ -20,17 +21,17 @@ class Dispatcher(EventDispatcher):
 
     @BenchmarkedFunction(classname='Dispatcher', timeit_repeat=10, timeit_number=100)
     def run_setter(self):
-        for i in xrange(100):
-            self.p = create_different_value(self.p)
+        for i in xrange(Dispatcher.N_dispatches):
+            self.p = EventDispatcherTest.create_different_value(self.p)
 
     @BenchmarkedFunction(classname='Dispatcher', timeit_repeat=10, timeit_number=100)
     def run_dispatch(self):
-        for i in xrange(100):
+        for i in xrange(Dispatcher.N_dispatches):
             self.dispatch('p', self, i)
 
     @BenchmarkedFunction(classname='Dispatcher', timeit_repeat=10, timeit_number=100)
     def run_getter(self):
-        for i in xrange(100):
+        for i in xrange(Dispatcher.N_dispatches):
             f = self.p
 
     def callback(self, inst, number):

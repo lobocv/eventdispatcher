@@ -2,12 +2,14 @@ __author__ = 'calvin'
 
 import contextlib
 
+from ._bases import EventDispatcherBase, IS_COMPILED
 from .property import Property
 from .exceptions import *
 
 
-class EventDispatcher(object):
+class EventDispatcher(EventDispatcherBase):
     def __init__(self, *args, **kwargs):
+        super(EventDispatcher, self).__init__()
         self.event_dispatcher_event_callbacks = {}
         self.event_dispatcher_properties = {}
         bindings = EventDispatcher.register_properties(self)
@@ -121,20 +123,21 @@ class EventDispatcher(object):
             else:
                 raise BindError("No such property or event '%s'" % prop_name)
 
-    def bind(self, **kwargs):
-        """
-        Bind a function to a property or event.
-        :param kwargs: {property name: callback} bindings
-        """
-        for prop_name, callback in kwargs.iteritems():
-            if prop_name in self.event_dispatcher_properties:
-                # Queue the callback into the property
-                self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
-            elif prop_name in self.event_dispatcher_event_callbacks:
-                # If a property was not found, search in events
-                self.event_dispatcher_event_callbacks[prop_name].append(callback)
-            else:
-                raise BindError("No property or event by the name of '%s'" % prop_name)
+    if not IS_COMPILED:
+        def bind(self, **kwargs):
+            """
+            Bind a function to a property or event.
+            :param kwargs: {property name: callback} bindings
+            """
+            for prop_name, callback in kwargs.iteritems():
+                if prop_name in self.event_dispatcher_properties:
+                    # Queue the callback into the property
+                    self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
+                elif prop_name in self.event_dispatcher_event_callbacks:
+                    # If a property was not found, search in events
+                    self.event_dispatcher_event_callbacks[prop_name].append(callback)
+                else:
+                    raise BindError("No property or event by the name of '%s'" % prop_name)
 
     def bind_once(self, **kwargs):
         """
