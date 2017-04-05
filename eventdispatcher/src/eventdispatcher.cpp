@@ -3,114 +3,30 @@
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 
+#include "eventdispatcher.h"
+#include "property.h"
+#include "misc.h"
 
 namespace bp = boost::python;
 
 
-// Define an operator that works on boost::python::object
-std::ostream& operator<<(std::ostream& os, const bp::object& o)
-{
-    return os << bp::extract<std::string>(bp::str(o))();
+// constructor function (equivalent to __init__ for python classes)
+cEventDispatcher::cEventDispatcher() {
+    std::cout <<  "call to C++ EventDispatcher constructor" << std::endl;
 }
 
 
-class cEventDispatcher : public bp::object {
-
-	public:
-        bp::dict event_dispatcher_properties;
-        bp::list event_dispatcher_event_callbacks;
-
-		// constructor function (equivalent to __init__ for python classes)
-        cEventDispatcher() {
-            std::cout <<  "call to C++ EventDispatcher constructor" << std::endl;
-        }
-
-
-		void __set__(bp::object obj, int value) {
-			std::cout <<  "call to C++ __set__: " << value << std::endl;
-		}
+void cEventDispatcher::__set__(bp::object obj, int value) {
+    std::cout <<  "call to C++ __set__: " << value << std::endl;
+}
 
 
 
-        void dispatch() {
-            bp::list callbacks = this->event_dispatcher_event_callbacks;
-            for (int ii=0; ii < len(callbacks); ii++)
-                callbacks[ii]();
-        }
-
-
-};
-
-
-
-
-class cProperty : bp::object {
-
-	public:
-        bp::object default_value;
-        const char* name;
-        //bp::str name;
-        bp::dict instances;
-        bp::object _additionals;
-
-		// constructor function (equivalent to __init__ for python classes)
-        cProperty(bp::object obj) {
-            std::cout <<  "call to C++ Property constructor" << std::endl;
-            this->default_value = obj;
-        }
-
-		bp::object __get__(cEventDispatcher obj, bp::object asd) {
-            bp::object value;
-			value = obj.event_dispatcher_properties[name]["value"];
-
-			std::cout <<  "call to C++ __get__: " << value << std::endl;
-
-			return value;
-		}
-
-		void __set__(cEventDispatcher obj, bp::object value) {
-			std::cout <<  "call to C++ __set__: " << value << std::endl;
-
-			if (obj.event_dispatcher_properties[name]["value"] != value) {
-                obj.event_dispatcher_properties[name]["value"] = value;
-                this->_dispatch(obj, value);
-			}
-
-		}
-
-
-        void _dispatch(cEventDispatcher obj, bp::object value) {
-            std::cout << "C++ DISPATCHING " << this->name << std::endl;
-
-            for (int ii=0; ii < len(obj.event_dispatcher_properties[this->name]["callbacks"]); ii++) {
-                const bp::object cb = bp::extract<bp::object>(obj.event_dispatcher_properties[this->name]["callbacks"][ii]);
-                std::cout << cb << " : ";
-                cb(obj, value);
-                std::cout << std::endl;
-            };
-
-        }
-
-        void register_(cEventDispatcher instance, const char* property_name, bp::object default_value) {
-            bp::dict info;
-            bp::list callback_list;
-
-            this->name = property_name;
-            info["property"] = this;
-            info["value"] = default_value;
-            info["name"] = property_name;
-            info["callbacks"] = callback_list;
-
-            this->instances[instance] = info;
-            instance.event_dispatcher_properties[property_name] = info;
-        }
-
-
-
-
-
-};
-
+void cEventDispatcher::dispatch() {
+    bp::list callbacks = this->event_dispatcher_event_callbacks;
+    for (int ii=0; ii < len(callbacks); ii++)
+        callbacks[ii]();
+}
 
 
 bp::object bind(bp::tuple args, bp::dict bindings) {
@@ -174,6 +90,7 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def("dispatch", &cEventDispatcher::dispatch)
     ;
 
+
     class_<cProperty>("cProperty", init<object>())
         .def_readwrite("instances", &cProperty::instances)
         .def_readwrite("_additionals", &cProperty::_additionals)
@@ -183,6 +100,7 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def("register_", &cProperty::register_)
         .def("_dispatch", &cProperty::_dispatch)
         ;
+
 
 }
 
