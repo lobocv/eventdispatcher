@@ -1,6 +1,6 @@
 import json as JSON
 
-from eventdispatcher import DictProperty, ListProperty, Property, StringProperty, EventDispatcher,\
+from . import DictProperty, ListProperty, Property, StringProperty, EventDispatcher,\
                             ObservableDict, ObservableList
 from collections import OrderedDict
 from functools import partial
