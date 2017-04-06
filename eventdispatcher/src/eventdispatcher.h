@@ -19,7 +19,6 @@ class cEventDispatcher : public bp::object {
 
         cEventDispatcher();
 
-        void __set__(bp::object obj, int value);
         void dispatch();
 
 

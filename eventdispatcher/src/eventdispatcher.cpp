@@ -67,9 +67,11 @@ bp::object cEventDispatcher_init(bp::tuple args, bp::dict kwargs) {
 
 }
 
+
 BOOST_PYTHON_MODULE(eventdispatcher)
 {
     using namespace boost::python;
+
 
 
 	// Expose the class by wrapping it with the class_ template. The first argument is the name to expose it as and the second
@@ -85,11 +87,16 @@ BOOST_PYTHON_MODULE(eventdispatcher)
     ;
 
 
+    // Create pointers to the overloaded functions
+    void (cProperty::*set_int)(cEventDispatcher, int) = &cProperty::__set__;
+    void (cProperty::*set_float)(cEventDispatcher, float) = &cProperty::__set__;
+
     class_<cProperty>("cProperty", init<object>())
         .def_readwrite("instances", &cProperty::instances)
         .def_readwrite("_additionals", &cProperty::_additionals)
         .def_readwrite("default_value", &cProperty::default_value)
-        .def("__set__", &cProperty::__set__)
+        .def("__set__", set_int)
+        .def("__set__", set_float)
         .def("__get__", &cProperty::__get__)
         .def("register", &cProperty::register_property)
         ;

@@ -54,7 +54,7 @@ pyprint(e.event_dispatcher_properties)
 pyprint('Getting cProperty "age": %s' % e.age)
 
 pyprint('Setting cProperty "age to 30": ')
-e.age = 30
+e.age = 30.5
 pyprint('Getting cProperty "age": %s' % e.age)
 
 
