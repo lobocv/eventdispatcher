@@ -13,7 +13,8 @@ from unit_tests.limitproperty import LimitPropertyTest
 from unit_tests.stringproperty import StringPropertyTest
 from unit_tests.events import EventTest
 
-RUN_TESTS = [EventTest,
+RUN_TESTS = [
+            EventTest,
              PropertyTest,
              ListPropertyTest,
              DictPropertyTest,
@@ -26,7 +27,10 @@ RUN_TESTS = [EventTest,
 total_errors = 0
 total_failures = 0
 
+open('./test_results.txt', 'w').close()
+
 for test in RUN_TESTS:
+
     stream = StringIO()
     runner = unittest.TextTestRunner(stream=stream, verbosity=2)
     result = runner.run(unittest.makeSuite(test))
@@ -40,7 +44,11 @@ for test in RUN_TESTS:
         pprint(result.failures)
         total_failures += len(result.failures)
     stream.seek(0)
-    print stream.read()
+    txt = stream.read()
+
+    with open('./test_results.txt', 'aw') as f:
+        f.write(txt)
+    print txt
 
 print 'Tests completed:\n\tTotal Errors: {errors}\n\tTotal failures: {fails}'.format(errors=total_errors,
                                                                                      fails=total_failures)

@@ -39,32 +39,5 @@ class PropertyTest(EventDispatcherTest): #!
 
 
 
-class PropertySpeedTest(EventDispatcher):
-    N_dispatches = 10000
-    p = Property(10)
-
-    @timer
-    def run_setter(self):
-        for i in xrange(PropertySpeedTest.N_dispatches):
-            self.p = PropertyTest.create_different_value(self.p)
-
-    @timer
-    def run_dispatch(self):
-        for i in xrange(PropertySpeedTest.N_dispatches):
-            self.dispatch('p', self, i)
-
-    @timer
-    def run_getter(self):
-        for i in xrange(PropertySpeedTest.N_dispatches):
-            f = self.p
-
-
-speedtest = PropertySpeedTest()
-speedtest.run_getter()
-speedtest.run_setter()
-speedtest.run_dispatch()
-
-
-
 if __name__ == '__main__':
     unittest.main()
