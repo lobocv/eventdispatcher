@@ -16,11 +16,12 @@ cProperty::cProperty(bp::object obj) {
 }
 
 bp::object cProperty::__get__(cEventDispatcher obj, bp::object asd) {
+    //std::cout <<  "call to C++ __get__: " << std::endl;
     return obj.event_dispatcher_properties[name]["value"];
-    //std::cout <<  "call to C++ __get__: " << value << std::endl;
+
 }
 
-void cProperty::__set__(cEventDispatcher obj, int value) {
+template <typename T> void cProperty::__set__(cEventDispatcher obj, T value) {
     //std::cout <<  "call to C++ __set__: " << value << std::endl;
 
     if (obj.event_dispatcher_properties[name]["value"] != value) {
@@ -29,15 +30,10 @@ void cProperty::__set__(cEventDispatcher obj, int value) {
     }
 }
 
-
-void cProperty::__set__(cEventDispatcher obj, float value) {
-    //std::cout <<  "call to C++ __set__: " << value << std::endl;
-
-    if (obj.event_dispatcher_properties[name]["value"] != value) {
-        obj.event_dispatcher_properties[name]["value"] = value;
-        this->dispatch(obj, value);
-    }
-}
+// Explicitly instantiate template functions so that the compiler can create their definition and
+// We can expose them to python
+template void cProperty::__set__<float>(cEventDispatcher obj, float value);
+template void cProperty::__set__<int>(cEventDispatcher obj, int value);
 
 
 void cProperty::dispatch(cEventDispatcher obj, int value) {

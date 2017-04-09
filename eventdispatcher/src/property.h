@@ -23,8 +23,7 @@ class cProperty : public bp::object {
 
 		bp::object __get__(cEventDispatcher obj, bp::object asd);
 
-		void __set__(cEventDispatcher obj, int value);
-		void __set__(cEventDispatcher obj, float value);
+		template <typename T> void __set__(cEventDispatcher obj, T value);
 
         void register_property(cEventDispatcher instance, const char* property_name, bp::object default_value);
 
