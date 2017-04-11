@@ -10,6 +10,7 @@ pyprint('Starting edtest.py\n')
 class EventDispatcher(ED.cEventDispatcher):
 
     age = ED.cProperty(27)
+    shirts = ED.cListProperty([])
 
     def __init__(self):
 
@@ -61,3 +62,9 @@ pyprint('Getting cProperty "age": %s' % e.age)
 pyprint('Setting cProperty "age to 30": ')
 e.age = 30
 
+
+e.bind(shirts=do_something)
+e.shirts = ['red', 'green']
+e.shirts = ('red', 'blue')
+print e.shirts
+pyprint('Getting cListProperty "shirts": %s' % e.shirts)

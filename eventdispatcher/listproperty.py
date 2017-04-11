@@ -6,7 +6,7 @@ from functools import partial
 import numpy as np
 
 from . import Property
-
+from ._bases import IS_COMPILED
 
 class ObservableList(collections.MutableSequence):
     def __init__(self, l, dispatch_method, dtype=None):
@@ -91,15 +91,16 @@ class ListProperty(Property):
                                     dtype=self._additionals.get('dtype'))
         super(ListProperty, self).register(instance, property_name, self.value)
 
-    def __set__(self, obj, value):
-        p = self.instances[obj]
-        # Check if we need to dispatch
-        do_dispatch = len(p['value'].list) != len(value) or not ListProperty.compare_sequences(p['value'], value)
-        p['value'].list[:] = value        # Assign to ObservableList's value
-        if do_dispatch:
-            for callback in p['callbacks']:
-                if callback(obj, p['value'].list):
-                    break
+    if not IS_COMPILED:
+        def __set__(self, obj, value):
+            p = self.instances[obj]
+            # Check if we need to dispatch
+            do_dispatch = len(p['value'].list) != len(value) or not ListProperty.compare_sequences(p['value'], value)
+            p['value'].list[:] = value        # Assign to ObservableList's value
+            if do_dispatch:
+                for callback in p['callbacks']:
+                    if callback(obj, p['value'].list):
+                        break
 
     @staticmethod
     def compare_sequences(iter1, iter2):

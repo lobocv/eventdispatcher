@@ -10,6 +10,8 @@ if IS_COMPILED:
     from cpp import eventdispatcher as cED
     EventDispatcherBase = cED.cEventDispatcher
     PropertyBase = cED.cProperty
+    ListPropertyBase = cED.cListProperty
 else:
     EventDispatcherBase = object
     PropertyBase = object
+    ListPropertyBase = object

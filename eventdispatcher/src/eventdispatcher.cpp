@@ -5,6 +5,7 @@
 
 #include "eventdispatcher.h"
 #include "property.h"
+#include "listproperty.h"
 #include "misc.h"
 
 namespace bp = boost::python;
@@ -96,6 +97,18 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def("__get__", &cProperty::__get__)
         .def("register", &cProperty::register_property)
         ;
+
+
+    class_<cListProperty, bases<cProperty> >("cListProperty", init<object>())
+        .def_readwrite("instances", &cListProperty::instances)
+        .def_readwrite("_additionals", &cListProperty::_additionals)
+        .def_readwrite("default_value", &cListProperty::default_value)
+        .def("__set__", &cListProperty::__set__<list>)
+        .def("__set__", &cListProperty::__set__<tuple>)
+        .def("__get__", &cListProperty::__get__)
+        .def("register", &cListProperty::register_property)
+        ;
+
 
 
 }

@@ -7,15 +7,16 @@ BOOST_LIB = /usr/local/boost_1_63_0/stage/lib
 
 TARGET = eventdispatcher
 TARGET2 = property
-TARGET3 = misc
+TARGET3 = listproperty
+TARGET4 = misc
 SRC_DIR = eventdispatcher/src
 OUTPUT_DIR = eventdispatcher/cpp
 
-all: $(OUTPUT_DIR)/$(TARGET).o $(OUTPUT_DIR)/$(TARGET2).o $(OUTPUT_DIR)/$(TARGET3).o $(OUTPUT_DIR)/$(TARGET).so
+all: $(OUTPUT_DIR)/$(TARGET).o $(OUTPUT_DIR)/$(TARGET2).o $(OUTPUT_DIR)/$(TARGET3).o $(OUTPUT_DIR)/$(TARGET4).o $(OUTPUT_DIR)/$(TARGET).so
 
 
 $(OUTPUT_DIR)/$(TARGET).so: $(OUTPUT_DIR)/$(TARGET).o
-	$(CC) -shared -I BOOT_LIB -o $(OUTPUT_DIR)/$(TARGET).so $(OUTPUT_DIR)/$(TARGET).o $(OUTPUT_DIR)/$(TARGET2).o $(OUTPUT_DIR)/$(TARGET3).o -lpython2.7 -lboost_python
+	$(CC) -shared -I BOOT_LIB -o $(OUTPUT_DIR)/$(TARGET).so $(OUTPUT_DIR)/$(TARGET).o $(OUTPUT_DIR)/$(TARGET2).o $(OUTPUT_DIR)/$(TARGET3).o $(OUTPUT_DIR)/$(TARGET4).o -lpython2.7 -lboost_python
 
 
 $(OUTPUT_DIR)/$(TARGET).o:
@@ -29,6 +30,11 @@ $(OUTPUT_DIR)/$(TARGET2).o:
 
 $(OUTPUT_DIR)/$(TARGET3).o:
 	$(CC) -o $(OUTPUT_DIR)/$(TARGET3).o -c $(SRC_DIR)/$(TARGET3).cpp -Wall -fPIC -I$(PYTHON_INCLUDE)
+
+
+
+$(OUTPUT_DIR)/$(TARGET4).o:
+	$(CC) -o $(OUTPUT_DIR)/$(TARGET4).o -c $(SRC_DIR)/$(TARGET3).cpp -Wall -fPIC -I$(PYTHON_INCLUDE)
 
 
 
