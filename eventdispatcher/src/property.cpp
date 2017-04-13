@@ -5,6 +5,7 @@
 
 #include "eventdispatcher.h"
 #include "property.h"
+#include "listproperty.h"
 #include "misc.h"
 
 namespace bp = boost::python;
@@ -50,22 +51,7 @@ template <typename T> void cProperty::dispatch(cEventDispatcher obj, T value) {
 }
 
 
-// Explicitly instantiate template functions so that the compiler can create their definition and
-// We can expose them to python
-template void cProperty::__set__<float>(cEventDispatcher obj, float value);
-template void cProperty::__set__<int>(cEventDispatcher obj, int value);
-template void cProperty::__set__<bp::list>(cEventDispatcher obj, bp::list value);
-template void cProperty::__set__<bp::tuple>(cEventDispatcher obj, bp::tuple value);
-
-template void cProperty::dispatch<float>(cEventDispatcher obj, float value);
-template void cProperty::dispatch<int>(cEventDispatcher obj, int value);
-template void cProperty::dispatch<bp::list>(cEventDispatcher obj, bp::list value);
-template void cProperty::dispatch<bp::tuple>(cEventDispatcher obj, bp::tuple value);
-
-
-
-
-void cProperty::register_property(cEventDispatcher instance, const char* property_name, bp::object default_value) {
+template <typename T> void cProperty::register_property(cEventDispatcher instance, const char* property_name, T default_value) {
     bp::dict info;
     bp::list callback_list;
 
@@ -78,4 +64,28 @@ void cProperty::register_property(cEventDispatcher instance, const char* propert
     this->instances[instance] = info;
     instance.event_dispatcher_properties[property_name] = info;
 }
+
+
+
+// Explicitly instantiate template functions so that the compiler can create their definition and
+// We can expose them to python
+template void cProperty::__set__<float>(cEventDispatcher obj, float value);
+template void cProperty::__set__<int>(cEventDispatcher obj, int value);
+template void cProperty::__set__<bp::list>(cEventDispatcher obj, bp::list value);
+template void cProperty::__set__<bp::tuple>(cEventDispatcher obj, bp::tuple value);
+
+template void cProperty::dispatch<float>(cEventDispatcher obj, float value);
+template void cProperty::dispatch<int>(cEventDispatcher obj, int value);
+template void cProperty::dispatch<bp::list>(cEventDispatcher obj, bp::list value);
+template void cProperty::dispatch<bp::tuple>(cEventDispatcher obj, bp::tuple value);
+
+template void cProperty::register_property<float>(cEventDispatcher instance, const char* property_name, float value);
+template void cProperty::register_property<int>(cEventDispatcher instance, const char* property_name, int value);
+template void cProperty::register_property<bp::list>(cEventDispatcher instance, const char* property_name, bp::list value);
+template void cProperty::register_property<bp::tuple>(cEventDispatcher instance, const char* property_name, bp::tuple value);
+template void cProperty::register_property<cObservableList>(cEventDispatcher instance, const char* property_name, cObservableList value);
+
+
+
+
 

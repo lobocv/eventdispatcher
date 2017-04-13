@@ -24,7 +24,7 @@ class cProperty : public bp::object {
 		bp::object __get__(cEventDispatcher obj, bp::object asd);
 		template <typename T> void __set__(cEventDispatcher obj, T value);
 
-        void register_property(cEventDispatcher instance, const char* property_name, bp::object default_value);
+        template <typename T> void register_property(cEventDispatcher instance, const char* property_name, T default_value);
 
     protected:
         template <typename T> void dispatch(cEventDispatcher obj, T value) ;

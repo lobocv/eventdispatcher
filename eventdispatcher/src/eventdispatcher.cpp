@@ -95,7 +95,10 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def("__set__", &cProperty::__set__<float>)
         .def("__set__", &cProperty::__set__<int>)
         .def("__get__", &cProperty::__get__)
-        .def("register", &cProperty::register_property)
+        .def("register", &cProperty::register_property<float>)
+        .def("register", &cProperty::register_property<int>)
+        .def("register", &cProperty::register_property<cObservableList>)
+
         ;
 
 
@@ -107,6 +110,10 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def("__set__", &cListProperty::__set__<tuple>)
         .def("__get__", &cListProperty::__get__)
         .def("register", &cListProperty::register_property)
+        ;
+
+    class_<cObservableList>("cObservableList", init<list, cProperty*>())
+        .def_readwrite("list", &cObservableList::list)
         ;
 
 

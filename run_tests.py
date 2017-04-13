@@ -14,14 +14,14 @@ from unit_tests.stringproperty import StringPropertyTest
 from unit_tests.events import EventTest
 
 RUN_TESTS = [
-            EventTest,
-             PropertyTest,
+            # EventTest,
+            #  PropertyTest,
              ListPropertyTest,
-             DictPropertyTest,
-             UnitPropertyTest,
-             SetPropertyTest,
-             LimitPropertyTest,
-             StringPropertyTest,
+             # DictPropertyTest,
+             # UnitPropertyTest,
+             # SetPropertyTest,
+             # LimitPropertyTest,
+             # StringPropertyTest,
              ]
 
 total_errors = 0
