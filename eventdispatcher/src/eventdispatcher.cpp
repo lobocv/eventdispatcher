@@ -64,8 +64,6 @@ bp::object cEventDispatcher_init(bp::tuple args, bp::dict kwargs) {
 
      return self.attr("__init__")(0);
 
-
-
 }
 
 

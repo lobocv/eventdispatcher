@@ -1,7 +1,7 @@
 __author__ = 'calvin'
 
 
-from ._bases import PropertyBase, IS_COMPILED
+from ._bases import PropertyBase, IS_COMPILED, _update_bases
 
 
 class Property(PropertyBase):
@@ -31,10 +31,6 @@ class Property(PropertyBase):
             # Create the instances dictionary at registration so that each class has it's own instance of it.
             self.instances[instance] = info
             instance.event_dispatcher_properties[property_name] = info
-    else:
-        def register(self, instance, property_name, default_value):
-            super(Property, self).register(instance, property_name, default_value)
-            instance.event_dispatcher_properties[property_name]['property'] = self
 
     def __delete__(self, obj):
         raise AttributeError("Cannot delete properties")
@@ -42,3 +38,5 @@ class Property(PropertyBase):
     def get_dispatcher_property(self, property_name):
         return self.instances[self][property_name]
 
+# Update the reference to the base class for all other properties
+_update_bases(Property)

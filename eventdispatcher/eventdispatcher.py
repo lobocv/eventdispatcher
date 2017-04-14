@@ -8,6 +8,7 @@ from .exceptions import *
 
 
 class EventDispatcher(EventDispatcherBase):
+
     def __init__(self, *args, **kwargs):
         super(EventDispatcher, self).__init__()
         self.event_dispatcher_event_callbacks = {}

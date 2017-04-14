@@ -6,7 +6,8 @@ from functools import partial
 import numpy as np
 
 from . import Property
-from ._bases import IS_COMPILED
+from ._bases import IS_COMPILED, _get_base
+
 
 class ObservableList(collections.MutableSequence):
     def __init__(self, l, dispatch_method, dtype=None):
@@ -83,15 +84,16 @@ class ObservableList(collections.MutableSequence):
         return bool(self.list)
 
 
-class ListProperty(Property):
-
-    def register(self, instance, property_name, value, dtype=None):
-        self.value = ObservableList(value,
-                                    dispatch_method=partial(instance.dispatch, property_name, instance),
-                                    dtype=self._additionals.get('dtype'))
-        super(ListProperty, self).register(instance, property_name, self.value)
+class ListProperty(_get_base("ListProperty")):
 
     if not IS_COMPILED:
+
+        def register(self, instance, property_name, value, dtype=None):
+            self.value = ObservableList(value,
+                                        dispatch_method=partial(instance.dispatch, property_name, instance),
+                                        dtype=self._additionals.get('dtype'))
+            super(ListProperty, self).register(instance, property_name, self.value)
+
         def __set__(self, obj, value):
             p = self.instances[obj]
             # Check if we need to dispatch

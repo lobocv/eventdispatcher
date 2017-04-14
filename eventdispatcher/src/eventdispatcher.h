@@ -20,8 +20,6 @@ class cEventDispatcher : public bp::object {
         cEventDispatcher();
 
         void dispatch();
-
-
 };
 
 

@@ -1,4 +1,5 @@
-from eventdispatcher.cpp import eventdispatcher as ED
+from eventdispatcher.cpp.eventdispatcher import cEventDispatcher, cProperty, cListProperty
+from eventdispatcher import EventDispatcher, Property, ListProperty
 
 def pyprint(text):
     print "Python:       %s\n" % text
@@ -7,19 +8,19 @@ print "\n\n"
 pyprint('Starting edtest.py\n')
 
 
-class EventDispatcher(ED.cEventDispatcher):
+class EventDispatcher(EventDispatcher):
 
-    age = ED.cProperty(27)
-    shirts = ED.cListProperty([])
+    age = Property(27)
+    shirts = ListProperty([])
 
-    def __init__(self):
-
-        super(EventDispatcher, self).__init__()
-        for cls in reversed(self.__class__.__mro__):
-            for prop_name, prop in cls.__dict__.iteritems():
-                if isinstance(prop, ED.cProperty):
-                    pyprint('Registering EventDispatcher property %s' % prop_name)
-                    prop.register(self, prop_name, prop.default_value)
+    # def __init__(self):
+    #
+    #     super(EventDispatcher, self).__init__()
+    #     for cls in reversed(self.__class__.__mro__):
+    #         for prop_name, prop in cls.__dict__.iteritems():
+    #             if isinstance(prop, cProperty):
+    #                 pyprint('Registering EventDispatcher property %s' % prop_name)
+    #                 prop.register(self, prop_name, prop.default_value)
 
 
 def do_something(inst, value):
@@ -65,6 +66,8 @@ e.age = 30
 
 e.bind(shirts=do_something)
 e.shirts = ['red', 'green']
-e.shirts = ('red', 'blue')
-print e.shirts
-pyprint('Getting cListProperty "shirts": %s' % e.shirts)
+e.shirts = ('red', 'green')
+asd = e.shirts
+# e.shirts = ('red', 'blue')
+# print e.shirts
+pyprint('Getting cListProperty "shirts": %s' % (e.shirts, ))

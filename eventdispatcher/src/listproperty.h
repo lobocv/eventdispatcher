@@ -36,16 +36,19 @@ class cListProperty : public cProperty {
 
         cListProperty(bp::object obj) : cProperty(obj) {};
 
+        bp::list __get__(cEventDispatcher obj, bp::object asd) {
+            bp::list value = bp::extract<bp::list>(obj.event_dispatcher_properties[name]["value"].attr("list"));
+            return value;
+        }
+
         template <typename T> void __set__(cEventDispatcher obj, T value);
 
         void register_property(cEventDispatcher instance, const char* property_name, bp::list default_value) {
-//            void (cProperty::*_dispatcher)(cEventDispatcher, bp::list) = &cProperty::dispatch<bp::list>;
-//            void (*_dispatcher)(bp::list);
-//            dispatch_method _dispatcher = cProperty::dispatch<cEventDispatcher, bp::list>;
-//            dispatch_method _dispatcher = &cProperty::dispatch<cEventDispatcher, bp::list>;
             cObservableList obs_list = cObservableList(default_value, this);
 
             cProperty::register_property(instance, property_name, default_value);
+            // Override the references to point to the ListProperty and ObservableList
+            instance.event_dispatcher_properties[property_name]["property"] = this;
             instance.event_dispatcher_properties[property_name]["value"] = bp::object(obs_list);
         }
 
