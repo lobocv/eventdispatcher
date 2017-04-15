@@ -1,6 +1,7 @@
 __author__ = 'calvin'
 
 import os
+import collections
 
 MODULE_DIR = os.path.dirname(os.path.realpath(__file__))
 IS_COMPILED = os.path.exists(os.path.join(MODULE_DIR, 'cpp', 'eventdispatcher.so'))
@@ -24,7 +25,7 @@ def _update_bases(property_base):
     This function is called once the Property class is defined.
     It sets the MRO for all other properties which inherit from Property.
     """
-    global PropertyBase, ListPropertyBase
+    global PropertyBase, ListPropertyBase, ObservableListBase
     PropertyBase = property_base
 
     if IS_COMPILED:
@@ -32,8 +33,12 @@ def _update_bases(property_base):
         class ListPropertyBase(PropertyBase, cED.cListProperty):
             pass
 
+        class ObservableListBase(cED.cObservableList):
+            pass
+
     else:
         ListPropertyBase = PropertyBase
+        ObservableListBase = collections.MutableSequence
 
 
 def _get_base(class_name):
@@ -46,4 +51,5 @@ def _get_base(class_name):
     :return: Base class
     """
     return {'Property': PropertyBase,
-            'ListProperty': ListPropertyBase}[class_name]
+            'ListProperty': ListPropertyBase,
+            'ObservableList': ObservableListBase}[class_name]

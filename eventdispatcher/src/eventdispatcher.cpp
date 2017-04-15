@@ -18,13 +18,6 @@ cEventDispatcher::cEventDispatcher() {
 
 
 
-void cEventDispatcher::dispatch() {
-    bp::list callbacks = this->event_dispatcher_event_callbacks;
-    for (int ii=0; ii < len(callbacks); ii++)
-        callbacks[ii]();
-}
-
-
 bp::object bind(bp::tuple args, bp::dict bindings) {
     bp::list keys = bindings.keys();
     cEventDispatcher eventdispatcher = bp::extract<cEventDispatcher>(args[0]);
@@ -82,7 +75,6 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def_readwrite("event_dispatcher_properties", &cEventDispatcher::event_dispatcher_properties)
         .def_readwrite("event_dispatcher_callbacks", &cEventDispatcher::event_dispatcher_event_callbacks)
         .def("bind", raw_function(bind) )
-        .def("dispatch", &cEventDispatcher::dispatch)
     ;
 
 
@@ -106,12 +98,21 @@ BOOST_PYTHON_MODULE(eventdispatcher)
         .def_readwrite("default_value", &cListProperty::default_value)
         .def("__set__", &cListProperty::__set__<list>)
         .def("__set__", &cListProperty::__set__<tuple>)
-        .def("__get__", &cListProperty::__get__)
         .def("register", &cListProperty::register_property)
         ;
 
-    class_<cObservableList>("cObservableList", init<list, cProperty*>())
+
+    class_<cObservableList>("cObservableList", init<list, cEventDispatcher, cProperty*>())
         .def_readwrite("list", &cObservableList::list)
+        .def("append", &cObservableList::append)
+        .def("extend", &cObservableList::extend<bp::list>)
+        .def("extend", &cObservableList::extend<bp::tuple>)
+        .def("insert", &cObservableList::insert)
+        .def("pop", &cObservableList::pop)
+        .def("__len__", &cObservableList::__len__)
+        .def("__eq__", &cObservableList::__eq__)
+        .def("__neq__", &cObservableList::__neq__)
+        .def("__nonzero__", &cObservableList::__nonzero__)
         ;
 
 

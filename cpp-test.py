@@ -1,4 +1,3 @@
-from eventdispatcher.cpp.eventdispatcher import cEventDispatcher, cProperty, cListProperty
 from eventdispatcher import EventDispatcher, Property, ListProperty
 
 def pyprint(text):
@@ -10,7 +9,7 @@ pyprint('Starting edtest.py\n')
 
 class EventDispatcher(EventDispatcher):
 
-    age = Property(27)
+    age = Property(27.5)
     shirts = ListProperty([])
 
     # def __init__(self):

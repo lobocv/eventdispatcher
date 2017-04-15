@@ -9,7 +9,7 @@ from . import Property
 from ._bases import IS_COMPILED, _get_base
 
 
-class ObservableList(collections.MutableSequence):
+class ObservableList(_get_base("ObservableList")):
     def __init__(self, l, dispatch_method, dtype=None):
         if not type(l) == list and not type(l) == tuple and not isinstance(l, ObservableList):
             raise ValueError('Observable list must only be initialized with sequences as arguments')
@@ -41,14 +41,8 @@ class ObservableList(collections.MutableSequence):
         del self.list[key]
         self.dispatch(self.list)
 
-    def __len__(self):
-        return len(self.list)
-
     def __iter__(self):
         return iter(self.list)
-
-    def __nonzero__(self):
-        return bool(self.list)
 
     def __getstate__(self):
         return self.list
@@ -56,32 +50,37 @@ class ObservableList(collections.MutableSequence):
     def __reduce__(self):
         return (list, tuple(), None, iter(self.list), None)
 
-    def insert(self, index, value):
-        self.list.insert(index, value)
-        self.dispatch(self.list)
+    if not IS_COMPILED:
 
-    def append(self, value):
-        self.list.append(value)
-        self.dispatch(self.list)
+        def insert(self, index, value):
+            self.list.insert(index, value)
+            self.dispatch(self.list)
 
-    def extend(self, values):
-        self.list.extend(values)
-        self.dispatch(self.list)
+        def append(self, value):
+            self.list.append(value)
+            self.dispatch(self.list)
 
-    def pop(self, index=-1):
-        value = self.list.pop(index)
-        self.dispatch(self.list)
+        def extend(self, values):
+            self.list.extend(values)
+            self.dispatch(self.list)
 
-        return value
+        def pop(self, index=-1):
+            value = self.list.pop(index)
+            self.dispatch(self.list)
 
-    def __eq__(self, other):
-        return self.list == other
+            return value
 
-    def __ne__(self, other):
-        return self.list != other
+        def __len__(self):
+            return len(self.list)
 
-    def __nonzero__(self):
-        return bool(self.list)
+        def __eq__(self, other):
+            return self.list == other
+
+        def __ne__(self, other):
+            return self.list != other
+
+        def __nonzero__(self):
+            return bool(self.list)
 
 
 class ListProperty(_get_base("ListProperty")):
