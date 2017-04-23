@@ -1,5 +1,6 @@
 __author__ = 'calvin'
 import unittest
+import random
 
 from eventdispatcher import EventDispatcher, BindError
 from eventdispatcher import StringProperty, _
@@ -27,8 +28,9 @@ class StringPropertyTest(EventDispatcherTest):
         StringProperty.remove_translation()
         self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
 
-    def create_different_value(self, value):
-        different_value = 'new ' + str(value)
+    @staticmethod
+    def create_different_value(value):
+        different_value = str(random.random())
         return different_value
 
     def test_translate(self):

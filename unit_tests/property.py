@@ -20,13 +20,16 @@ class PropertyTest(EventDispatcherTest):
         self.dispatcher2 = Dispatcher()
         self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
 
-    def create_different_value(self, value):
-        if isinstance(value, float):
-            different_value = random.random()
-        elif isinstance(value, int):
-            different_value = random.randint(0, 1000)
+    @staticmethod
+    def create_different_value(value):
+        # if isinstance(value, float):
+        different_value = random.random()
+        if different_value < 0.5:
+            different_value = object()
+        # elif isinstance(value, int):
+        #     different_value = random.randint(0, 1000)
         while different_value == value:
-            return self.create_different_value(value)
+            return PropertyTest.create_different_value(value)
         else:
             return different_value
 

@@ -20,10 +20,11 @@ class DictPropertyTest(EventDispatcherTest):
         self.dispatcher2 = Dispatcher()
         self.dispatcher.bind(p1=self.assert_callback)
 
-    def create_different_value(self, value):
+    @staticmethod
+    def create_different_value(value):
         different_value = {str(i): random.randint(0, 1000) for i in xrange(10)}
         while different_value == value:
-            return self.create_different_value(value)
+            return DictPropertyTest.create_different_value(value)
         else:
             return different_value
 

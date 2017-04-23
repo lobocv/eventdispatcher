@@ -4,6 +4,10 @@ import logging
 import pickle
 import random
 import unittest
+try:
+    import pyperform
+except ImportError:
+    pyperform = None
 
 # logging.getLogger().setLevel('INFO')
 from eventdispatcher import BindError, Property
@@ -17,18 +21,21 @@ And all properties are named p1 or p2.
 
 
 class EventDispatcherTest(unittest.TestCase):
+    N_SPEED_TEST = 100000
+
     def __init__(self, *args):
         super(EventDispatcherTest, self).__init__(*args)
         self.assert_callback_count = 0
         self.blocking_callback_count = 0
 
-    def create_different_value(self, value):
+    @staticmethod
+    def create_different_value(value):
         if isinstance(value, float):
             different_value = random.random()
         elif isinstance(value, int):
             different_value = random.randint(0, 1000)
         while different_value == value:
-            return self.create_different_value(value)
+            return EventDispatcherTest.create_different_value(value)
         else:
             return different_value
 
@@ -48,6 +55,25 @@ class EventDispatcherTest(unittest.TestCase):
     def blocking_callback(self, inst, value):
         self.blocking_callback_count += 1
         return True
+
+    if pyperform:
+        def test_speed(self):
+            self.run_setter()
+            self.run_getter()
+
+        @pyperform.timer
+        def run_setter(self):
+            for i in xrange(self.N_SPEED_TEST):
+                self.dispatcher.p1 = self.create_different_value(self.dispatcher.p1)
+                self.dispatcher.p1 = self.create_different_value(self.dispatcher.p1)
+                self.dispatcher.p1 = self.create_different_value(self.dispatcher.p1)
+
+        @pyperform.timer
+        def run_getter(self):
+            for i in xrange(self.N_SPEED_TEST):
+                f = self.dispatcher.p1
+                f = self.dispatcher.p1
+                f = self.dispatcher.p1
 
     def test_property_individuality(self):
         """
@@ -200,4 +226,5 @@ class EventDispatcherTest(unittest.TestCase):
         assert isinstance(s, basestring)
         # Test un-pickling
         o = pickle.loads(s)
-        self.assertEqual(o, value)
+        if isinstance(value, (basestring, int, float)):
+            self.assertEqual(o, value)
