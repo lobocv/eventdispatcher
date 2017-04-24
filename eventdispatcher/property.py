@@ -1,14 +1,11 @@
 __author__ = 'calvin'
 
-from copy import deepcopy
-
 
 class Property(object):
 
     def __init__(self, default_value, **additionals):
         self.instances = {}
         self.default_value = default_value
-        self.value = deepcopy(default_value)
         self._additionals = additionals
 
     def __get__(self, obj, objtype=None):

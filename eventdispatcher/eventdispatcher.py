@@ -1,7 +1,9 @@
+__author__ = 'calvin'
+
 import contextlib
 
 from .property import Property
-from .exceptions import BindError
+from .exceptions import *
 
 
 class EventDispatcher(object):
@@ -209,4 +211,3 @@ class EventDispatcher(object):
                 self.event_dispatcher_properties[name]['callbacks'] = property_callbacks[name]
             if name in event_callbacks:
                 self.event_dispatcher_event_callbacks[name] = event_callbacks[name]
-
