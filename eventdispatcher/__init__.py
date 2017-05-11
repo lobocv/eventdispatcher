@@ -14,6 +14,7 @@ from .setproperty import SetProperty, ObservableSet
 from .stringproperty import StringProperty, _
 from .unitproperty import UnitProperty
 from .weakrefproperty import WeakRefProperty
+from .json_map import JSON_Map
 from .exceptions import *
 
 
@@ -31,6 +32,9 @@ class PropertyEncoder(json.JSONEncoder):
                 return o.list
             elif isinstance(o, ObservableDict):
                 return o.dictionary
+            elif isinstance(o, JSON_Map):
+                return o.raw
             else:
                 raise e
+
         return r
