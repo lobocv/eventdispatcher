@@ -42,15 +42,17 @@ class LimitProperty(Property):
         return inst.event_dispatcher_properties[name]['min']
 
     @staticmethod
-    def set_min(inst, name, value):
-        inst.event_dispatcher_properties[name]['min'] = value
-        setattr(inst, name, value)
+    def set_min(inst, name, new_min):
+        inst.event_dispatcher_properties[name]['min'] = new_min
+        if getattr(inst, name) < new_min:
+            setattr(inst, name, new_min)
 
     @staticmethod
     def get_max(inst, name):
         return inst.event_dispatcher_properties[name]['max']
 
     @staticmethod
-    def set_max(inst, name, value):
-        inst.event_dispatcher_properties[name]['max'] = value
-        setattr(inst, name, value)
+    def set_max(inst, name, new_max):
+        inst.event_dispatcher_properties[name]['max'] = new_max
+        if getattr(inst, name) > new_max:
+            setattr(inst, name, new_max)
