@@ -77,15 +77,17 @@ class EventDispatcher(object):
             if callback(*args, **kwargs):
                 break
 
-    def register_event(self, name):
+    def register_event(self, *event_names):
         """
         Create an event that can be bound to and dispatched.
-        :param name: Name of the event
+        :param event_names: Name of the event
         """
-        if hasattr(self, 'on_{}'.format(name)):
-            self.event_dispatcher_event_callbacks[name] = [getattr(self, 'on_{}'.format(name))]
-        else:
-            self.event_dispatcher_event_callbacks[name] = []
+        for event_name in event_names:
+            default_dispatcher = getattr(self, 'on_{}'.format(event_name), None)
+            if default_dispatcher:
+                self.event_dispatcher_event_callbacks[event_name] = [default_dispatcher]
+            else:
+                self.event_dispatcher_event_callbacks[event_name] = []
 
     def unbind(self, **kwargs):
         """
