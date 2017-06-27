@@ -228,4 +228,4 @@ class _(unicode):
         try:
             return t
         except UnboundLocalError:
-            return _('')
+            return _('\r')
