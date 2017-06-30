@@ -115,8 +115,6 @@ class _(unicode):
     re-translated automatically.
 
     """
-    RightToLeft = False
-
     def __new__(cls, s, *args, **kwargs):
         if isinstance(s, _):
             s = unicode(s.untranslated)
@@ -198,7 +196,7 @@ class _(unicode):
         l = [translator(s.untranslated)]
         for a in s._additionals:
             l.append(translator(a.untranslated) if isinstance(a, _) else a)
-        return ''.join(reversed(l) if _.RightToLeft else l)
+        return ''.join(l)
 
     @property
     def translated(self):
