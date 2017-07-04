@@ -187,6 +187,9 @@ class _(unicode):
     def __unicode__(self):
         return _.translate(self)
 
+    def __contains__(self, item):
+        return item in self.untranslated or any(item in a for a in self._additionals)
+
     def center(self, width, fillchar=None):
         s = _.translate(self)
         return s.center(width, fillchar)
