@@ -119,9 +119,9 @@ class DictProperty(Property):
     def __set__(self, obj, value):
         p = self.instances[obj]
         do_dispatch = p['value'] != value
-        p['value'].dictionary.clear()
-        p['value'].dictionary.update(value)          # Assign to the ObservableDict's value
         if do_dispatch:
+            p['value'].dictionary.clear()
+            p['value'].dictionary.update(value)          # Assign to the ObservableDict's value
             for callback in p['callbacks']:
                 if callback(obj, value):
                     break
