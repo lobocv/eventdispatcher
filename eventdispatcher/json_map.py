@@ -64,7 +64,13 @@ class JSON_Map(EventDispatcher):
         return [v for v in self.iteritems()]
 
     def get(self, *args):
-        return getattr(self, *args)
+        try:
+            return getattr(self, *args)
+        except KeyError:
+            if len(args) == 2:
+                return args[1]
+            else:
+                return None
 
     def iteritems(self):
         for key in self.iterkeys():
