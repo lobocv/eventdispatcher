@@ -70,7 +70,7 @@ class StringProperty(Property):
         """
         Remove the currently set translation function and return the language back to english (or default)
         """
-        StringProperty.set_translation_function(no_translation)
+        StringProperty.set_translator(no_translation)
 
     @staticmethod
     def get_translation_function():
@@ -78,30 +78,23 @@ class StringProperty(Property):
         return translator
 
     @staticmethod
-    def set_translation_function(func):
-        """
-        Set the translation function and dispatch all changes
-        """
-        global translator
-        translator = func
-        # Dispatch the changes to all the observers
-        for callback in StringProperty.observers:
-            callback()
-
-    @staticmethod
     def load_fake_translation(func=None):
         """
         Load a fake translation function to that can help you verify that you have tagged all text in the program.
         Adds 'Le' to the beginning of every string.
         """
-        StringProperty.set_translation_function(func or fake_translation)
+        StringProperty.set_translator(func or fake_translation)
 
     @staticmethod
-    def switch_lang(domain, localedir=None, languages=None, class_=None, fallback=False, codeset=None):
-        global translator
+    def get_translator(domain, localedir=None, languages=None, class_=None, fallback=False, codeset=None):
         # Create the translation class from gettext
         translation = gettext.translation(domain, localedir, languages, class_, fallback, codeset)
-        translator = translation.ugettext
+        return translation.ugettext
+
+    @staticmethod
+    def set_translator(translator_func):
+        global translator
+        translator = translator_func
 
         # Dispatch the changes to all the observers
         for callback in StringProperty.observers:
