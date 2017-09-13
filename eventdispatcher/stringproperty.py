@@ -116,7 +116,7 @@ class _(unicode):
             obj = super(_, cls).__new__(cls, trans, *args, **kwargs)
         else:
             obj = super(_, cls).__new__(cls, s, *args, **kwargs)
-        obj.untranslated = s
+        obj.untranslated = unicode(s)
         obj._additionals = []
         return obj
 
