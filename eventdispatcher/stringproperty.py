@@ -188,29 +188,43 @@ class _(unicode):
         return s.center(width, fillchar)
 
     @staticmethod
-    def join_additionals(s):
-        l = [translator(s.untranslated)]
+    def join_additionals(s, func=None):
+        """
+        Translate and return a string that contains the _ instance plus anything that was added to it.
+        :param s: _ instance
+        :param func: translation function
+        :return: joined unicode string
+        """
+        l = [(func or translator)(s.untranslated)]
         for a in s._additionals:
-            l.append(translator(a.untranslated) if isinstance(a, _) else a)
-        return ''.join(l)
+            l.append((func or translator)(a.untranslated) if isinstance(a, _) else a)
+        return u''.join(l)
 
     @property
     def translated(self):
+        """ Return the string translated into the globally set language. """
         return _.translate(self)
 
     @classmethod
-    def translate(cls, s):
+    def translate(cls, s, func=None):
+        """ Translate a string with the specified translation function, otherwise use the globally set language. """
         if isinstance(s, cls):
             # If we were passed a translatable string object _
             if s._additionals:
-                return cls.join_additionals(s)
+                return cls.join_additionals(s, func)
             else:
-                return translator(s.untranslated)
+                return (func or translator)(s.untranslated)
         else:
-            return translator(s)
+            return (func or translator)(s)
 
     @classmethod
     def join(cls, sep, iterable):
+        """
+        Method used for joining _ objects such that they return translatable strings.
+        :param sep:
+        :param iterable:
+        :return:
+        """
         for ii, s in enumerate(iterable):
             if ii == 0:
                 t = cls(s)
