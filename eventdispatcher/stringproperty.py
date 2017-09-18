@@ -52,6 +52,8 @@ class StringProperty(Property):
         else:
             if obj in self.translatables:
                 self.translatables.remove(obj)
+            if '_' in prop:
+                del prop['_']
         if value != prop['value']:
             prop['value'] = value
             for callback in prop['callbacks']:
