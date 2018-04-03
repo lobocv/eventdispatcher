@@ -10,7 +10,7 @@ class Dispatcher(EventDispatcher):
     p2 = StringProperty(_('xyz'))
 
 
-class StringPropertyTest(EventDispatcherTest):
+class StringPropertyTest(EventDispatcherTest, unittest.TestCase):
 
     def __init__(self, *args):
         super(StringPropertyTest, self).__init__(*args)

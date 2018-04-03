@@ -15,7 +15,7 @@ class Dispatcher(EventDispatcher):
     p2 = LimitProperty(20, min=MIN, max=MAX)
 
 
-class LimitPropertyTest(EventDispatcherTest):
+class LimitPropertyTest(EventDispatcherTest, unittest.TestCase):
 
     def __init__(self, *args):
         super(LimitPropertyTest, self).__init__(*args)

@@ -13,7 +13,7 @@ class Dispatcher(EventDispatcher):
     p3 = UnitProperty(10, 'm')
 
 
-class UnitPropertyTest(EventDispatcherTest):
+class UnitPropertyTest(EventDispatcherTest, unittest.TestCase):
     property_names = {'p', 'p2', 'p3'}
 
     def __init__(self, *args):

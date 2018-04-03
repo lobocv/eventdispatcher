@@ -11,7 +11,7 @@ class Dispatcher(EventDispatcher):
     p1 = SetProperty(set())
 
 
-class SetPropertyTest(EventDispatcherTest):
+class SetPropertyTest(EventDispatcherTest, unittest.TestCase):
 
     def __init__(self, *args):
         super(SetPropertyTest, self).__init__(*args)

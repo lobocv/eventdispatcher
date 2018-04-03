@@ -12,7 +12,7 @@ class Dispatcher(EventDispatcher):
     p1 = DictProperty({})
 
 
-class DictPropertyTest(EventDispatcherTest):
+class DictPropertyTest(EventDispatcherTest, unittest.TestCase):
 
     def __init__(self, *args):
         super(DictPropertyTest, self).__init__(*args)

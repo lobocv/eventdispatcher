@@ -3,9 +3,7 @@ __author__ = 'Calvin'
 import logging
 import pickle
 import random
-import unittest
 
-# logging.getLogger().setLevel('INFO')
 from eventdispatcher import BindError, Property
 
 
@@ -15,10 +13,9 @@ And all properties are named p1 or p2.
 """
 
 
+class EventDispatcherTest(object):
 
-class EventDispatcherTest(unittest.TestCase):
-    def __init__(self, *args):
-        super(EventDispatcherTest, self).__init__(*args)
+    def setUp(self):
         self.assert_callback_count = 0
         self.blocking_callback_count = 0
 
@@ -31,10 +28,6 @@ class EventDispatcherTest(unittest.TestCase):
             return self.create_different_value(value)
         else:
             return different_value
-
-    def setUp(self):
-        self.assert_callback_count = 0
-        self.blocking_callback_count = 0
 
     def tearDown(self):
         self.assert_callback_count = 0

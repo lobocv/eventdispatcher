@@ -1,12 +1,14 @@
 __author__ = 'Calvin'
+from __future__ import print_function
+from builtins import range
 
 from pyperform import BenchmarkedClass, BenchmarkedFunction
 
 from eventdispatcher import EventDispatcher, Property, ListProperty, DictProperty  #!
-from unit_tests import create_different_value #!
+from tests import create_different_value #!
 
 from eventdispatcher import __version__
-print __version__
+print(__version__)
 
 @BenchmarkedClass(classname='Dispatcher')
 class Dispatcher(EventDispatcher):
@@ -20,17 +22,17 @@ class Dispatcher(EventDispatcher):
 
     @BenchmarkedFunction(classname='Dispatcher', timeit_repeat=10, timeit_number=100)
     def run_setter(self):
-        for i in xrange(100):
+        for i in range(100):
             self.p = create_different_value(self.p)
 
     @BenchmarkedFunction(classname='Dispatcher', timeit_repeat=10, timeit_number=100)
     def run_dispatch(self):
-        for i in xrange(100):
+        for i in range(100):
             self.dispatch('p', self, i)
 
     @BenchmarkedFunction(classname='Dispatcher', timeit_repeat=10, timeit_number=100)
     def run_getter(self):
-        for i in xrange(100):
+        for i in range(100):
             f = self.p
 
     def callback(self, inst, number):
@@ -38,6 +40,6 @@ class Dispatcher(EventDispatcher):
 
 if __name__ == '__main__':
     d = Dispatcher()
-    print d.p
+    print(d.p)
     p = d.p
     dsfgh=4

@@ -12,10 +12,10 @@ class Dispatcher(EventDispatcher):
     p2 = Property(20)
 
 
-class PropertyTest(EventDispatcherTest):
+class PropertyTest(EventDispatcherTest, unittest.TestCase):
 
-    def __init__(self, *args):
-        super(PropertyTest, self).__init__(*args)
+    def setUp(self):
+        super(PropertyTest, self).setUp()
         self.dispatcher = Dispatcher()
         self.dispatcher2 = Dispatcher()
         self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
@@ -29,6 +29,3 @@ class PropertyTest(EventDispatcherTest):
             return self.create_different_value(value)
         else:
             return different_value
-
-if __name__ == '__main__':
-    unittest.main()

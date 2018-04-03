@@ -13,7 +13,7 @@ class Dispatcher(EventDispatcher):
     p2 = ListProperty([])
 
 
-class ListPropertyTest(EventDispatcherTest):
+class ListPropertyTest(EventDispatcherTest, unittest.TestCase):
     def __init__(self, *args):
         super(ListPropertyTest, self).__init__(*args)
         self.dispatcher = Dispatcher()
