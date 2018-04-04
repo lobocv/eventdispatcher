@@ -1,7 +1,6 @@
 __author__ = 'calvin'
 import collections
-import json
-
+from future.utils import iteritems, iterkeys, itervalues
 from functools import partial
 from . import Property
 
@@ -65,7 +64,7 @@ class ObservableDict(collections.MutableMapping):
         return self.dictionary
 
     def __reduce__(self):
-        return (dict, tuple(), None, None, self.dictionary.iteritems())
+        return dict, tuple(), None, None, iter(iteritems(self.dictionary))
 
     def copy(self):
         return self.dictionary.copy()
@@ -74,13 +73,13 @@ class ObservableDict(collections.MutableMapping):
         return self.dictionary.get(key, default)
 
     def itervalues(self):
-        return self.dictionary.itervalues()
+        return itervalues(self.dictionary)
 
     def iterkeys(self):
-        return self.dictionary.iterkeys()
+        return iterkeys(self.dictionary)
 
     def iteritems(self):
-        return self.dictionary.iteritems()
+        return iteritems(self.dictionary)
 
     def update(self, E=None, **F):
         if E and self.dictionary != E:

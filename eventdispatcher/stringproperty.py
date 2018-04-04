@@ -1,6 +1,6 @@
 author = 'calvin'
-
 import gettext
+from builtins import str as basestring, str as unicode
 
 from eventdispatcher import Property
 

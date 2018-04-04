@@ -3,7 +3,7 @@ __author__ = 'calvin'
 import json
 import random
 import unittest
-
+from builtins import range
 from eventdispatcher import EventDispatcher, ListProperty, PropertyEncoder
 from . import EventDispatcherTest
 
@@ -22,7 +22,7 @@ class ListPropertyTest(EventDispatcherTest, unittest.TestCase):
         self.dispatcher2.bind(p1=self.assert_callback, p2=self.assert_callback)
 
     def create_different_value(self, value):
-        different_value = [random.randint(0, 1000) for i in xrange(10)]
+        different_value = [random.randint(0, 1000) for i in range(10)]
         while different_value == value:
             return self.create_different_value(value)
         else:
@@ -87,7 +87,7 @@ class ListPropertyTest(EventDispatcherTest, unittest.TestCase):
     def test_serialize(self):
         self.dispatcher.p1 = range(10)
         s = json.dumps(self.dispatcher.p1, cls=PropertyEncoder)
-        assert isinstance(s, basestring)
+        self.assertIsInstance(s, str)
 
 
 if __name__ == '__main__':

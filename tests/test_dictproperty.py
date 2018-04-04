@@ -4,6 +4,8 @@ import random
 import json
 
 from . import EventDispatcherTest
+from builtins import range
+from future.utils import iteritems, itervalues
 from eventdispatcher import EventDispatcher, PropertyEncoder
 from eventdispatcher.dictproperty import DictProperty
 
@@ -21,7 +23,7 @@ class DictPropertyTest(EventDispatcherTest, unittest.TestCase):
         self.dispatcher.bind(p1=self.assert_callback)
 
     def create_different_value(self, value):
-        different_value = {str(i): random.randint(0, 1000) for i in xrange(10)}
+        different_value = {str(i): random.randint(0, 1000) for i in range(10)}
         while different_value == value:
             return self.create_different_value(value)
         else:
@@ -63,18 +65,18 @@ class DictPropertyTest(EventDispatcherTest, unittest.TestCase):
             self.assertEqual(k, key)
             key += 1
 
-        for k, v in self.dispatcher.p1.iteritems():
+        for k, v in iteritems(self.dispatcher.p1):
             self.assertEqual(chr(k), v)
 
         key = 0
-        for v in self.dispatcher.p1.itervalues():
+        for v in itervalues(self.dispatcher.p1):
             self.assertEqual(chr(key), v)
             key += 1
 
     def test_serialize(self):
         self.dispatcher.p1 = {1: 'one', 'two': 2, 3: 3, 4: None, 5: [], 6: 2353.}
         s = json.dumps(self.dispatcher.p1, cls=PropertyEncoder)
-        assert isinstance(s, basestring)
+        self.assertIsInstance(s, str)
 
 
 if __name__ == '__main__':

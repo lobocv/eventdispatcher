@@ -3,7 +3,8 @@ __author__ = 'Calvin'
 import logging
 import pickle
 import random
-
+from builtins import str, range
+from future.utils import iteritems
 from eventdispatcher import BindError, Property
 
 
@@ -64,7 +65,7 @@ class EventDispatcherTest(object):
         Test setting the value of the property to a different value and ensure that the callback is called.
         """
         dispatcher = self.dispatcher
-        for prop_name, info in dispatcher.event_dispatcher_properties.iteritems():
+        for prop_name, info in iteritems(dispatcher.event_dispatcher_properties):
             value = info['value']
             different_value = self.create_different_value(value)
             dc = self.assert_callback_count
@@ -73,7 +74,7 @@ class EventDispatcherTest(object):
             info = dispatcher.event_dispatcher_properties[prop_name]  # May need to get the updated reference to info.
             self.assertEqual(dc + 1, self.assert_callback_count)
             if hasattr(info['value'], '__iter__'):
-                self.assertItemsEqual(info['value'], different_value)
+                self.assertSequenceEqual(info['value'], different_value)
             else:
                 self.assertEqual(info['value'], different_value)
 
@@ -120,7 +121,7 @@ class EventDispatcherTest(object):
             self._some_function_call_count += 1
 
         dispatcher = self.dispatcher
-        for prop_name, info in dispatcher.event_dispatcher_properties.iteritems():
+        for prop_name, info in iteritems(dispatcher.event_dispatcher_properties):
             # Bind
             dispatcher.bind(**{prop_name: _some_function})
             cc = self._some_function_call_count
@@ -133,7 +134,7 @@ class EventDispatcherTest(object):
             self.assertEqual(cc, self._some_function_call_count)
             # Bind many
             bind_count = 3
-            for i in xrange(bind_count):
+            for i in range(bind_count):
                 dispatcher.bind(**{prop_name: _some_function})
             cc = self._some_function_call_count
             dispatcher.dispatch(prop_name, dispatcher, info['value'])
@@ -154,7 +155,7 @@ class EventDispatcherTest(object):
         self.dispatcher.bind(p1=self.dispatcher2.setter('p1'))
         if self.assert_callback not in self.dispatcher2.event_dispatcher_properties['p1']['callbacks']:
             self.dispatcher2.bind(p1=self.assert_callback)
-        for i in xrange(expected_dispatches/2):
+        for i in range(expected_dispatches // 2):
             self.dispatcher.p1 = self.create_different_value(self.dispatcher.p1)
             self.assertEqual(self.dispatcher.p1, self.dispatcher2.p1)
         self.assertEqual(self.assert_callback_count, expected_dispatches)
@@ -190,7 +191,7 @@ class EventDispatcherTest(object):
         self.dispatcher.p1 = value = self.create_different_value(self.dispatcher.p1)
         # Test pickling
         s = pickle.dumps(self.dispatcher.p1)
-        assert isinstance(s, basestring)
+        self.assertIsInstance(s, (str, bytes))
         # Test un-pickling
         o = pickle.loads(s)
         self.assertEqual(o, value)

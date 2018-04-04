@@ -1,5 +1,6 @@
 import json as JSON
-
+from future.utils import iteritems, iterkeys, itervalues
+from builtins import int, str
 from . import DictProperty, ListProperty, Property, StringProperty, EventDispatcher,\
                             ObservableDict, ObservableList
 from collections import OrderedDict
@@ -11,9 +12,9 @@ import numpy as np
 eventdispatcher_map = {dict: DictProperty,        OrderedDict: DictProperty,
                        list: ListProperty,        np.ndarray: ListProperty,
                        tuple: Property,           int: Property,
-                       float: Property,           long: Property,
+                       float: Property,           str: StringProperty,
                        bool: Property,            None: Property,
-                       unicode: StringProperty,   str: StringProperty}
+                       }
 
 eventdispatcher_map.update({t: Property for t in (np.int8, np.int16, np.int32, np.int64,
                                                   np.uint8, np.uint16, np.uint32, np.uint64,
@@ -39,29 +40,29 @@ class JSON_Map(EventDispatcher):
 
         self._python_properties = set()
         for c in cls.__mro__:
-            for attr_name, attr in c.__dict__.iteritems():
+            for attr_name, attr in iteritems(c.__dict__):
                 if isinstance(attr, property):
                     self._python_properties.add(attr_name)
 
         self._json_maps = {}
-        for attr_name, attr in self.__dict__.iteritems():
+        for attr_name, attr in iteritems(self.__dict__):
             if isinstance(attr, JSON_Map) and attr_name in json:
                 self._json_maps[attr_name] = attr
 
-        with self.temp_unbind_all(*self.event_dispatcher_properties.iterkeys()):
-            for key in properties.iterkeys():
+        with self.temp_unbind_all(*iterkeys(self.event_dispatcher_properties)):
+            for key in iterkeys(properties):
                 if key in json:
                     setattr(self, key, json[key])
         self.bind(**{p: partial(self._update_raw , p) for p in properties})
 
     def keys(self):
-        return [v for v in self.iterkeys()]
+        return [v for v in iterkeys(self)]
 
     def values(self):
-        return [v for v in self.itervalues()]
+        return [v for v in itervalues(self)]
 
     def items(self):
-        return [v for v in self.iteritems()]
+        return [v for v in iteritems(self)]
 
     def get(self, *args):
         try:
@@ -77,7 +78,7 @@ class JSON_Map(EventDispatcher):
             yield key, getattr(self, key)
 
     def iterkeys(self):
-        return chain(self.event_dispatcher_properties.iterkeys(), self._python_properties, self._json_maps.iterkeys())
+        return chain(iterkeys(self.event_dispatcher_properties), self._python_properties, iterkeys(self._json_maps))
 
     def itervalues(self):
         for key in self.iterkeys():

@@ -1,7 +1,7 @@
 __author__ = 'calvin'
 
 import contextlib
-
+from future.utils import iteritems
 from .property import Property
 from .exceptions import *
 
@@ -27,14 +27,14 @@ class EventDispatcher(object):
         bindings = {}
         if properties is None:
             for cls in reversed(obj.__class__.__mro__):
-                for prop_name, prop in cls.__dict__.iteritems():
+                for prop_name, prop in iteritems(cls.__dict__):
                     if isinstance(prop, Property):
                         prop.name = prop_name
                         prop.register(obj, prop_name, prop.default_value)
                         if hasattr(obj, 'on_%s' % prop_name):
                             bindings[prop_name] = getattr(obj, 'on_{}'.format(prop_name))
         else:
-            for prop_name, prop in properties.iteritems():
+            for prop_name, prop in iteritems(properties):
                 prop.name = prop_name
                 prop.register(obj, prop_name, prop.default_value)
                 if hasattr(obj, 'on_%s' % prop_name):
@@ -95,7 +95,7 @@ class EventDispatcher(object):
         :param kwargs: {property name: callback} bindings
         """
         all_properties = self.event_dispatcher_properties
-        for prop_name, callback in kwargs.iteritems():
+        for prop_name, callback in iteritems(kwargs):
             if prop_name in all_properties:
                 try:
                     all_properties[prop_name]['callbacks'].remove(callback)
@@ -128,7 +128,7 @@ class EventDispatcher(object):
         Bind a function to a property or event.
         :param kwargs: {property name: callback} bindings
         """
-        for prop_name, callback in kwargs.iteritems():
+        for prop_name, callback in iteritems(kwargs):
             if prop_name in self.event_dispatcher_properties:
                 # Queue the callback into the property
                 self.event_dispatcher_properties[prop_name]['callbacks'].append(callback)
@@ -143,7 +143,7 @@ class EventDispatcher(object):
         Bind a function to a property or event and unbind it after the first time the function has been called
         :param kwargs: {property name: callback} bindings
         """
-        for prop_name, callback in kwargs.items():
+        for prop_name, callback in iteritems(kwargs.copy()):
             def _wrapped_binding(*args):
                 callback()
                 self.unbind(**{prop_name: _wrapped_binding})
@@ -169,7 +169,7 @@ class EventDispatcher(object):
         # Enter / With
         all_properties = self.event_dispatcher_properties
         callbacks = {}
-        for prop_name, binding in bindings.iteritems():
+        for prop_name, binding in iteritems(bindings):
             if prop_name in all_properties:
                 # Make a copy of the callback sequence so we can revert back
                 callbacks[prop_name] = all_properties[prop_name]['callbacks'][:]
@@ -182,7 +182,7 @@ class EventDispatcher(object):
         # Inside of with statement
         yield None
         # Finally / Exit
-        for prop_name, cb in callbacks.iteritems():
+        for prop_name, cb in iteritems(callbacks):
             if prop_name in all_properties:
                 all_properties[prop_name]['callbacks'] = cb
             elif prop_name in self.event_dispatcher_event_callbacks:

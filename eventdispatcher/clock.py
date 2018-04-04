@@ -1,6 +1,6 @@
 __author__ = 'calvin'
 
-
+from builtins import range
 from collections import deque, Counter
 
 
@@ -23,7 +23,7 @@ class Clock(object):
         events = self.queue
         funcs = self.scheduled_funcs
         popleft = events.popleft
-        for i in xrange(len(events)):
+        for i in range(len(events)):
             f = popleft()
             funcs[f] -= 1
             f()

@@ -1,10 +1,9 @@
 __author__ = 'calvin'
 
 from time import time
-from clock import Clock
+from .clock import Clock
 
 import threading
-import weakref
 import logging
 
 

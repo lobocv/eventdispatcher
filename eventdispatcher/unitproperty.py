@@ -1,6 +1,6 @@
 __author__ = 'calvin'
 from weakref import WeakSet
-
+from future.utils import iteritems
 from . import Property
 
 
@@ -11,7 +11,7 @@ from_meter_conversions = {'km': 1 / 1000., 'm': 1, 'cm': 100., 'mm': 1000.,
                           'ft': 3.28084, 'yards': 1.09361, 'miles': 0.000621371, 'inches': 39.3701, 'in': 39.3701}
 ConversionFactors = {}
 
-for v, v_per_meter in from_meter_conversions.iteritems():
+for v, v_per_meter in iteritems(from_meter_conversions):
     # For each entry, add the conversion to and from meters
     fmt1 = "m_to_{}".format(v)
     inv1 = "{}_to_m".format(v)

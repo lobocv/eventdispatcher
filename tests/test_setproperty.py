@@ -20,7 +20,7 @@ class SetPropertyTest(EventDispatcherTest, unittest.TestCase):
         self.dispatcher.bind(p1=self.assert_callback)
 
     def create_different_value(self, value):
-        different_value = set([random.randint(0, 1000) for i in xrange(10)])
+        different_value = set([random.randint(0, 1000) for i in range(10)])
         while different_value == value:
             return self.create_different_value(value)
         else:
