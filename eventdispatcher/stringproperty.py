@@ -24,7 +24,7 @@ class StringProperty(Property):
     def __init__(self, default_value):
         super(StringProperty, self).__init__(default_value)
         self.translatables = set()
-        if not isinstance(default_value, basestring):
+        if not isinstance(default_value, (str, basestring, unicode)):
             raise ValueError('StringProperty can only accepts strings.')
 
     def register(self, instance, property_name, default_value):
