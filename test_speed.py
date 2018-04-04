@@ -20,7 +20,7 @@ print("=" * 50)
 
 TIMEIT_REPEAT = 1
 TIMEIT_NUMBER = 1
-INNER_LOOP = int(1e2)  #!
+INNER_LOOP = int(1e5)  #!
 
 
 @BenchmarkedClass(classname='Dispatcher')
