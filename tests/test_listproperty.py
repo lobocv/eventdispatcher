@@ -21,10 +21,11 @@ class ListPropertyTest(EventDispatcherTest, unittest.TestCase):
         self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
         self.dispatcher2.bind(p1=self.assert_callback, p2=self.assert_callback)
 
-    def create_different_value(self, value):
+    @staticmethod
+    def create_different_value(value):
         different_value = [random.randint(0, 1000) for i in range(10)]
         while different_value == value:
-            return self.create_different_value(value)
+            return ListPropertyTest.create_different_value(value)
         else:
             return different_value
 

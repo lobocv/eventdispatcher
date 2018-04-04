@@ -27,7 +27,8 @@ class StringPropertyTest(EventDispatcherTest, unittest.TestCase):
         StringProperty.remove_translation()
         self.dispatcher.bind(p1=self.assert_callback, p2=self.assert_callback)
 
-    def create_different_value(self, value):
+    @staticmethod
+    def create_different_value(value):
         different_value = 'new ' + str(value)
         return different_value
 

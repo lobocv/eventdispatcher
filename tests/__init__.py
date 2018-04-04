@@ -20,13 +20,14 @@ class EventDispatcherTest(object):
         self.assert_callback_count = 0
         self.blocking_callback_count = 0
 
-    def create_different_value(self, value):
+    @staticmethod
+    def create_different_value(value):
         if isinstance(value, float):
             different_value = random.random()
         elif isinstance(value, int):
             different_value = random.randint(0, 1000)
         while different_value == value:
-            return self.create_different_value(value)
+            return EventDispatcherTest.create_different_value(value)
         else:
             return different_value
 
