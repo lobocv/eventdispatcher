@@ -13,20 +13,6 @@ You can install eventdispatcher using pip package manager:
 
     pip install eventdispatcher
 
-New in Version 1.64
-==================
-
-- Added SetProperty
-- __repr__() implementations for DictProperty, ListProperty and SetProperty for easier value printing/debugging. 
-
-New in Version 1.6
-==================
-
-- Speed increase of 3 times for dispatching
-- Speed increase of 4 times for setting property values
-- Speed increase of 3 times for getting property values
-- Property.get_property() has been replaced with Eventdispatcher.get_dispatcher_property()
-- More comprehensive UnitTests
     
 Learn by Example:
 ================

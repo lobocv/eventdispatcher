@@ -1,7 +1,10 @@
-__author__ = 'lobocv'
-
+import os
 from distutils.core import setup
-from eventdispatcher import __version__
+
+with open(os.path.join('.', 'eventdispatcher', 'version.py')) as version_file:
+    __version__ = ''
+    exec(version_file.read())
+    assert len(__version__) > 0
 
 
 setup(
@@ -9,10 +12,12 @@ setup(
     packages=['eventdispatcher'],
     version=__version__,
     description="An event dispatcher framework inspired by the Kivy project.",
-    author='Calvin Lobo',
+    author="Calvin Lobo",
     author_email='calvinvlobo@gmail.com',
     url='https://github.com/lobocv/eventdispatcher',
     download_url='https://github.com/lobocv/eventdispatcher/tarball/%s' % __version__,
     keywords=['event', 'dispatcher', 'dispatching', 'kivy', 'observer', 'framework', 'property', 'properties'],
-    classifiers=[],
+    install_requires=['future>=0.16.0',
+                      'numpy'
+                      ],
 )

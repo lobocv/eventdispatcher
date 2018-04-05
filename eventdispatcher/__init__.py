@@ -1,6 +1,3 @@
-__author__ = 'Calvin Lobo'
-__version__ = '1.81'
-
 import json
 
 from .eventdispatcher import EventDispatcher
@@ -16,7 +13,7 @@ from .unitproperty import UnitProperty
 from .weakrefproperty import WeakRefProperty
 from .json_map import JSON_Map
 from .exceptions import *
-
+from .version import __version__
 
 
 class PropertyEncoder(json.JSONEncoder):
