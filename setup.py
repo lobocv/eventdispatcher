@@ -1,5 +1,5 @@
 import os
-from distutils.core import setup
+from setuptools import setup
 
 with open(os.path.join('.', 'eventdispatcher', 'version.py')) as version_file:
     __version__ = ''
@@ -19,5 +19,5 @@ setup(
     keywords=['event', 'dispatcher', 'dispatching', 'kivy', 'observer', 'framework', 'property', 'properties'],
     install_requires=['future>=0.16.0',
                       'numpy'
-                      ],
+                     ],
 )
