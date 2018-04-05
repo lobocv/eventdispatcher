@@ -17,7 +17,7 @@ setup(
     url='https://github.com/lobocv/eventdispatcher',
     download_url='https://github.com/lobocv/eventdispatcher/tarball/%s' % __version__,
     keywords=['event', 'dispatcher', 'dispatching', 'kivy', 'observer', 'framework', 'property', 'properties'],
-    install_requires=['future>=0.16.0',
+    install_requires=['future',
                       'numpy'
                      ],
 )
