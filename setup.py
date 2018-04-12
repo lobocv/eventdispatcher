@@ -6,8 +6,6 @@ with open(os.path.join('.', 'eventdispatcher', 'version.py')) as version_file:
     exec(version_file.read())
     assert len(__version__) > 0
 
-with open('requirements.txt', 'r') as requirements_file:
-    install_requires = [line.strip() for line in requirements_file.readlines()]
 
 setup(
     name='eventdispatcher',
@@ -19,5 +17,7 @@ setup(
     url='https://github.com/lobocv/eventdispatcher',
     download_url='https://github.com/lobocv/eventdispatcher/tarball/%s' % __version__,
     keywords=['event', 'dispatcher', 'dispatching', 'kivy', 'observer', 'framework', 'property', 'properties'],
-    install_requires=install_requires,
+    install_requires=['future'
+                      'numpy'
+                      ],
 )
