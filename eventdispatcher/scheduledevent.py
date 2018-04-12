@@ -57,8 +57,7 @@ class ScheduledEvent(object):
         self._active = 1
         self.t0 = time()
         if self.clock.scheduled_funcs[self.next] == 0:
-            self.clock.scheduled_funcs[self.next] += 1
-            self.clock.queue.append(self.next)
+            self._schedule(self.next)
 
     def kill(self):
         """
@@ -72,7 +71,7 @@ class ScheduledEvent(object):
             except StopIteration:
                 pass
         # We need to schedule the kill, in case it is being called from within the function/generator
-        self.clock.schedule_event(_kill)
+        self._schedule(_kill)
 
     def reset_timer(self):
         """
@@ -82,18 +81,29 @@ class ScheduledEvent(object):
 
         # schedule the call to the generator, ensuring only one function is added to the queue
         if not self.clock.scheduled_funcs[self.next]:
-            self.clock.scheduled_funcs[self.next] += 1
-            self.clock.queue.append(self.next)
+            self._schedule(self.next)
 
     def reset_trigger(self, reschedule=False):
+        """Reset a triggered scheduled event. """
         if self.clock.scheduled_funcs[self.func]:
             try:
-                self.clock.queue.remove(self.func)
-                self.clock.scheduled_funcs[self.func] -= 1
+                self._unschedule(self.func)
             except ValueError as e:
                 logging.debug('Scheduled trigger was already removed from the queue. ')
         if reschedule:
             self.next()
+
+    def _schedule(self, func):
+        """Add a function to the scheduled events. """
+        clock = ScheduledEvent.clock
+        clock.scheduled_funcs[func] += 1
+        clock.queue.append(func)
+
+    def _unschedule(self, func):
+        """Remove a function from the scheduled events. """
+        clock = ScheduledEvent.clock
+        clock.queue.remove(func)
+        clock.scheduled_funcs[func] -= 1
 
     @property
     def is_scheduled(self):
