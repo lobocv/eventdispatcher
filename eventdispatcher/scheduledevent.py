@@ -11,6 +11,7 @@ class ScheduledEvent(object):
     """ Creates a trigger to the scheduler generator that is thread-safe."""
     RUNNING = 1
     KILL = 0
+    clock = None
 
     def __init__(self, func, timeout=0):
         self.func = func
@@ -96,17 +97,18 @@ class ScheduledEvent(object):
 
     @property
     def is_scheduled(self):
-        return bool(self.clock.scheduled_funcs[self.func])
+        return bool(self.clock.scheduled_funcs[self.func]) or bool(self.clock.scheduled_funcs[self.next])
 
     def __repr__(self):
         return "ScheduledEvent for {}{}".format(self.func, ' (scheduled)' if self.is_scheduled else '')
 
-    def next(self, *args):
+    def __next__(self, *args):
         try:
             with self.lock:
                 self.generator.send(ScheduledEvent.RUNNING)
         except StopIteration:
             pass
+    next = __next__
 
     @staticmethod
     def unschedule_event(func):
@@ -116,7 +118,7 @@ class ScheduledEvent(object):
         :param func: scheduled function in the queue
         :return: True if the function was removed from the queue
         """
-        clock = ScheduledEvent.clock
+        clock = Clock.get_running_clock()
         if clock.scheduled_funcs[func]:
             clock.scheduled_funcs[func] -= 1
             clock.queue.remove(func)
@@ -131,15 +133,11 @@ class ScheduledEvent(object):
         :param func: Scheduled Function
         :param interval: Time interval in seconds
         """
-        if timeout:
-            s = ScheduledEvent(func, timeout)
-            s.generator = s._timeout_generator(func)
-            s.generator.next()
-            s.start() if start else s.stop()
-            return s
-        else:
-            ScheduledEvent.clock.scheduled_funcs[func] += 1
-            ScheduledEvent.clock.queue.append(func)
+        s = ScheduledEvent(func, timeout)
+        s.generator = s._timeout_generator(func)
+        next(s.generator)
+        s.start() if start else s.stop()
+        return s
 
     @staticmethod
     def create_trigger(func):
@@ -150,7 +148,7 @@ class ScheduledEvent(object):
         """
         s = ScheduledEvent(func, timeout=0)
         s.generator = s._trigger_generator(func)
-        s.generator.next()
+        next(s.generator)
         return s
 
     @staticmethod
@@ -163,7 +161,7 @@ class ScheduledEvent(object):
         """
         s = ScheduledEvent(func, timeout=interval)
         s.generator = s._interval_generator(func)
-        s.generator.next()
+        next(s.generator)
         s.start() if start else s.stop()
         return s
 
@@ -176,8 +174,8 @@ class ScheduledEvent(object):
         Generator. The function f is called every `timeout` number of seconds.
         """
         interval = self.timeout
-        scheduled_funcs = self.clock.scheduled_funcs
-        append = self.clock.queue.append
+        scheduled_funcs = ScheduledEvent.clock.scheduled_funcs
+        append = ScheduledEvent.clock.queue.append
         _next = self.next
         running = yield
         while running:
@@ -200,8 +198,8 @@ class ScheduledEvent(object):
         Generator. The function f is called after `timeout` number of seconds
         """
         timeout = self.timeout
-        scheduled_funcs = self.clock.scheduled_funcs
-        append = self.clock.queue.append
+        scheduled_funcs = ScheduledEvent.clock.scheduled_funcs
+        append = ScheduledEvent.clock.queue.append
         _next = self.next
         running = yield
         while running:
@@ -224,8 +222,8 @@ class ScheduledEvent(object):
         Generator. The function f is called on the next Clock cycle. A function can be scheduled at most once per
         clock cycle.
         """
-        scheduled_funcs = self.clock.scheduled_funcs
-        append = self.clock.queue.append
+        scheduled_funcs = ScheduledEvent.clock.scheduled_funcs
+        append = ScheduledEvent.clock.queue.append
         running = yield
         while running:
             if not scheduled_funcs[f] and self._active:
