@@ -4,6 +4,7 @@ import json
 import random
 import unittest
 import numpy as np
+from copy import copy
 from builtins import range
 from eventdispatcher import EventDispatcher, ListProperty, PropertyEncoder
 from . import EventDispatcherTest
@@ -41,6 +42,23 @@ class ListPropertyTest(EventDispatcherTest, unittest.TestCase):
         d2.p1.append(2)
         self.assertNotEquals(d.p1, d2.p1)
         self.assertEqual(self.assert_callback_count, 4)
+
+    def test_copy(self):
+        input_lists = np.arange(1, 11), list(range(1, 10))
+        for original in input_lists:
+            self.dispatcher.p1 = copy(original)
+            for i in (1, 2):
+                if i == 1:
+                    acopy = self.dispatcher.p1.copy()
+                else:
+                    acopy = self.dispatcher.p1[:]
+                self.assertEqual(len(original), len(acopy))
+                for i in range(len(acopy)):
+                    self.assertEqual(original[i], acopy[i])
+                # Change acopy and check that only the copy changed.
+                acopy[0] = 999
+                self.assertNotEqual(self.dispatcher.p1[0], acopy[0])
+                self.assertEqual(self.dispatcher.p1[0], original[0])
 
     def test_append(self):
         d, d2 = self.dispatcher, self.dispatcher2

@@ -2,7 +2,7 @@ __author__ = 'calvin'
 
 import collections
 from functools import partial
-
+from copy import copy
 import numpy as np
 
 from . import Property
@@ -74,8 +74,10 @@ class ObservableList(collections.MutableSequence):
     def pop(self, index=-1):
         value = self.list.pop(index)
         self.dispatch(self.list)
-
         return value
+
+    def copy(self):
+        return copy(self.list)
 
     def __eq__(self, other):
         return self.list == other
