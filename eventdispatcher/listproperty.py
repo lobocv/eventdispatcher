@@ -29,7 +29,11 @@ class ObservableList(collections.MutableSequence):
         return self.list[item]
 
     def __setitem__(self, key, value):
-        if self.list[key] != value:
+        try:
+            not_equal = bool(self.list[key] != value)
+        except Exception:
+            not_equal = True
+        if not_equal:
             self.list[key] = value
             self.dispatch(self.list)
 
@@ -95,6 +99,7 @@ class ListProperty(Property):
         p = self.instances[obj]
         # Check if we need to dispatch
         do_dispatch = len(p['value'].list) != len(value) or not ListProperty.compare_sequences(p['value'], value)
+        # do_dispatch = not ListProperty.compare_sequences(p['value'], value)
         p['value'].list[:] = value        # Assign to ObservableList's value
         if do_dispatch:
             for callback in p['callbacks']:
@@ -106,7 +111,13 @@ class ListProperty(Property):
         """
         Compares two iterators to determine if they are equal. Used to compare lists and tuples
         # """
-        for a, b in zip(iter1, iter2):
-            if a != b:
-                return False
+        try:
+            for a, b in zip(iter1, iter2):
+                if a != b:
+                    return False
+        except Exception:
+            # A ValueError is usually raised if comparing numpy arrays because they
+            # return an array of booleans rather than a scalar value.
+            # If any error occurs during comparison just assume they are not equal.
+            return False
         return True

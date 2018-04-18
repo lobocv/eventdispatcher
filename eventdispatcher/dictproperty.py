@@ -5,6 +5,11 @@ from functools import partial
 from . import Property
 
 
+class __DoesNotExist__:
+    # Custom class used as a flag
+    pass
+
+
 class ObservableDict(collections.MutableMapping):
 
     def __init__(self, dictionary, dispatch_method):
@@ -24,13 +29,14 @@ class ObservableDict(collections.MutableMapping):
         return self.dictionary[item]
 
     def __setitem__(self, key, value):
-        try:
-            prev = self.dictionary[key]
-            check = prev != value
-        except KeyError:
-            check = True
+        prev = self.dictionary.get(key, __DoesNotExist__)
         self.dictionary[key] = value
-        if check:
+        try:
+            # Ensure that the comparison evaluates as a scalar boolean (unlike numpy arrrays)
+            dispatch = bool(prev != value)
+        except Exception:
+            dispatch = True
+        if dispatch:
             self.dispatch(self.dictionary)
 
     def clear(self):
@@ -81,13 +87,23 @@ class ObservableDict(collections.MutableMapping):
     def iteritems(self):
         return iteritems(self.dictionary)
 
-    def update(self, E=None, **F):
-        if E and self.dictionary != E:
-            self.dictionary.update(E)
-            self.dispatch(self.dictionary)
-        elif F and self.dictionary != F:
-            self.dictionary.update(F)
-            self.dispatch(self.dictionary)
+    def update(self, _dict=None, **kwargs):
+        if _dict:
+            try:
+                not_equal = bool(self.dictionary != _dict)
+            except Exception:
+                not_equal = True
+            if not_equal:
+                self.dictionary.update(_dict)
+                self.dispatch(self.dictionary)
+        elif kwargs:
+            try:
+                not_equal = bool(self.dictionary != kwargs)
+            except Exception:
+                not_equal = True
+            if not_equal:
+                self.dictionary.update(kwargs)
+                self.dispatch(self.dictionary)
 
     def keys(self):
         return self.dictionary.keys()
@@ -117,7 +133,11 @@ class DictProperty(Property):
 
     def __set__(self, obj, value):
         p = self.instances[obj]
-        do_dispatch = p['value'] != value
+        try:
+            # Ensure that the comparison evaluates as a scalar boolean (unlike numpy arrrays)
+            do_dispatch = bool(p['value'] != value)
+        except Exception:
+            do_dispatch = True
         if do_dispatch:
             p['value'].dictionary.clear()
             p['value'].dictionary.update(value)          # Assign to the ObservableDict's value

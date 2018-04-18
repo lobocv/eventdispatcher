@@ -3,6 +3,7 @@ __author__ = 'calvin'
 import json
 import random
 import unittest
+import numpy as np
 from builtins import range
 from eventdispatcher import EventDispatcher, ListProperty, PropertyEncoder
 from . import EventDispatcherTest
@@ -89,6 +90,36 @@ class ListPropertyTest(EventDispatcherTest, unittest.TestCase):
         self.dispatcher.p1 = range(10)
         s = json.dumps(self.dispatcher.p1, cls=PropertyEncoder)
         self.assertIsInstance(s, str)
+
+    def test_iterators(self):
+        _list = [1, 2, 3, 4, 5]
+        self.dispatcher.p1 = _list
+        self.assertEqual(self.assert_callback_count, 1)
+        for ii, v in enumerate(self.dispatcher.p1):
+            self.assertEqual(v, _list[ii])
+
+    def test_list_comparing(self):
+        """
+        Test comparing lists that have elements that may not be comparable (numpy arrays).
+        Numpy arrays, when compared, do not give a scalar value.
+        This should register as lists not equal even when they technically are.
+        """
+
+        # initialize a list value
+        self.dispatcher.p1 = [1, 2, 3]
+        self.assertEqual(self.assert_callback_count, 1)
+        # Set the listproperty to an equal lengthed list (so it compares elements)
+        self.dispatcher.p1 = [np.arange(8), np.arange(2), np.arange(3)]
+        # Set an equivalent numpy array and check that it still dispatches
+        # The individual numpy array elements equate to a non-scalar boolean. In that case we just assume they are !=
+        self.dispatcher.p1 = [np.arange(8), np.arange(2), np.arange(3)]
+        self.assertEqual(self.assert_callback_count, 3)
+        # Check it still works for actually different arrays
+        self.dispatcher.p1 = [np.arange(800), np.arange(200), np.arange(300)]
+        self.assertEqual(self.assert_callback_count, 4)
+        # Check that setting an item individually will dispatch (even though they are equal)
+        self.dispatcher.p1[1] = self.dispatcher.p1[1]
+        self.assertEqual(self.assert_callback_count, 5)
 
 
 if __name__ == '__main__':
