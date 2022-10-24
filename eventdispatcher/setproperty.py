@@ -1,5 +1,6 @@
 __author__ = 'calvin'
 import collections
+import collections.abc
 from functools import partial
 from . import Property
 

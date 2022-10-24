@@ -1,5 +1,6 @@
 __author__ = 'calvin'
 import collections
+import collections.abc
 from future.utils import iteritems, iterkeys, itervalues
 from functools import partial
 from . import Property
