@@ -5,7 +5,7 @@ from functools import partial
 from . import Property
 
 
-class ObservableSet(collections.MutableSet):
+class ObservableSet(collections.abc.MutableSet):
 
     def __init__(self, dictionary, dispatch_method):
         self.set = dictionary.copy()

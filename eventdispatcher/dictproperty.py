@@ -11,7 +11,7 @@ class __DoesNotExist__:
     pass
 
 
-class ObservableDict(collections.MutableMapping):
+class ObservableDict(collections.abc.MutableMapping):
 
     def __init__(self, dictionary, dispatch_method):
         self.dictionary = dictionary.copy()

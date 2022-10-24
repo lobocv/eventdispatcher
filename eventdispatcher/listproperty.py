@@ -9,7 +9,7 @@ import numpy as np
 from . import Property
 
 
-class ObservableList(collections.MutableSequence):
+class ObservableList(collections.abc.MutableSequence):
     def __init__(self, l, dispatch_method, dtype=None):
         if not type(l) == list and not type(l) == tuple and not isinstance(l, ObservableList):
             raise ValueError('Observable list must only be initialized with sequences as arguments')
