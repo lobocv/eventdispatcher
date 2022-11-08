@@ -1,10 +1,11 @@
 __author__ = 'calvin'
 import collections
+import collections.abc
 from functools import partial
 from . import Property
 
 
-class ObservableSet(collections.MutableSet):
+class ObservableSet(collections.abc.MutableSet):
 
     def __init__(self, dictionary, dispatch_method):
         self.set = dictionary.copy()
